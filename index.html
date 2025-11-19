@@ -1604,8 +1604,20 @@
           revealAnimation.isActive = false;
           // Ensure all words are fully visible
           textMeshes.forEach((mesh) => {
-            mesh.material.opacity = 1.0;
-            mesh.material.transparent = false;
+            // Handle both single meshes and groups (with outline/fill)
+            if (mesh.userData && mesh.userData.fillMesh) {
+              // This is a group with outline
+              mesh.userData.fillMesh.material.opacity = 1.0;
+              mesh.userData.fillMesh.material.transparent = false;
+              if (mesh.userData.outlineMesh) {
+                mesh.userData.outlineMesh.material.opacity = 1.0;
+                mesh.userData.outlineMesh.material.transparent = false;
+              }
+            } else if (mesh.material) {
+              // This is a single mesh
+              mesh.material.opacity = 1.0;
+              mesh.material.transparent = false;
+            }
           });
         }
       }
@@ -1634,7 +1646,15 @@
         // Update emissive intensity based on distance (atmospheric dimming)
         // Keep close objects bright, distant objects much dimmer
         // Only apply if word is visible (opacity > 0)
-        if (mesh.material.opacity > 0) {
+        // Handle both single meshes and groups (with outline/fill)
+        if (mesh.userData && mesh.userData.fillMesh) {
+          // This is a group with outline - update the fill mesh
+          const fillMesh = mesh.userData.fillMesh;
+          if (fillMesh.material.opacity > 0) {
+            fillMesh.material.emissiveIntensity = 0.3 + atmosphericBrightness * 0.7;
+          }
+        } else if (mesh.material && mesh.material.opacity > 0) {
+          // This is a single mesh
           mesh.material.emissiveIntensity = 0.3 + atmosphericBrightness * 0.7;
         }
       });
