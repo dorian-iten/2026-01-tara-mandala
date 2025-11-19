@@ -192,6 +192,45 @@
       font-weight: 500;
     }
 
+    /* Fullscreen toggle */
+    #fullscreen-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 10;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.5);
+      border: 0.5px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      opacity: 0.6;
+    }
+
+    #fullscreen-toggle:hover {
+      opacity: 1;
+      background: rgba(0, 0, 0, 0.7);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: scale(1.05);
+    }
+
+    #fullscreen-toggle:active {
+      transform: scale(0.95);
+    }
+
+    #fullscreen-toggle svg {
+      width: 18px;
+      height: 18px;
+      stroke: rgba(255, 255, 255, 0.8);
+      stroke-width: 2;
+      fill: none;
+    }
+
     /* Audio controls */
     #audio-controls {
       position: absolute;
@@ -261,6 +300,18 @@
         padding: 14px 18px;
       }
 
+      #fullscreen-toggle {
+        top: 15px;
+        right: 15px;
+        width: 38px;
+        height: 38px;
+      }
+
+      #fullscreen-toggle svg {
+        width: 16px;
+        height: 16px;
+      }
+
       #speed-controls {
         bottom: 20px;
         padding: 16px 24px;
@@ -308,6 +359,18 @@
       .dropdown-trigger, .dropdown-option {
         font-size: 15px;
         padding: 12px 16px;
+      }
+
+      #fullscreen-toggle {
+        top: 10px;
+        right: 10px;
+        width: 36px;
+        height: 36px;
+      }
+
+      #fullscreen-toggle svg {
+        width: 15px;
+        height: 15px;
       }
 
       #speed-controls {
@@ -359,6 +422,18 @@
       .dropdown-trigger, .dropdown-option {
         font-size: 14px;
         padding: 10px 14px;
+      }
+
+      #fullscreen-toggle {
+        top: 8px;
+        right: 8px;
+        width: 32px;
+        height: 32px;
+      }
+
+      #fullscreen-toggle svg {
+        width: 14px;
+        height: 14px;
       }
 
       #speed-controls {
@@ -430,6 +505,13 @@
       </div>
     </div>
   </div>
+
+  <button id="fullscreen-toggle" aria-label="Toggle fullscreen">
+    <svg viewBox="0 0 24 24">
+      <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" class="fullscreen-enter"/>
+      <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" class="fullscreen-exit" style="display:none;"/>
+    </svg>
+  </button>
 
   <div id="speed-controls">
     <button class="speed-btn" id="speed-decrease" aria-label="Decrease speed">−</button>
@@ -661,6 +743,62 @@
 
       // Initialize audio
       updateAudioInfo();
+
+      // Fullscreen toggle
+      const fullscreenToggle = document.getElementById('fullscreen-toggle');
+      const fullscreenEnter = document.querySelector('.fullscreen-enter');
+      const fullscreenExit = document.querySelector('.fullscreen-exit');
+
+      function updateFullscreenIcon() {
+        const isFullscreen = document.fullscreenElement ||
+                            document.webkitFullscreenElement ||
+                            document.mozFullScreenElement ||
+                            document.msFullscreenElement;
+
+        if (isFullscreen) {
+          fullscreenEnter.style.display = 'none';
+          fullscreenExit.style.display = 'block';
+        } else {
+          fullscreenEnter.style.display = 'block';
+          fullscreenExit.style.display = 'none';
+        }
+      }
+
+      fullscreenToggle.addEventListener('click', () => {
+        if (!document.fullscreenElement &&
+            !document.webkitFullscreenElement &&
+            !document.mozFullScreenElement &&
+            !document.msFullscreenElement) {
+          // Enter fullscreen
+          const elem = document.documentElement;
+          if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+          } else if (elem.webkitRequestFullscreen) {
+            elem.webkitRequestFullscreen();
+          } else if (elem.mozRequestFullScreen) {
+            elem.mozRequestFullScreen();
+          } else if (elem.msRequestFullscreen) {
+            elem.msRequestFullscreen();
+          }
+        } else {
+          // Exit fullscreen
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+          } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+          } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+          }
+        }
+      });
+
+      // Listen for fullscreen changes (including ESC key)
+      document.addEventListener('fullscreenchange', updateFullscreenIcon);
+      document.addEventListener('webkitfullscreenchange', updateFullscreenIcon);
+      document.addEventListener('mozfullscreenchange', updateFullscreenIcon);
+      document.addEventListener('MSFullscreenChange', updateFullscreenIcon);
 
       // Speed controls
       const speedDecreaseBtn = document.getElementById('speed-decrease');
