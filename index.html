@@ -332,15 +332,15 @@
     const schemas = [
       {
         name: "Green Tara Mantra",
-        syllables: ["OM", "TA", "RE", "TU", "TA", "RE", "TU", "RE", "PRA", "JNA", "HRING", "HRING", "SVA", "HA"],
+        syllables: ["HA", "SVA", "HRING", "HRING", "JNA", "PRA", "RE", "TU", "RE", "TA", "RE", "TU", "TA", "OM"],
         audioFile: "audio/green-tara.mp3",
-        startIndex: 0 // Start with OM
+        startIndex: 13 // Start with OM (last in reversed array)
       },
       {
         name: "Om Mani Padme Hum",
-        syllables: ["OM", "MA", "NI", "PAD", "ME", "HUM"],
+        syllables: ["HUM", "ME", "PAD", "NI", "MA", "OM"],
         audioFile: "audio/om-mani-padme-hum.mp3",
-        startIndex: 0 // Start with OM
+        startIndex: 5 // Start with OM (last in reversed array)
       },
       {
         name: "Simple Om",
@@ -357,6 +357,13 @@
     let audio = new Audio();
     let isPlaying = false;
     let composer;
+    let revealAnimation = {
+      isActive: false,
+      startTime: 0,
+      revealedCount: 0,
+      delayBetweenWords: 400, // milliseconds between each word reveal
+      fadeDuration: 600 // milliseconds for smooth fade in
+    };
 
     // Camera position adjustments based on orientation
     function getCameraPosition() {
@@ -418,7 +425,7 @@
       controls.enableDamping = true;
       controls.dampingFactor = 0.05;
       controls.autoRotate = true;
-      controls.autoRotateSpeed = -0.3;
+      controls.autoRotateSpeed = 0.3;
 
       // Lighting
       const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
@@ -604,38 +611,11 @@
     }
 
     function setCameraToStartSyllable() {
-      if (textMeshes.length === 0) return;
-      
-      const schema = schemas[currentSchema];
-      const startIndex = schema.startIndex || 0;
-      const syllables = schema.syllables;
-      const radius = 5;
-      const angleStep = -(Math.PI * 2) / syllables.length;
-      const angleOffset = -angleStep * startIndex;
-      const startAngle = angleStep * startIndex + angleOffset;
-      
-      // Calculate start syllable position on the ring
-      const startX = Math.cos(startAngle) * radius;
-      const startZ = Math.sin(startAngle) * radius;
-      
-      // Keep target at center (0,0,0) to keep scene centered on blue sphere
+      // Keep camera centered on blue sphere (0,0,0)
+      // Camera position is set by getCameraPosition() and remains fixed
       controls.target.set(0, 0, 0);
-      
-      // Rotate camera position around the center to face the start syllable
-      // Camera is at distance from center, we need to rotate it to face the start syllable
       const camPos = getCameraPosition();
-      const cameraDistance = Math.sqrt(camPos.x * camPos.x + camPos.z * camPos.z);
-      
-      // Calculate angle to start syllable (inverse of where syllable is)
-      // Since camera is at positive Z looking toward origin, we want to rotate around Y axis
-      const angleToStart = Math.atan2(startX, startZ);
-      
-      // Rotate camera position around Y axis to face the start syllable
-      camera.position.x = Math.sin(angleToStart) * cameraDistance;
-      camera.position.z = Math.cos(angleToStart) * cameraDistance;
-      camera.position.y = camPos.y;
-      
-      // Update controls to reflect new camera position
+      camera.position.set(camPos.x, camPos.y, camPos.z);
       controls.update();
     }
 
@@ -649,8 +629,12 @@
       const radius = 5; // Distance from center
       const angleStep = -(Math.PI * 2) / syllables.length; // Negative for clockwise order
 
-      // Offset angle so start syllable faces camera (camera is at positive Z)
-      const angleOffset = -angleStep * startIndex;
+      // Position start syllable at center of screen (front, at negative Z)
+      // Camera is at positive Z looking at origin, so start syllable should be at (0, 0, -radius)
+      // Calculate the angle for the start syllable to be at negative Z (front center)
+      // At negative Z, angle is -Math.PI/2 (or 3*Math.PI/2)
+      const startAngle = -Math.PI / 2; // Position at front center (negative Z)
+      const angleOffset = startAngle - (angleStep * startIndex);
 
       syllables.forEach((syllable, index) => {
         const angle = angleStep * index + angleOffset;
@@ -690,9 +674,27 @@
         // Center the text
         textMesh.geometry.translate(centerOffset, 0, 0);
 
+        // Store original index for reveal animation
+        textMesh.userData.originalIndex = index;
+        textMesh.userData.revealOrder = (index - startIndex + syllables.length) % syllables.length;
+        
+        // Initially hide all words except the first one (startIndex)
+        if (index === startIndex) {
+          textMesh.material.opacity = 1.0;
+          textMesh.material.transparent = false;
+        } else {
+          textMesh.material.opacity = 0.0;
+          textMesh.material.transparent = true;
+        }
+
         scene.add(textMesh);
         textMeshes.push(textMesh);
       });
+      
+      // Start reveal animation
+      revealAnimation.isActive = true;
+      revealAnimation.startTime = performance.now();
+      revealAnimation.revealedCount = 1; // First word is already visible
     }
 
     function animate() {
@@ -702,6 +704,52 @@
       if (glowBall) {
         glowBall.rotation.y += 0.002;
         glowBall.rotation.x += 0.001;
+      }
+
+      // Handle reveal animation with smooth easing
+      if (revealAnimation.isActive && textMeshes.length > 0) {
+        const elapsed = performance.now() - revealAnimation.startTime;
+        const schema = schemas[currentSchema];
+        const syllables = schema.syllables;
+        
+        // Smooth easing function (ease-out cubic)
+        const easeOutCubic = (t) => {
+          return 1 - Math.pow(1 - t, 3);
+        };
+        
+        // Reveal words based on their order around the ring
+        textMeshes.forEach((mesh) => {
+          const revealOrder = mesh.userData.revealOrder;
+          const wordStartTime = revealOrder * revealAnimation.delayBetweenWords;
+          const wordElapsed = elapsed - wordStartTime;
+          
+          if (wordElapsed < 0) {
+            // Word hasn't started revealing yet
+            mesh.material.opacity = 0.0;
+            mesh.material.transparent = true;
+          } else if (wordElapsed < revealAnimation.fadeDuration) {
+            // Word is currently fading in
+            const progress = Math.min(1.0, wordElapsed / revealAnimation.fadeDuration);
+            const easedProgress = easeOutCubic(progress);
+            mesh.material.opacity = easedProgress;
+            mesh.material.transparent = easedProgress < 1.0;
+          } else {
+            // Word is fully visible
+            mesh.material.opacity = 1.0;
+            mesh.material.transparent = false;
+          }
+        });
+        
+        // Check if animation is complete
+        const totalDuration = (syllables.length - 1) * revealAnimation.delayBetweenWords + revealAnimation.fadeDuration;
+        if (elapsed >= totalDuration) {
+          revealAnimation.isActive = false;
+          // Ensure all words are fully visible
+          textMeshes.forEach((mesh) => {
+            mesh.material.opacity = 1.0;
+            mesh.material.transparent = false;
+          });
+        }
       }
 
       // Update text: floating animation and distance-based atmospheric effect
@@ -727,11 +775,10 @@
 
         // Update emissive intensity based on distance (atmospheric dimming)
         // Keep close objects bright, distant objects much dimmer
-        mesh.material.emissiveIntensity = 0.3 + atmosphericBrightness * 0.7;
-
-        // Keep text fully opaque (no transparency)
-        mesh.material.opacity = 1.0;
-        mesh.material.transparent = false;
+        // Only apply if word is visible (opacity > 0)
+        if (mesh.material.opacity > 0) {
+          mesh.material.emissiveIntensity = 0.3 + atmosphericBrightness * 0.7;
+        }
       });
 
       controls.update();
