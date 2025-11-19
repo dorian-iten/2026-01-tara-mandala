@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Mantra Visualization</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, sans-serif;
+      background: #000;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    #container {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    /* Custom dropdown */
+    #schema-selector {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 10;
+    }
+
+    .custom-dropdown {
+      position: relative;
+      min-width: 360px;
+    }
+
+    .dropdown-trigger {
+      padding: 18px 24px;
+      background: rgba(0, 0, 0, 0.7);
+      border: 0.5px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      user-select: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .dropdown-trigger:hover {
+      background: rgba(0, 0, 0, 0.85);
+      border-color: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .dropdown-trigger.active {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      border-color: rgba(255, 255, 255, 0.2);
+      background: rgba(0, 0, 0, 0.85);
+    }
+
+    .dropdown-arrow {
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid rgba(255, 255, 255, 0.7);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .dropdown-trigger.active .dropdown-arrow {
+      transform: rotate(180deg);
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.85);
+      border: 0.5px solid rgba(255, 255, 255, 0.2);
+      border-top: none;
+      border-bottom-left-radius: 10px;
+      border-bottom-right-radius: 10px;
+      backdrop-filter: blur(20px);
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .dropdown-menu.show {
+      max-height: 300px;
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .dropdown-option {
+      padding: 18px 24px;
+      color: rgba(255, 255, 255, 0.65);
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-left: 3px solid transparent;
+      position: relative;
+    }
+
+    .dropdown-option:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.95);
+      border-left-color: rgba(244, 212, 124, 0.8);
+    }
+
+    .dropdown-option.selected {
+      color: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.04);
+      border-left-color: rgba(244, 212, 124, 0.6);
+    }
+
+    /* Audio controls */
+    #audio-controls {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 12px 20px;
+      border-radius: 50px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      display: none; /* Disabled for now */
+      align-items: center;
+      gap: 12px;
+    }
+
+    #play-pause-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(100, 150, 255, 0.3);
+      border: 2px solid rgba(100, 150, 255, 0.8);
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      font-size: 20px;
+    }
+
+    #play-pause-btn:hover {
+      background: rgba(100, 150, 255, 0.5);
+      transform: scale(1.05);
+    }
+
+    #play-pause-btn:active {
+      transform: scale(0.95);
+    }
+
+    #audio-info {
+      color: white;
+      font-size: 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    #audio-status {
+      opacity: 0.7;
+      font-size: 11px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+      .custom-dropdown {
+        min-width: 240px;
+      }
+
+      .dropdown-trigger, .dropdown-option {
+        font-size: 16px;
+        padding: 14px 18px;
+      }
+
+      #audio-controls {
+        bottom: 20px;
+        padding: 10px 16px;
+      }
+
+      #play-pause-btn {
+        width: 42px;
+        height: 42px;
+        font-size: 18px;
+      }
+
+      #audio-info {
+        font-size: 12px;
+      }
+    }
+
+    /* Portrait mobile - compact UI */
+    @media (max-width: 768px) and (orientation: portrait) {
+      #schema-selector {
+        top: 10px;
+        left: 10px;
+      }
+
+      .custom-dropdown {
+        min-width: 220px;
+      }
+
+      .dropdown-trigger, .dropdown-option {
+        font-size: 15px;
+        padding: 12px 16px;
+      }
+
+      #audio-controls {
+        bottom: 15px;
+        padding: 8px 12px;
+        gap: 8px;
+      }
+
+      #play-pause-btn {
+        width: 38px;
+        height: 38px;
+        font-size: 16px;
+      }
+
+      #audio-info {
+        font-size: 11px;
+        max-width: 150px;
+      }
+    }
+
+    /* Landscape mobile - more compact */
+    @media (max-height: 500px) and (orientation: landscape) {
+      #schema-selector {
+        top: 8px;
+        left: 8px;
+      }
+
+      .custom-dropdown {
+        min-width: 200px;
+      }
+
+      .dropdown-trigger, .dropdown-option {
+        font-size: 14px;
+        padding: 10px 14px;
+      }
+
+      #audio-controls {
+        bottom: 10px;
+        padding: 6px 10px;
+        gap: 6px;
+      }
+
+      #play-pause-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+      }
+
+      #audio-info {
+        font-size: 10px;
+        max-width: 120px;
+      }
+
+      #audio-status {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+
+  <div id="schema-selector">
+    <div class="custom-dropdown">
+      <div class="dropdown-trigger">
+        <span class="dropdown-label">Green Tara Mantra</span>
+        <div class="dropdown-arrow"></div>
+      </div>
+      <div class="dropdown-menu">
+        <div class="dropdown-option selected" data-value="0">Green Tara Mantra</div>
+        <div class="dropdown-option" data-value="1">Om Mani Padme Hum</div>
+        <div class="dropdown-option" data-value="2">Simple Om</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="audio-controls">
+    <button id="play-pause-btn" aria-label="Play/Pause">▶</button>
+    <div id="audio-info">
+      <div id="audio-title">Green Tara Mantra</div>
+      <div id="audio-status">Ready to play</div>
+    </div>
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+    import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+
+    // Schema definitions with audio file paths
+    const schemas = [
+      {
+        name: "Green Tara Mantra",
+        syllables: ["OM", "TA", "RE", "TU", "TA", "RE", "TU", "RE", "PRA", "JNA", "HRING", "HRING", "SVA", "HA"],
+        audioFile: "audio/green-tara.mp3",
+        startIndex: 0 // Start with OM
+      },
+      {
+        name: "Om Mani Padme Hum",
+        syllables: ["OM", "MA", "NI", "PAD", "ME", "HUM"],
+        audioFile: "audio/om-mani-padme-hum.mp3",
+        startIndex: 0 // Start with OM
+      },
+      {
+        name: "Simple Om",
+        syllables: ["OM", "OM"],
+        audioFile: "audio/om.mp3",
+        startIndex: 0 // Start with first OM
+      }
+    ];
+
+    let scene, camera, renderer, controls;
+    let glowBall, textMeshes = [];
+    let font;
+    let currentSchema = 0;
+    let audio = new Audio();
+    let isPlaying = false;
+    let composer;
+
+    // Camera position adjustments based on orientation
+    function getCameraPosition() {
+      const isPortrait = window.innerHeight > window.innerWidth;
+      const isLandscapeMobile = window.innerHeight < 500 && window.innerWidth > window.innerHeight;
+
+      if (isLandscapeMobile) {
+        // Zoom out more in landscape mobile to fit everything
+        return { x: 0, y: 1.5, z: 8 };
+      } else if (isPortrait) {
+        // Zoom out a bit in portrait
+        return { x: 0, y: 2, z: 11 };
+      } else {
+        // Desktop/tablet landscape
+        return { x: 0, y: 2, z: 10 };
+      }
+    }
+
+    function init() {
+      // Scene with atmospheric fog
+      scene = new THREE.Scene();
+      // Fog: color, near distance, far distance
+      // Extended range for more gradual fade, preserving color saturation
+      scene.fog = new THREE.Fog(0x000000, 10, 25);
+
+      // Camera
+      const aspect = window.innerWidth / window.innerHeight;
+      camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
+      const camPos = getCameraPosition();
+      camera.position.set(camPos.x, camPos.y, camPos.z);
+
+      // Renderer with enhanced quality settings
+      renderer = new THREE.WebGLRenderer({ 
+        antialias: true, 
+        alpha: true,
+        depth: true,
+        logarithmicDepthBuffer: false,
+        powerPreference: "high-performance",
+        preserveDrawingBuffer: false
+      });
+      renderer.autoClear = true;
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      // Increase pixel ratio for better quality (cap at 2 for stability)
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.shadowMap.enabled = false; // We don't need shadows, saves performance
+      document.getElementById('container').appendChild(renderer.domElement);
+
+      // Post-processing (just render pass for now, no bokeh)
+      composer = new EffectComposer(renderer);
+      const renderPass = new RenderPass(scene, camera);
+      composer.addPass(renderPass);
+
+      // Controls
+      controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.autoRotate = true;
+      controls.autoRotateSpeed = -0.3;
+
+      // Lighting
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+      scene.add(ambientLight);
+
+      const pointLight = new THREE.PointLight(0xffffff, 1, 100);
+      pointLight.position.set(0, 0, 0);
+      scene.add(pointLight);
+
+      // Create glowing ball
+      createGlowBall();
+
+      // Load font and create text
+      const loader = new FontLoader();
+      loader.load(
+        'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/fonts/helvetiker_regular.typeface.json',
+        (loadedFont) => {
+          font = loadedFont;
+          createTextRing(currentSchema);
+          // Set camera to look at start syllable
+          setCameraToStartSyllable();
+        }
+      );
+
+      // Event listeners
+      window.addEventListener('resize', onWindowResize);
+      window.addEventListener('orientationchange', onOrientationChange);
+
+      // Custom dropdown functionality
+      const dropdownTrigger = document.querySelector('.dropdown-trigger');
+      const dropdownMenu = document.querySelector('.dropdown-menu');
+      const dropdownLabel = document.querySelector('.dropdown-label');
+      const dropdownOptions = document.querySelectorAll('.dropdown-option');
+
+      dropdownTrigger.addEventListener('click', () => {
+        dropdownTrigger.classList.toggle('active');
+        dropdownMenu.classList.toggle('show');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.custom-dropdown')) {
+          dropdownTrigger.classList.remove('active');
+          dropdownMenu.classList.remove('show');
+        }
+      });
+
+      dropdownOptions.forEach(option => {
+        option.addEventListener('click', () => {
+          const value = parseInt(option.dataset.value);
+          const text = option.textContent;
+
+          // Update selected state
+          dropdownOptions.forEach(opt => opt.classList.remove('selected'));
+          option.classList.add('selected');
+
+          // Update trigger label
+          dropdownLabel.textContent = text;
+
+          // Close dropdown
+          dropdownTrigger.classList.remove('active');
+          dropdownMenu.classList.remove('show');
+
+          // Update schema
+          currentSchema = value;
+          if (font) {
+            createTextRing(currentSchema);
+            setCameraToStartSyllable();
+          }
+          updateAudioInfo();
+
+          // Stop current audio when switching
+          if (isPlaying) {
+            togglePlayPause();
+          }
+        });
+      });
+
+      // Audio controls
+      const playPauseBtn = document.getElementById('play-pause-btn');
+      playPauseBtn.addEventListener('click', togglePlayPause);
+
+      audio.addEventListener('ended', () => {
+        isPlaying = false;
+        playPauseBtn.textContent = '▶';
+        document.getElementById('audio-status').textContent = 'Ended';
+      });
+
+      audio.addEventListener('error', () => {
+        document.getElementById('audio-status').textContent = 'Audio file not found';
+      });
+
+      audio.addEventListener('canplay', () => {
+        if (!isPlaying) {
+          document.getElementById('audio-status').textContent = 'Ready to play';
+        }
+      });
+
+      // Initialize audio
+      updateAudioInfo();
+
+      // Start animation
+      animate();
+    }
+
+    function togglePlayPause() {
+      const playPauseBtn = document.getElementById('play-pause-btn');
+      const audioStatus = document.getElementById('audio-status');
+
+      if (isPlaying) {
+        audio.pause();
+        playPauseBtn.textContent = '▶';
+        audioStatus.textContent = 'Paused';
+        isPlaying = false;
+      } else {
+        audio.play().then(() => {
+          playPauseBtn.textContent = '⏸';
+          audioStatus.textContent = 'Playing';
+          isPlaying = true;
+        }).catch(err => {
+          console.error('Playback failed:', err);
+          audioStatus.textContent = 'Audio file not found';
+        });
+      }
+    }
+
+    function updateAudioInfo() {
+      const schema = schemas[currentSchema];
+      document.getElementById('audio-title').textContent = schema.name;
+      document.getElementById('audio-status').textContent = 'Ready to play';
+      audio.src = schema.audioFile;
+      audio.load();
+    }
+
+    function createGlowBall() {
+      // Inner glowing sphere
+      const geometry = new THREE.SphereGeometry(1, 32, 32);
+      const material = new THREE.MeshPhongMaterial({
+        color: 0x4488ff,
+        emissive: 0x2244aa,
+        shininess: 100,
+        specular: 0x6699ff
+      });
+      glowBall = new THREE.Mesh(geometry, material);
+      scene.add(glowBall);
+
+      // Outer glow effect (larger transparent sphere)
+      const glowGeometry = new THREE.SphereGeometry(1.3, 32, 32);
+      const glowMaterial = new THREE.MeshBasicMaterial({
+        color: 0x4488ff,
+        transparent: true,
+        opacity: 0.2,
+        side: THREE.BackSide
+      });
+      const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
+      scene.add(glowMesh);
+
+      // Add particle effect around the ball
+      createParticles();
+    }
+
+    function createParticles() {
+      const particlesGeometry = new THREE.BufferGeometry();
+      const particlesCount = 200;
+      const positions = new Float32Array(particlesCount * 3);
+
+      for (let i = 0; i < particlesCount * 3; i++) {
+        positions[i] = (Math.random() - 0.5) * 15;
+      }
+
+      particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+      const particlesMaterial = new THREE.PointsMaterial({
+        color: 0x4488ff,
+        size: 0.05,
+        transparent: true,
+        opacity: 0.6,
+        blending: THREE.AdditiveBlending
+      });
+
+      const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+      scene.add(particles);
+    }
+
+    function setCameraToStartSyllable() {
+      if (textMeshes.length === 0) return;
+      
+      const schema = schemas[currentSchema];
+      const startIndex = schema.startIndex || 0;
+      const syllables = schema.syllables;
+      const radius = 5;
+      const angleStep = -(Math.PI * 2) / syllables.length;
+      const angleOffset = -angleStep * startIndex;
+      const startAngle = angleStep * startIndex + angleOffset;
+      
+      // Calculate start syllable position on the ring
+      const startX = Math.cos(startAngle) * radius;
+      const startZ = Math.sin(startAngle) * radius;
+      
+      // Keep target at center (0,0,0) to keep scene centered on blue sphere
+      controls.target.set(0, 0, 0);
+      
+      // Rotate camera position around the center to face the start syllable
+      // Camera is at distance from center, we need to rotate it to face the start syllable
+      const camPos = getCameraPosition();
+      const cameraDistance = Math.sqrt(camPos.x * camPos.x + camPos.z * camPos.z);
+      
+      // Calculate angle to start syllable (inverse of where syllable is)
+      // Since camera is at positive Z looking toward origin, we want to rotate around Y axis
+      const angleToStart = Math.atan2(startX, startZ);
+      
+      // Rotate camera position around Y axis to face the start syllable
+      camera.position.x = Math.sin(angleToStart) * cameraDistance;
+      camera.position.z = Math.cos(angleToStart) * cameraDistance;
+      camera.position.y = camPos.y;
+      
+      // Update controls to reflect new camera position
+      controls.update();
+    }
+
+    function createTextRing(schemaIndex) {
+      // Remove old text meshes
+      textMeshes.forEach(mesh => scene.remove(mesh));
+      textMeshes = [];
+
+      const syllables = schemas[schemaIndex].syllables;
+      const startIndex = schemas[schemaIndex].startIndex || 0;
+      const radius = 5; // Distance from center
+      const angleStep = -(Math.PI * 2) / syllables.length; // Negative for clockwise order
+
+      // Offset angle so start syllable faces camera (camera is at positive Z)
+      const angleOffset = -angleStep * startIndex;
+
+      syllables.forEach((syllable, index) => {
+        const angle = angleStep * index + angleOffset;
+
+        const textGeometry = new TextGeometry(syllable, {
+          font: font,
+          size: 0.4,
+          height: 0.05,
+          curveSegments: 12,
+          bevelEnabled: true,
+          bevelThickness: 0.005,
+          bevelSize: 0.005,
+          bevelSegments: 3
+        });
+
+        textGeometry.computeBoundingBox();
+        const centerOffset = -0.5 * (textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x);
+
+        const textMaterial = new THREE.MeshPhongMaterial({
+          color: 0xf8f4ed,
+          emissive: 0xf4d47c,
+          shininess: 120,
+          specular: 0xd4a574,
+          emissiveIntensity: 1.0  // Higher base intensity for better saturation
+        });
+
+        const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+
+        // Position on the ring
+        textMesh.position.x = Math.cos(angle) * radius;
+        textMesh.position.z = Math.sin(angle) * radius;
+        textMesh.position.y = 0;
+
+        // Rotate to face outward
+        textMesh.rotation.y = -angle + Math.PI / 2;
+
+        // Center the text
+        textMesh.geometry.translate(centerOffset, 0, 0);
+
+        scene.add(textMesh);
+        textMeshes.push(textMesh);
+      });
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      // Rotate the glow ball slowly
+      if (glowBall) {
+        glowBall.rotation.y += 0.002;
+        glowBall.rotation.x += 0.001;
+      }
+
+      // Update text: floating animation and distance-based atmospheric effect
+      textMeshes.forEach((mesh, i) => {
+        // Very gentle floating animation
+        mesh.position.y = Math.sin(Date.now() * 0.0005 + i) * 0.05;
+
+        // Calculate distance from camera for atmospheric effect
+        const distance = mesh.position.distanceTo(camera.position);
+
+        // Atmospheric fog effect: brightness decreases gradually with distance
+        // Extended range for more gradual fade
+        const nearDistance = 5;
+        const farDistance = 20;  // Extended for more gradual fade
+        const fogStart = nearDistance;
+        const fogEnd = farDistance;
+        
+        // Calculate fog factor (1 = fully visible, 0 = fully fogged)
+        const fogFactor = Math.max(0, Math.min(1, (fogEnd - distance) / (fogEnd - fogStart)));
+        
+        // Apply steeper atmospheric curve for dramatic drop-off
+        const atmosphericBrightness = Math.pow(fogFactor, 2.0);  // Steeper curve
+
+        // Update emissive intensity based on distance (atmospheric dimming)
+        // Keep close objects bright, distant objects much dimmer
+        mesh.material.emissiveIntensity = 0.3 + atmosphericBrightness * 0.7;
+
+        // Keep text fully opaque (no transparency)
+        mesh.material.opacity = 1.0;
+        mesh.material.transparent = false;
+      });
+
+      controls.update();
+      composer.render();
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      composer.setSize(window.innerWidth, window.innerHeight);
+
+      // Adjust camera position based on new dimensions
+      const camPos = getCameraPosition();
+      camera.position.set(camPos.x, camPos.y, camPos.z);
+    }
+
+    function onOrientationChange() {
+      // Wait for resize to complete
+      setTimeout(() => {
+        onWindowResize();
+      }, 100);
+    }
+
+    // Initialize when page loads
+    init();
+  </script>
+</body>
+</html>

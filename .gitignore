@@ -1,0 +1,30 @@
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+npm-debug.log*
+
+# Audio files (if you want to exclude them from git)
+# Uncomment if audio files are large
+# audio/
+
+# Build files (if any)
+dist/
+build/
+*.min.js
+*.min.css
+
