@@ -611,8 +611,22 @@
     }
 
     function setCameraToStartSyllable() {
-      // Keep camera centered on blue sphere (0,0,0)
-      // Camera position is set by getCameraPosition() and remains fixed
+      if (textMeshes.length === 0) return;
+
+      const schema = schemas[currentSchema];
+      const startIndex = schema.startIndex || 0;
+      const syllables = schema.syllables;
+      const radius = 5;
+      const angleStep = (Math.PI * 2) / syllables.length; // Match createTextRing
+      const baseAngle = Math.PI / 2; // Match createTextRing
+      const angleOffset = -angleStep * startIndex;
+      const startAngle = angleStep * startIndex + angleOffset + baseAngle;
+
+      // Calculate start syllable position on the ring
+      const startX = Math.cos(startAngle) * radius;
+      const startZ = Math.sin(startAngle) * radius;
+      
+      // Keep target at center (0,0,0) to keep scene centered on blue sphere
       controls.target.set(0, 0, 0);
       const camPos = getCameraPosition();
       camera.position.set(camPos.x, camPos.y, camPos.z);
@@ -627,17 +641,16 @@
       const syllables = schemas[schemaIndex].syllables;
       const startIndex = schemas[schemaIndex].startIndex || 0;
       const radius = 5; // Distance from center
-      const angleStep = -(Math.PI * 2) / syllables.length; // Negative for clockwise order
+      const angleStep = (Math.PI * 2) / syllables.length; // Positive for counter-clockwise (right-to-left)
 
-      // Position start syllable at center of screen (front, at negative Z)
-      // Camera is at positive Z looking at origin, so start syllable should be at (0, 0, -radius)
-      // Calculate the angle for the start syllable to be at negative Z (front center)
-      // At negative Z, angle is -Math.PI/2 (or 3*Math.PI/2)
-      const startAngle = -Math.PI / 2; // Position at front center (negative Z)
-      const angleOffset = startAngle - (angleStep * startIndex);
+      // Base angle to align ring so index 0 is at positive Z (facing camera)
+      const baseAngle = Math.PI / 2;
+
+      // Offset angle so start syllable faces camera
+      const angleOffset = -angleStep * startIndex;
 
       syllables.forEach((syllable, index) => {
-        const angle = angleStep * index + angleOffset;
+        const angle = angleStep * index + angleOffset + baseAngle;
 
         const textGeometry = new TextGeometry(syllable, {
           font: font,
