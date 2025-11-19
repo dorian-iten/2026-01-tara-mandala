@@ -555,6 +555,7 @@
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
     import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+    import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
     import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
     import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 
@@ -588,6 +589,7 @@
     let isPlaying = false;
     let composer;
     let rotationSpeed = 0.3; // Default rotation speed
+    let tamPlane = null; // Reference to TAM character plane
     let revealAnimation = {
       isActive: false,
       startTime: 0,
@@ -621,8 +623,8 @@
       // Scene with atmospheric fog
       scene = new THREE.Scene();
       // Fog: color matching the subtle rainbow gradient background
-      // Extended range for more gradual fade, preserving color saturation
-      scene.fog = new THREE.Fog(0xe5f0f5, 10, 25);
+      // Dramatic falloff: near stays clear (8), far fades quickly (15)
+      scene.fog = new THREE.Fog(0xe5f0f5, 8, 15);
 
       // Camera
       const aspect = window.innerWidth / window.innerHeight;
@@ -676,6 +678,8 @@
         (loadedFont) => {
           font = loadedFont;
           createTextRing(currentSchema);
+          // Add TAMM text to the sphere
+          addTammToSphere();
           // Set camera to look at start syllable
           setCameraToStartSyllable();
         }
@@ -901,13 +905,15 @@
     }
 
     function createGlowBall() {
-      // Inner glowing sphere
+      // Inner glowing sphere (transparent for debug)
       const geometry = new THREE.SphereGeometry(1, 32, 32);
       const material = new THREE.MeshPhongMaterial({
         color: 0x4488ff,
         emissive: 0x2244aa,
         shininess: 100,
-        specular: 0x6699ff
+        specular: 0x6699ff,
+        transparent: true,
+        opacity: 0.3
       });
       glowBall = new THREE.Mesh(geometry, material);
       scene.add(glowBall);
@@ -927,27 +933,69 @@
       createParticles();
     }
 
+    function addTammToSphere() {
+      // Load PNG texture
+      const textureLoader = new THREE.TextureLoader();
+      textureLoader.load(
+        'tam.png',
+        (texture) => {
+          console.log('TAM texture loaded successfully!', texture);
+
+          // Get aspect ratio from texture to avoid distortion
+          const aspectRatio = texture.image.width / texture.image.height;
+          const height = 1.8;
+          const width = height * aspectRatio;
+
+          // Create a plane geometry for the character with correct aspect ratio
+          const planeGeometry = new THREE.PlaneGeometry(width, height);
+          const planeMaterial = new THREE.MeshBasicMaterial({
+            map: texture,
+            transparent: true,
+            opacity: 1.0,
+            side: THREE.DoubleSide,
+            depthTest: false // Render on top
+          });
+
+          tamPlane = new THREE.Mesh(planeGeometry, planeMaterial);
+
+          // Position at world origin (0, 0, 0)
+          tamPlane.position.set(0, 0, 0);
+          tamPlane.renderOrder = 999; // Render last, on top
+
+          console.log('TAM plane created and added to scene', tamPlane);
+          scene.add(tamPlane);
+        },
+        (progress) => {
+          console.log('Loading TAM texture...', progress);
+        },
+        (error) => {
+          console.error('TAM character image not found:', error);
+        }
+      );
+    }
+
     function createParticles() {
-      const particlesGeometry = new THREE.BufferGeometry();
-      const particlesCount = 200;
-      const positions = new Float32Array(particlesCount * 3);
+      // Particles hidden
+      // const particlesGeometry = new THREE.BufferGeometry();
+      // const particlesCount = 200;
+      // const positions = new Float32Array(particlesCount * 3);
 
-      for (let i = 0; i < particlesCount * 3; i++) {
-        positions[i] = (Math.random() - 0.5) * 15;
-      }
+      // for (let i = 0; i < particlesCount * 3; i++) {
+      //   positions[i] = (Math.random() - 0.5) * 15;
+      // }
 
-      particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      // particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
-      const particlesMaterial = new THREE.PointsMaterial({
-        color: 0x4488ff,
-        size: 0.05,
-        transparent: true,
-        opacity: 0.6,
-        blending: THREE.AdditiveBlending
-      });
+      // const particlesMaterial = new THREE.PointsMaterial({
+      //   color: 0x4488ff,
+      //   size: 0.05,
+      //   transparent: true,
+      //   opacity: 0.6,
+      //   blending: THREE.AdditiveBlending
+      // });
 
-      const particles = new THREE.Points(particlesGeometry, particlesMaterial);
-      scene.add(particles);
+      // const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+      // scene.add(particles);
     }
 
     function setCameraToStartSyllable() {
@@ -1069,6 +1117,11 @@
         glowBall.rotation.x += 0.001;
       }
 
+      // Make TAM character always face the camera
+      if (tamPlane && camera) {
+        tamPlane.lookAt(camera.position);
+      }
+
       // Handle reveal animation with smooth easing
       if (revealAnimation.isActive && textMeshes.length > 0) {
         const elapsed = performance.now() - revealAnimation.startTime;
@@ -1123,18 +1176,18 @@
         // Calculate distance from camera for atmospheric effect
         const distance = mesh.position.distanceTo(camera.position);
 
-        // Atmospheric fog effect: brightness decreases gradually with distance
-        // Extended range for more gradual fade
-        const nearDistance = 5;
-        const farDistance = 20;  // Extended for more gradual fade
+        // Atmospheric fog effect: brightness decreases with distance
+        // Matching the fog settings: near (8), far (15)
+        const nearDistance = 8;
+        const farDistance = 15;  // More dramatic falloff
         const fogStart = nearDistance;
         const fogEnd = farDistance;
-        
+
         // Calculate fog factor (1 = fully visible, 0 = fully fogged)
         const fogFactor = Math.max(0, Math.min(1, (fogEnd - distance) / (fogEnd - fogStart)));
-        
-        // Apply steeper atmospheric curve for dramatic drop-off
-        const atmosphericBrightness = Math.pow(fogFactor, 2.0);  // Steeper curve
+
+        // Apply even steeper atmospheric curve for dramatic drop-off
+        const atmosphericBrightness = Math.pow(fogFactor, 3.0);  // Steeper curve (was 2.0)
 
         // Update emissive intensity based on distance (atmospheric dimming)
         // Keep close objects bright, distant objects much dimmer
