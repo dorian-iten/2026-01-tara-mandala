@@ -912,7 +912,8 @@
         transparent: false, // Fully opaque
         opacity: 1.0, // 100% opacity
         depthWrite: false, // Disable depth write so TAM plane at same position can render
-        depthTest: true // Enable depth test
+        depthTest: true, // Enable depth test
+        fog: false // Not affected by atmospheric fog
       });
       glowBall = new THREE.Mesh(geometry, material);
       glowBall.renderOrder = 0; // Render first, behind everything else
@@ -925,7 +926,8 @@
         transparent: true, // Transparent for glow effect
         opacity: 0.4, // Semi-transparent glow
         side: THREE.BackSide,
-        depthWrite: false // Don't write to depth buffer for glow
+        depthWrite: false, // Don't write to depth buffer for glow
+        fog: false // Not affected by atmospheric fog
       });
       const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
       glowMesh.renderOrder = -1; // Render even earlier for glow
@@ -938,7 +940,8 @@
         transparent: true,
         opacity: 0.2, // Softer outer glow
         side: THREE.BackSide,
-        depthWrite: false
+        depthWrite: false,
+        fog: false // Not affected by atmospheric fog
       });
       const outerGlowMesh = new THREE.Mesh(outerGlowGeometry, outerGlowMaterial);
       outerGlowMesh.renderOrder = -1; // Render early for glow
@@ -976,7 +979,8 @@
             opacity: 1.0,
             side: THREE.DoubleSide,
             depthTest: true, // Enable depth test so syllables can occlude TAM
-            depthWrite: true // Enable depth write
+            depthWrite: true, // Enable depth write
+            fog: false // Not affected by atmospheric fog
           });
 
           tamPlane = new THREE.Mesh(planeGeometry, planeMaterial);
