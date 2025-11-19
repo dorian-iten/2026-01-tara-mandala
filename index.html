@@ -575,12 +575,24 @@
             outlineColor = parseInt(colorStr, 16);
           }
           
+          // Process syllableStyle if present
+          let syllableStyle = null;
+          if (mantra.syllableStyle) {
+            const style = mantra.syllableStyle;
+            syllableStyle = {
+              fill: style.fill ? parseInt(String(style.fill).replace(/^#/, '').replace(/^0x/i, ''), 16) : null,
+              outlineColor: style.outlineColor ? parseInt(String(style.outlineColor).replace(/^#/, '').replace(/^0x/i, ''), 16) : null,
+              outlineWidth: style.outlineWidth || 0
+            };
+          }
+          
           return {
             name: mantra.name,
             syllables: mantra.syllables,
             audioFile: mantra.audioFile,
             tamImage: mantra.tamImage,
             outlineColor: outlineColor,
+            syllableStyle: syllableStyle,
             backgroundGradient: mantra.backgroundGradient || null,
             startIndex: mantra.startIndex || 0
           };
@@ -598,6 +610,7 @@
             audioFile: "audio/green-tara.mp3",
             tamImage: "images/tam-sarasvati.png",
             outlineColor: 0x1a3a5c,
+            syllableStyle: null,
             backgroundGradient: null,
             startIndex: 0
           },
@@ -607,6 +620,7 @@
             audioFile: "audio/om-mani-padme-hum.mp3",
             tamImage: "images/tam-4.png",
             outlineColor: null,
+            syllableStyle: null,
             backgroundGradient: null,
             startIndex: 0
           },
@@ -616,6 +630,7 @@
             audioFile: "audio/om.mp3",
             tamImage: "images/tam-4.png",
             outlineColor: null,
+            syllableStyle: null,
             backgroundGradient: null,
             startIndex: 0
           }
@@ -1284,50 +1299,128 @@
         textGeometry.computeBoundingBox();
         const centerOffset = -0.5 * (textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x);
 
-        // Light theme: Dark purple/blue text
-        const textMaterial = new THREE.MeshPhongMaterial({
-          color: 0x2d1b4e,
-          emissive: 0x4a2c6d,
-          shininess: 120,
-          specular: 0x5c3a7a,
-          emissiveIntensity: 0.3
-        });
-
-        // Dark theme (commented for future use)
-        // const textMaterial = new THREE.MeshPhongMaterial({
-        //   color: 0xf8f4ed,
-        //   emissive: 0xf4d47c,
-        //   shininess: 120,
-        //   specular: 0xd4a574,
-        //   emissiveIntensity: 1.0
-        // });
-
-        const textMesh = new THREE.Mesh(textGeometry, textMaterial);
-
-        // Position on the ring
-        textMesh.position.x = Math.cos(angle) * radius;
-        textMesh.position.z = Math.sin(angle) * radius;
-        textMesh.position.y = 0;
-
-        // Rotate to face outward
-        textMesh.rotation.y = -angle + Math.PI / 2;
-
-        // Center the text
-        textMesh.geometry.translate(centerOffset, 0, 0);
-
-        // Store original index for reveal animation
-        textMesh.userData.originalIndex = index;
-        textMesh.userData.revealOrder = (index - startIndex + syllables.length) % syllables.length;
+        // Get syllable style configuration if available
+        const syllableStyle = schemas[schemaIndex].syllableStyle;
         
-        // Initially hide all words except the first one (startIndex)
-        if (index === startIndex) {
-          textMesh.material.opacity = 1.0;
-          textMesh.material.transparent = false;
+        let textMesh;
+        if (syllableStyle && syllableStyle.outlineColor && syllableStyle.outlineWidth > 0) {
+          // Simple approach: scale geometry slightly for outline, render back faces
+          const fillColor = syllableStyle.fill || 0xffffff;
+          const outlineColor = syllableStyle.outlineColor;
+          
+          // Scale factor for outline (small expansion)
+          const outlineScale = 1 + (syllableStyle.outlineWidth * 0.01);
+          
+          // Create outline material
+          const outlineMaterial = new THREE.MeshBasicMaterial({
+            color: outlineColor,
+            side: THREE.DoubleSide,
+            depthWrite: false,
+            depthTest: true
+          });
+          
+          // Create fill material
+          const fillMaterial = new THREE.MeshPhongMaterial({
+            color: fillColor,
+            emissive: fillColor,
+            emissiveIntensity: 0.1,
+            shininess: 120,
+            specular: fillColor,
+            depthWrite: true,
+            depthTest: true
+          });
+          
+          // Create outline mesh (scaled geometry)
+          const outlineGeometry = textGeometry.clone();
+          outlineGeometry.translate(centerOffset, 0, 0);
+          // Scale the geometry for outline
+          outlineGeometry.scale(outlineScale, outlineScale, 1);
+          const outlineMesh = new THREE.Mesh(outlineGeometry, outlineMaterial);
+          outlineMesh.renderOrder = 0;
+          
+          // Create fill mesh (normal size)
+          textMesh = new THREE.Mesh(textGeometry, fillMaterial);
+          textMesh.geometry.translate(centerOffset, 0, 0);
+          textMesh.renderOrder = 1;
+          
+          // Create a group to hold both meshes
+          const textGroup = new THREE.Group();
+          textGroup.add(outlineMesh);
+          textGroup.add(textMesh);
+          
+          // Position the group
+          const position = {
+            x: Math.cos(angle) * radius,
+            z: Math.sin(angle) * radius,
+            y: 0
+          };
+          
+          textGroup.position.set(position.x, position.y, position.z);
+          textGroup.rotation.y = -angle + Math.PI / 2;
+          
+          // Store userData on the group
+          textGroup.userData.originalIndex = index;
+          textGroup.userData.revealOrder = (index - startIndex + syllables.length) % syllables.length;
+          textGroup.userData.outlineMesh = outlineMesh;
+          textGroup.userData.fillMesh = textMesh;
+          
+          // Initially hide both except the first one
+          if (index === startIndex) {
+            outlineMesh.material.opacity = 1.0;
+            outlineMesh.material.transparent = false;
+            textMesh.material.opacity = 1.0;
+            textMesh.material.transparent = false;
+          } else {
+            outlineMesh.material.opacity = 0.0;
+            outlineMesh.material.transparent = true;
+            textMesh.material.opacity = 0.0;
+            textMesh.material.transparent = true;
+          }
+          
+          // Use the group as textMesh
+          textMesh = textGroup;
         } else {
-          textMesh.material.opacity = 0.0;
-          textMesh.material.transparent = true;
+          // Default style: Light theme - Dark purple/blue text
+          const defaultFillColor = syllableStyle && syllableStyle.fill ? syllableStyle.fill : 0x2d1b4e;
+          const textMaterial = new THREE.MeshPhongMaterial({
+            color: defaultFillColor,
+            emissive: syllableStyle && syllableStyle.fill ? defaultFillColor : 0x4a2c6d,
+            shininess: 120,
+            specular: syllableStyle && syllableStyle.fill ? defaultFillColor : 0x5c3a7a,
+            emissiveIntensity: 0.3
+          });
+
+          textMesh = new THREE.Mesh(textGeometry, textMaterial);
         }
 
+        // Position, rotate, and setup (only if not already done for outline style)
+        if (!syllableStyle || !syllableStyle.outlineColor || syllableStyle.outlineWidth <= 0) {
+          // Position on the ring
+          textMesh.position.x = Math.cos(angle) * radius;
+          textMesh.position.z = Math.sin(angle) * radius;
+          textMesh.position.y = 0;
+
+          // Rotate to face outward
+          textMesh.rotation.y = -angle + Math.PI / 2;
+
+          // Center the text
+          textMesh.geometry.translate(centerOffset, 0, 0);
+
+          // Store original index for reveal animation
+          textMesh.userData.originalIndex = index;
+          textMesh.userData.revealOrder = (index - startIndex + syllables.length) % syllables.length;
+          
+          // Initially hide all words except the first one (startIndex)
+          if (index === startIndex) {
+            textMesh.material.opacity = 1.0;
+            textMesh.material.transparent = false;
+          } else {
+            textMesh.material.opacity = 0.0;
+            textMesh.material.transparent = true;
+          }
+        }
+
+        // Add fill mesh (or default mesh) to scene
         scene.add(textMesh);
         textMeshes.push(textMesh);
       });
@@ -1369,20 +1462,35 @@
           const wordStartTime = revealOrder * revealAnimation.delayBetweenWords;
           const wordElapsed = elapsed - wordStartTime;
           
+          // Handle group structure (for outlined text)
+          let outlineMesh = null;
+          let fillMesh = mesh;
+          if (mesh.userData.outlineMesh && mesh.userData.fillMesh) {
+            outlineMesh = mesh.userData.outlineMesh;
+            fillMesh = mesh.userData.fillMesh;
+          }
+          
+          let opacity;
           if (wordElapsed < 0) {
             // Word hasn't started revealing yet
-            mesh.material.opacity = 0.0;
-            mesh.material.transparent = true;
+            opacity = 0.0;
           } else if (wordElapsed < revealAnimation.fadeDuration) {
             // Word is currently fading in
             const progress = Math.min(1.0, wordElapsed / revealAnimation.fadeDuration);
-            const easedProgress = easeOutCubic(progress);
-            mesh.material.opacity = easedProgress;
-            mesh.material.transparent = easedProgress < 1.0;
+            opacity = easeOutCubic(progress);
           } else {
             // Word is fully visible
-            mesh.material.opacity = 1.0;
-            mesh.material.transparent = false;
+            opacity = 1.0;
+          }
+          
+          // Apply opacity to fill mesh
+          fillMesh.material.opacity = opacity;
+          fillMesh.material.transparent = opacity < 1.0;
+          
+          // Apply opacity to outline mesh if it exists
+          if (outlineMesh) {
+            outlineMesh.material.opacity = opacity;
+            outlineMesh.material.transparent = opacity < 1.0;
           }
         });
         

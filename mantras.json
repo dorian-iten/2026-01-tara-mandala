@@ -6,6 +6,7 @@
       "audioFile": "audio/green-tara.mp3",
       "tamImage": "images/tam-sarasvati.png",
       "outlineColor": null,
+      "syllableStyle": null,
       "backgroundGradient": {
         "type": "radial",
         "colors": [
