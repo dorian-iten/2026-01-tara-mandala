@@ -18,7 +18,16 @@
 
     body {
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, sans-serif;
-      background: linear-gradient(135deg, #a8b7ff 0%, #b8a0d8 100%);
+      background: radial-gradient(circle at center,
+        #e8d5ff 0%,
+        #d5e8ff 12.5%,
+        #d5ffe8 25%,
+        #fff5d5 37.5%,
+        #ffd5e8 50%,
+        #e8d5ff 62.5%,
+        #d5e8ff 75%,
+        #d5ffe8 87.5%,
+        #fff5d5 100%);
       overflow: hidden;
       touch-action: none;
     }
@@ -611,9 +620,9 @@
     function init() {
       // Scene with atmospheric fog
       scene = new THREE.Scene();
-      // Fog: color matching the lighter purple gradient background
+      // Fog: color matching the subtle rainbow gradient background
       // Extended range for more gradual fade, preserving color saturation
-      scene.fog = new THREE.Fog(0xb0b9eb, 10, 25);
+      scene.fog = new THREE.Fog(0xe5f0f5, 10, 25);
 
       // Camera
       const aspect = window.innerWidth / window.innerHeight;
