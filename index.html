@@ -605,8 +605,8 @@
       const isDesktop = window.innerWidth >= 768 && !isPortrait && !isLandscapeMobile;
 
       if (isLandscapeMobile) {
-        // Zoom out more in landscape mobile to fit everything
-        return { x: 0, y: 1.5, z: 8 };
+        // Zoom in closer in landscape mobile
+        return { x: 0, y: 1.5, z: 7 };
       } else if (isPortrait) {
         // Zoom out a bit in portrait and shift up to account for bottom controls
         return { x: 0, y: 0.5, z: 11 };
@@ -952,7 +952,7 @@
       // Load PNG texture
       const textureLoader = new THREE.TextureLoader();
       textureLoader.load(
-        'tam-3.png',
+        'tam-4.png',
         (texture) => {
           console.log('TAM texture loaded successfully!', texture);
 
