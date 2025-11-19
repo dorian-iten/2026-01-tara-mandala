@@ -362,6 +362,7 @@
     function getCameraPosition() {
       const isPortrait = window.innerHeight > window.innerWidth;
       const isLandscapeMobile = window.innerHeight < 500 && window.innerWidth > window.innerHeight;
+      const isDesktop = window.innerWidth >= 768 && !isPortrait && !isLandscapeMobile;
 
       if (isLandscapeMobile) {
         // Zoom out more in landscape mobile to fit everything
@@ -369,9 +370,12 @@
       } else if (isPortrait) {
         // Zoom out a bit in portrait
         return { x: 0, y: 2, z: 11 };
+      } else if (isDesktop) {
+        // Desktop: zoom to fit with padding (text ring radius is 5, so ~8 gives nice padding)
+        return { x: 0, y: 2, z: 8 };
       } else {
-        // Desktop/tablet landscape
-        return { x: 0, y: 2, z: 10 };
+        // Tablet landscape fallback
+        return { x: 0, y: 2, z: 8 };
       }
     }
 
