@@ -605,15 +605,16 @@
 
     function setCameraToStartSyllable() {
       if (textMeshes.length === 0) return;
-      
+
       const schema = schemas[currentSchema];
       const startIndex = schema.startIndex || 0;
       const syllables = schema.syllables;
       const radius = 5;
-      const angleStep = -(Math.PI * 2) / syllables.length;
+      const angleStep = (Math.PI * 2) / syllables.length; // Match createTextRing
+      const baseAngle = Math.PI / 2; // Match createTextRing
       const angleOffset = -angleStep * startIndex;
-      const startAngle = angleStep * startIndex + angleOffset;
-      
+      const startAngle = angleStep * startIndex + angleOffset + baseAngle;
+
       // Calculate start syllable position on the ring
       const startX = Math.cos(startAngle) * radius;
       const startZ = Math.sin(startAngle) * radius;
@@ -647,13 +648,16 @@
       const syllables = schemas[schemaIndex].syllables;
       const startIndex = schemas[schemaIndex].startIndex || 0;
       const radius = 5; // Distance from center
-      const angleStep = -(Math.PI * 2) / syllables.length; // Negative for clockwise order
+      const angleStep = (Math.PI * 2) / syllables.length; // Positive for counter-clockwise (right-to-left)
 
-      // Offset angle so start syllable faces camera (camera is at positive Z)
+      // Base angle to align ring so index 0 is at positive Z (facing camera)
+      const baseAngle = Math.PI / 2;
+
+      // Offset angle so start syllable faces camera
       const angleOffset = -angleStep * startIndex;
 
       syllables.forEach((syllable, index) => {
-        const angle = angleStep * index + angleOffset;
+        const angle = angleStep * index + angleOffset + baseAngle;
 
         const textGeometry = new TextGeometry(syllable, {
           font: font,
