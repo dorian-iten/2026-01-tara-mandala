@@ -513,9 +513,7 @@
         <div class="dropdown-arrow"></div>
       </div>
       <div class="dropdown-menu">
-        <div class="dropdown-option selected" data-value="0">Tara Vajra Sarasvati</div>
-        <div class="dropdown-option" data-value="1">Om Mani Padme Hum</div>
-        <div class="dropdown-option" data-value="2">Simple Om</div>
+        <!-- Options will be populated dynamically from mantras.json -->
       </div>
     </div>
   </div>
@@ -559,27 +557,110 @@
     import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
     import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 
-    // Schema definitions with audio file paths
-    const schemas = [
-      {
-        name: "Tara Vajra Sarasvati",
-        syllables: ["OM", "TA", "RE", "TU", "TA", "RE", "TU", "RE", "PRA", "JNA", "HRING", "HRING", "SVA", "HA"],
-        audioFile: "audio/green-tara.mp3",
-        startIndex: 0 // Start with OM
-      },
-      {
-        name: "Om Mani Padme Hum",
-        syllables: ["OM", "MA", "NI", "PAD", "ME", "HUM"],
-        audioFile: "audio/om-mani-padme-hum.mp3",
-        startIndex: 0 // Start with OM
-      },
-      {
-        name: "Simple Om",
-        syllables: ["OM", "OM"],
-        audioFile: "audio/om.mp3",
-        startIndex: 0 // Start with first OM
+    // Schema definitions - loaded from JSON config
+    let schemas = [];
+
+    // Load mantras configuration from JSON file
+    async function loadMantrasConfig() {
+      try {
+        const response = await fetch('mantras.json');
+        const config = await response.json();
+        
+        // Process schemas: convert outlineColor string to number, ensure defaults
+        schemas = config.mantras.map(mantra => {
+          let outlineColor = null;
+          if (mantra.outlineColor) {
+            // Handle both "0x1a3a5c" and "#1a3a5c" formats
+            const colorStr = String(mantra.outlineColor).replace(/^#/, '').replace(/^0x/i, '');
+            outlineColor = parseInt(colorStr, 16);
+          }
+          
+          return {
+            name: mantra.name,
+            syllables: mantra.syllables,
+            audioFile: mantra.audioFile,
+            tamImage: mantra.tamImage,
+            outlineColor: outlineColor,
+            backgroundGradient: mantra.backgroundGradient || null,
+            startIndex: mantra.startIndex || 0
+          };
+        });
+        
+        console.log('Loaded mantras configuration:', schemas);
+        return schemas;
+      } catch (error) {
+        console.error('Failed to load mantras.json, using fallback:', error);
+        // Fallback to default configuration
+        schemas = [
+          {
+            name: "Tara Vajra Sarasvati",
+            syllables: ["OM", "TA", "RE", "TU", "TA", "RE", "TU", "RE", "PRA", "JNA", "HRING", "HRING", "SVA", "HA"],
+            audioFile: "audio/green-tara.mp3",
+            tamImage: "images/tam-sarasvati.png",
+            outlineColor: 0x1a3a5c,
+            backgroundGradient: null,
+            startIndex: 0
+          },
+          {
+            name: "Om Mani Padme Hum",
+            syllables: ["OM", "MA", "NI", "PAD", "ME", "HUM"],
+            audioFile: "audio/om-mani-padme-hum.mp3",
+            tamImage: "images/tam-4.png",
+            outlineColor: null,
+            backgroundGradient: null,
+            startIndex: 0
+          },
+          {
+            name: "Simple Om",
+            syllables: ["OM", "OM"],
+            audioFile: "audio/om.mp3",
+            tamImage: "images/tam-4.png",
+            outlineColor: null,
+            backgroundGradient: null,
+            startIndex: 0
+          }
+        ];
+        return schemas;
       }
-    ];
+    }
+
+    // Apply background gradient from config
+    function applyBackgroundGradient(gradientConfig) {
+      if (!gradientConfig || !gradientConfig.colors) {
+        return; // Use default background
+      }
+
+      const colors = gradientConfig.colors.map(c => `${c.color} ${c.position}%`).join(', ');
+      const gradientType = gradientConfig.type === 'linear' ? 'linear-gradient' : 'radial-gradient';
+      const gradientValue = gradientType === 'radial-gradient' 
+        ? `radial-gradient(circle at center, ${colors})`
+        : `linear-gradient(${gradientConfig.direction || 'to bottom'}, ${colors})`;
+      
+      document.body.style.background = gradientValue;
+    }
+
+    // Populate dropdown with mantras from config
+    function populateDropdown() {
+      const dropdownMenu = document.querySelector('.dropdown-menu');
+      const dropdownLabel = document.querySelector('.dropdown-label');
+      
+      // Clear existing options
+      dropdownMenu.innerHTML = '';
+      
+      // Create options for each mantra
+      schemas.forEach((schema, index) => {
+        const option = document.createElement('div');
+        option.className = `dropdown-option ${index === currentSchema ? 'selected' : ''}`;
+        option.textContent = schema.name;
+        option.dataset.value = index;
+        dropdownMenu.appendChild(option);
+      });
+      
+      // Set initial label
+      if (schemas[currentSchema]) {
+        dropdownLabel.textContent = schemas[currentSchema].name;
+      }
+    }
 
     let scene, camera, renderer, controls;
     let glowBall, textMeshes = [];
@@ -619,7 +700,18 @@
       }
     }
 
-    function init() {
+    async function init() {
+      // Load mantras configuration first
+      await loadMantrasConfig();
+      
+      // Apply initial background gradient
+      if (schemas[currentSchema] && schemas[currentSchema].backgroundGradient) {
+        applyBackgroundGradient(schemas[currentSchema].backgroundGradient);
+      }
+      
+      // Populate dropdown with loaded mantras
+      populateDropdown();
+      
       // Scene with atmospheric fog
       scene = new THREE.Scene();
       // Fog: color matching the subtle rainbow gradient background
@@ -679,7 +771,7 @@
           font = loadedFont;
           createTextRing(currentSchema);
           // Add TAMM text to the sphere
-          addTammToSphere();
+          addTammToSphere(currentSchema);
           // Set camera to look at start syllable
           setCameraToStartSyllable();
         }
@@ -708,35 +800,45 @@
         }
       });
 
-      dropdownOptions.forEach(option => {
-        option.addEventListener('click', () => {
-          const value = parseInt(option.dataset.value);
-          const text = option.textContent;
+      // Use event delegation for dynamically created options
+      dropdownMenu.addEventListener('click', (e) => {
+        const option = e.target.closest('.dropdown-option');
+        if (!option) return;
 
-          // Update selected state
-          dropdownOptions.forEach(opt => opt.classList.remove('selected'));
-          option.classList.add('selected');
+        const value = parseInt(option.dataset.value);
+        const text = option.textContent;
 
-          // Update trigger label
-          dropdownLabel.textContent = text;
+        // Update selected state
+        dropdownMenu.querySelectorAll('.dropdown-option').forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
 
-          // Close dropdown
-          dropdownTrigger.classList.remove('active');
-          dropdownMenu.classList.remove('show');
+        // Update trigger label
+        dropdownLabel.textContent = text;
 
-          // Update schema
-          currentSchema = value;
-          if (font) {
-            createTextRing(currentSchema);
-            setCameraToStartSyllable();
-          }
-          updateAudioInfo();
+        // Close dropdown
+        dropdownTrigger.classList.remove('active');
+        dropdownMenu.classList.remove('show');
 
-          // Stop current audio when switching
-          if (isPlaying) {
-            togglePlayPause();
-          }
-        });
+        // Update schema
+        currentSchema = value;
+        
+        // Apply background gradient for new schema
+        if (schemas[currentSchema] && schemas[currentSchema].backgroundGradient) {
+          applyBackgroundGradient(schemas[currentSchema].backgroundGradient);
+        }
+        
+        if (font) {
+          createTextRing(currentSchema);
+          // Update TAM image for new schema
+          addTammToSphere(currentSchema);
+          setCameraToStartSyllable();
+        }
+        updateAudioInfo();
+
+        // Stop current audio when switching
+        if (isPlaying) {
+          togglePlayPause();
+        }
       });
 
       // Audio controls
@@ -906,7 +1008,7 @@
 
     function createGlowBall() {
       // Inner solid white sphere - using MeshBasicMaterial for unlit white appearance
-      const geometry = new THREE.SphereGeometry(1, 32, 32);
+      const geometry = new THREE.SphereGeometry(2, 32, 32);
       const material = new THREE.MeshBasicMaterial({
         color: 0xffffff, // White
         transparent: false, // Fully opaque
@@ -920,7 +1022,7 @@
       scene.add(glowBall);
 
       // Outer white glow effect (semi-transparent larger sphere)
-      const glowGeometry = new THREE.SphereGeometry(1.2, 32, 32);
+      const glowGeometry = new THREE.SphereGeometry(2.4, 32, 32);
       const glowMaterial = new THREE.MeshBasicMaterial({
         color: 0xffffff, // White
         transparent: true, // Transparent for glow effect
@@ -934,7 +1036,7 @@
       scene.add(glowMesh);
 
       // Additional outer glow layer for more pronounced effect
-      const outerGlowGeometry = new THREE.SphereGeometry(1.4, 32, 32);
+      const outerGlowGeometry = new THREE.SphereGeometry(2.8, 32, 32);
       const outerGlowMaterial = new THREE.MeshBasicMaterial({
         color: 0xffffff, // White
         transparent: true,
@@ -951,11 +1053,22 @@
       createParticles();
     }
 
-    function addTammToSphere() {
+    function addTammToSphere(schemaIndex) {
+      // Remove existing TAM plane if it exists
+      if (tamPlane) {
+        scene.remove(tamPlane);
+        tamPlane = null;
+      }
+
+      // Get the TAM image path for the current schema
+      const schema = schemas[schemaIndex || currentSchema];
+      const tamImagePath = schema.tamImage || 'images/tam-4.png';
+      const outlineColor = schema.outlineColor || null;
+
       // Load PNG texture
       const textureLoader = new THREE.TextureLoader();
       textureLoader.load(
-        'tam-4.png',
+        tamImagePath,
         (texture) => {
           console.log('TAM texture loaded successfully!', texture);
 
@@ -964,7 +1077,7 @@
           
           // Get aspect ratio from texture to avoid distortion
           const aspectRatio = texture.image.width / texture.image.height;
-          const height = 2.0; // Slightly larger to ensure visibility
+          const height = 4.0; // Slightly larger to ensure visibility
           const width = height * aspectRatio;
 
           console.log('TAM texture dimensions:', texture.image.width, 'x', texture.image.height);
@@ -973,20 +1086,98 @@
 
           // Create a plane geometry for the character with correct aspect ratio
           const planeGeometry = new THREE.PlaneGeometry(width, height);
-          const planeMaterial = new THREE.MeshBasicMaterial({
-            map: texture,
-            transparent: true,
-            opacity: 1.0,
-            side: THREE.DoubleSide,
-            depthTest: true, // Enable depth test so syllables can occlude TAM
-            depthWrite: true, // Enable depth write
-            fog: false // Not affected by atmospheric fog
-          });
+
+          let planeMaterial;
+          
+          // If outline color is specified, use a custom shader for outline effect
+          if (outlineColor) {
+            // Convert hex color to vec3
+            const r = ((outlineColor >> 16) & 255) / 255.0;
+            const g = ((outlineColor >> 8) & 255) / 255.0;
+            const b = (outlineColor & 255) / 255.0;
+
+            // Custom shader material with outline effect
+            planeMaterial = new THREE.ShaderMaterial({
+              uniforms: {
+                texture: { value: texture },
+                outlineColor: { value: new THREE.Vector3(r, g, b) },
+                outlineWidth: { value: 0.01 } // Outline width in UV space
+              },
+              vertexShader: `
+                varying vec2 vUv;
+                void main() {
+                  vUv = uv;
+                  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+              `,
+              fragmentShader: `
+                uniform sampler2D texture;
+                uniform vec3 outlineColor;
+                uniform float outlineWidth;
+                varying vec2 vUv;
+                
+                void main() {
+                  vec4 texColor = texture2D(texture, vUv);
+                  float alpha = texColor.a;
+                  
+                  // If pixel is fully opaque, show the texture
+                  if (alpha > 0.99) {
+                    gl_FragColor = texColor;
+                    return;
+                  }
+                  
+                  // Sample neighboring pixels to detect edges
+                  vec2 pixelSize = vec2(outlineWidth, outlineWidth);
+                  
+                  // Sample 8 neighboring pixels to find maximum alpha
+                  float maxNeighborAlpha = 0.0;
+                  maxNeighborAlpha = max(maxNeighborAlpha, texture2D(texture, vUv + vec2(0.0, pixelSize.y)).a);
+                  maxNeighborAlpha = max(maxNeighborAlpha, texture2D(texture, vUv + vec2(0.0, -pixelSize.y)).a);
+                  maxNeighborAlpha = max(maxNeighborAlpha, texture2D(texture, vUv + vec2(pixelSize.x, 0.0)).a);
+                  maxNeighborAlpha = max(maxNeighborAlpha, texture2D(texture, vUv + vec2(-pixelSize.x, 0.0)).a);
+                  maxNeighborAlpha = max(maxNeighborAlpha, texture2D(texture, vUv + vec2(pixelSize.x, pixelSize.y)).a);
+                  maxNeighborAlpha = max(maxNeighborAlpha, texture2D(texture, vUv + vec2(-pixelSize.x, pixelSize.y)).a);
+                  maxNeighborAlpha = max(maxNeighborAlpha, texture2D(texture, vUv + vec2(pixelSize.x, -pixelSize.y)).a);
+                  maxNeighborAlpha = max(maxNeighborAlpha, texture2D(texture, vUv + vec2(-pixelSize.x, -pixelSize.y)).a);
+                  
+                  // If current pixel is transparent but has opaque neighbors, draw outline
+                  if (alpha < 0.5 && maxNeighborAlpha > 0.5) {
+                    // Calculate outline strength based on how transparent we are
+                    float outlineStrength = (1.0 - alpha) * smoothstep(0.5, 1.0, maxNeighborAlpha);
+                    gl_FragColor = vec4(outlineColor, outlineStrength);
+                  } else if (alpha > 0.0) {
+                    // Show the texture with its original alpha
+                    gl_FragColor = texColor;
+                  } else {
+                    // Fully transparent
+                    discard;
+                  }
+                }
+              `,
+              transparent: true,
+              side: THREE.DoubleSide,
+              depthTest: true, // Enable depth test so syllables can occlude TAM
+              depthWrite: false, // Disable depth write like the white sphere
+              fog: false
+            });
+          } else {
+            // Standard material without outline
+            planeMaterial = new THREE.MeshBasicMaterial({
+              map: texture,
+              transparent: true,
+              opacity: 1.0,
+              side: THREE.DoubleSide,
+              depthTest: true,
+              depthWrite: true,
+              fog: false
+            });
+          }
 
           tamPlane = new THREE.Mesh(planeGeometry, planeMaterial);
 
-          // Position at white sphere center (0, 0, 0) - no offset to prevent spinning
-          tamPlane.position.set(0, 0, 0);
+          // Position slightly in front of white sphere center to ensure it renders on top
+          // Small offset (0.01) ensures visibility without noticeable separation
+          tamPlane.position.set(0, 0, 0.01);
           
           // Use renderOrder 2 to render after white sphere (0) and syllables (default 0)
           // This ensures TAM renders on top of white sphere
@@ -999,12 +1190,7 @@
           console.log('TAM plane created and added to scene', tamPlane);
           console.log('TAM plane position:', tamPlane.position);
           console.log('TAM plane renderOrder:', tamPlane.renderOrder);
-          console.log('TAM material settings:', {
-            depthTest: planeMaterial.depthTest,
-            depthWrite: planeMaterial.depthWrite,
-            transparent: planeMaterial.transparent,
-            opacity: planeMaterial.opacity
-          });
+          console.log('TAM outline color:', outlineColor);
           scene.add(tamPlane);
           
           console.log('TAM plane added to scene. Total objects in scene:', scene.children.length);
