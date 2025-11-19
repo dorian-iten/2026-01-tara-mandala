@@ -754,6 +754,21 @@
       const fullscreenEnter = document.querySelector('.fullscreen-enter');
       const fullscreenExit = document.querySelector('.fullscreen-exit');
 
+      // Hide fullscreen button if running as PWA (standalone mode) or if fullscreen API not supported
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                          window.navigator.standalone ||
+                          document.referrer.includes('android-app://');
+
+      const supportsFullscreen = document.documentElement.requestFullscreen ||
+                                document.documentElement.webkitRequestFullscreen ||
+                                document.documentElement.mozRequestFullScreen ||
+                                document.documentElement.msRequestFullscreen;
+
+      // Hide button if in standalone mode OR if fullscreen not supported (like iOS Safari)
+      if (isStandalone || (!supportsFullscreen && /iPad|iPhone|iPod/.test(navigator.userAgent))) {
+        fullscreenToggle.style.display = 'none';
+      }
+
       function updateFullscreenIcon() {
         const isFullscreen = document.fullscreenElement ||
                             document.webkitFullscreenElement ||
