@@ -66,6 +66,27 @@
         ]
       },
       "startIndex": 0
+    },
+    {
+      "name": "Border Test - White and Green",
+      "syllables": ["OM", "MA", "NI", "PAD", "ME", "HUM"],
+      "audioFile": "audio/om.mp3",
+      "tamImage": "images/tam-4.png",
+      "outlineColor": null,
+      "syllableStyle": {
+        "fill": "#ffffff",
+        "outlineColor": "#00cc00",
+        "outlineWidth": 8
+      },
+      "backgroundGradient": {
+        "type": "radial",
+        "colors": [
+          { "color": "#1a1a2e", "position": 0 },
+          { "color": "#16213e", "position": 50 },
+          { "color": "#0f3460", "position": 100 }
+        ]
+      },
+      "startIndex": 0
     }
   ]
 }

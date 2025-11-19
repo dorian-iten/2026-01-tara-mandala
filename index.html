@@ -1282,6 +1282,32 @@
       // Offset angle so start syllable faces camera
       const angleOffset = -angleStep * startIndex;
 
+      // Helper function to create outline geometry by offsetting vertices along normals
+      function createOutlineGeometry(sourceGeometry, outlineWidth) {
+        const outlineGeometry = sourceGeometry.clone();
+
+        // Compute vertex normals if not already computed
+        if (!outlineGeometry.attributes.normal) {
+          outlineGeometry.computeVertexNormals();
+        }
+
+        const positions = outlineGeometry.attributes.position;
+        const normals = outlineGeometry.attributes.normal;
+
+        // Offset each vertex along its normal
+        const offsetAmount = outlineWidth * 0.01; // Scale the outline width
+        for (let i = 0; i < positions.count; i++) {
+          positions.setX(i, positions.getX(i) + normals.getX(i) * offsetAmount);
+          positions.setY(i, positions.getY(i) + normals.getY(i) * offsetAmount);
+          positions.setZ(i, positions.getZ(i) + normals.getZ(i) * offsetAmount);
+        }
+
+        positions.needsUpdate = true;
+        outlineGeometry.computeVertexNormals();
+
+        return outlineGeometry;
+      }
+
       syllables.forEach((syllable, index) => {
         const angle = angleStep * index + angleOffset + baseAngle;
 
@@ -1301,84 +1327,162 @@
 
         // Get syllable style configuration if available
         const syllableStyle = schemas[schemaIndex].syllableStyle;
-        
+
         let textMesh;
         if (syllableStyle && syllableStyle.outlineColor && syllableStyle.outlineWidth > 0) {
-          // Simple approach: scale geometry slightly for outline, render back faces
           const fillColor = syllableStyle.fill || 0xffffff;
           const outlineColor = syllableStyle.outlineColor;
-          
-          // Scale factor for outline (small expansion)
-          const outlineScale = 1 + (syllableStyle.outlineWidth * 0.01);
-          
-          // Create outline material
-          const outlineMaterial = new THREE.MeshBasicMaterial({
-            color: outlineColor,
-            side: THREE.DoubleSide,
-            depthWrite: false,
-            depthTest: true
-          });
-          
-          // Create fill material
-          const fillMaterial = new THREE.MeshPhongMaterial({
-            color: fillColor,
-            emissive: fillColor,
-            emissiveIntensity: 0.1,
-            shininess: 120,
-            specular: fillColor,
-            depthWrite: true,
-            depthTest: true
-          });
-          
-          // Create outline mesh (scaled geometry)
-          const outlineGeometry = textGeometry.clone();
-          outlineGeometry.translate(centerOffset, 0, 0);
-          // Scale the geometry for outline
-          outlineGeometry.scale(outlineScale, outlineScale, 1);
-          const outlineMesh = new THREE.Mesh(outlineGeometry, outlineMaterial);
-          outlineMesh.renderOrder = 0;
-          
-          // Create fill mesh (normal size)
-          textMesh = new THREE.Mesh(textGeometry, fillMaterial);
-          textMesh.geometry.translate(centerOffset, 0, 0);
-          textMesh.renderOrder = 1;
-          
-          // Create a group to hold both meshes
-          const textGroup = new THREE.Group();
-          textGroup.add(outlineMesh);
-          textGroup.add(textMesh);
-          
-          // Position the group
-          const position = {
-            x: Math.cos(angle) * radius,
-            z: Math.sin(angle) * radius,
-            y: 0
-          };
-          
-          textGroup.position.set(position.x, position.y, position.z);
-          textGroup.rotation.y = -angle + Math.PI / 2;
-          
-          // Store userData on the group
-          textGroup.userData.originalIndex = index;
-          textGroup.userData.revealOrder = (index - startIndex + syllables.length) % syllables.length;
-          textGroup.userData.outlineMesh = outlineMesh;
-          textGroup.userData.fillMesh = textMesh;
-          
-          // Initially hide both except the first one
-          if (index === startIndex) {
-            outlineMesh.material.opacity = 1.0;
-            outlineMesh.material.transparent = false;
-            textMesh.material.opacity = 1.0;
-            textMesh.material.transparent = false;
+
+          // OPTION 1: Vertex normal offset (true 3D contour - works from all angles)
+          // This creates a shell around the geometry by offsetting vertices along their normals
+          const useNormalOffset = true; // Set to false to use scaling approach
+
+          if (useNormalOffset) {
+            // Compute vertex normals first
+            textGeometry.computeVertexNormals();
+
+            // Create outline geometry with vertex offset
+            const outlineGeometry = createOutlineGeometry(textGeometry, syllableStyle.outlineWidth);
+            outlineGeometry.translate(centerOffset, 0, 0);
+
+            // Create outline material
+            const outlineMaterial = new THREE.MeshBasicMaterial({
+              color: outlineColor,
+              side: THREE.BackSide, // Render back faces for better 3D effect
+              depthWrite: true,
+              depthTest: true
+            });
+
+            // Create fill material
+            const fillMaterial = new THREE.MeshPhongMaterial({
+              color: fillColor,
+              emissive: fillColor,
+              emissiveIntensity: 0.1,
+              shininess: 120,
+              specular: fillColor,
+              depthWrite: true,
+              depthTest: true
+            });
+
+            // Create outline mesh with offset geometry
+            const outlineMesh = new THREE.Mesh(outlineGeometry, outlineMaterial);
+            outlineMesh.renderOrder = 0;
+
+            // Create fill mesh (normal size)
+            textMesh = new THREE.Mesh(textGeometry, fillMaterial);
+            textMesh.geometry.translate(centerOffset, 0, 0);
+            textMesh.renderOrder = 1;
+
+            // Create a group to hold both meshes
+            const textGroup = new THREE.Group();
+            textGroup.add(outlineMesh);
+            textGroup.add(textMesh);
+
+            // Position the group
+            const position = {
+              x: Math.cos(angle) * radius,
+              z: Math.sin(angle) * radius,
+              y: 0
+            };
+
+            textGroup.position.set(position.x, position.y, position.z);
+            textGroup.rotation.y = -angle + Math.PI / 2;
+
+            // Store userData on the group
+            textGroup.userData.originalIndex = index;
+            textGroup.userData.revealOrder = (index - startIndex + syllables.length) % syllables.length;
+            textGroup.userData.outlineMesh = outlineMesh;
+            textGroup.userData.fillMesh = textMesh;
+
+            // Initially hide both except the first one
+            if (index === startIndex) {
+              outlineMesh.material.opacity = 1.0;
+              outlineMesh.material.transparent = false;
+              textMesh.material.opacity = 1.0;
+              textMesh.material.transparent = false;
+            } else {
+              outlineMesh.material.opacity = 0.0;
+              outlineMesh.material.transparent = true;
+              textMesh.material.opacity = 0.0;
+              textMesh.material.transparent = true;
+            }
+
+            // Use the group as textMesh
+            textMesh = textGroup;
+
           } else {
-            outlineMesh.material.opacity = 0.0;
-            outlineMesh.material.transparent = true;
-            textMesh.material.opacity = 0.0;
-            textMesh.material.transparent = true;
+            // OPTION 2: Uniform scaling approach (simpler, but less accurate)
+            // Scale factor for outline (small expansion)
+            const outlineScale = 1 + (syllableStyle.outlineWidth * 0.01);
+
+            // Create outline material
+            const outlineMaterial = new THREE.MeshBasicMaterial({
+              color: outlineColor,
+              side: THREE.BackSide,
+              depthWrite: true,
+              depthTest: true
+            });
+
+            // Create fill material
+            const fillMaterial = new THREE.MeshPhongMaterial({
+              color: fillColor,
+              emissive: fillColor,
+              emissiveIntensity: 0.1,
+              shininess: 120,
+              specular: fillColor,
+              depthWrite: true,
+              depthTest: true
+            });
+
+            // Create outline mesh (scaled geometry) - scale in all 3 dimensions
+            const outlineGeometry = textGeometry.clone();
+            outlineGeometry.translate(centerOffset, 0, 0);
+            outlineGeometry.scale(outlineScale, outlineScale, outlineScale);
+            const outlineMesh = new THREE.Mesh(outlineGeometry, outlineMaterial);
+            outlineMesh.renderOrder = 0;
+
+            // Create fill mesh (normal size)
+            textMesh = new THREE.Mesh(textGeometry, fillMaterial);
+            textMesh.geometry.translate(centerOffset, 0, 0);
+            textMesh.renderOrder = 1;
+
+            // Create a group to hold both meshes
+            const textGroup = new THREE.Group();
+            textGroup.add(outlineMesh);
+            textGroup.add(textMesh);
+
+            // Position the group
+            const position = {
+              x: Math.cos(angle) * radius,
+              z: Math.sin(angle) * radius,
+              y: 0
+            };
+
+            textGroup.position.set(position.x, position.y, position.z);
+            textGroup.rotation.y = -angle + Math.PI / 2;
+
+            // Store userData on the group
+            textGroup.userData.originalIndex = index;
+            textGroup.userData.revealOrder = (index - startIndex + syllables.length) % syllables.length;
+            textGroup.userData.outlineMesh = outlineMesh;
+            textGroup.userData.fillMesh = textMesh;
+
+            // Initially hide both except the first one
+            if (index === startIndex) {
+              outlineMesh.material.opacity = 1.0;
+              outlineMesh.material.transparent = false;
+              textMesh.material.opacity = 1.0;
+              textMesh.material.transparent = false;
+            } else {
+              outlineMesh.material.opacity = 0.0;
+              outlineMesh.material.transparent = true;
+              textMesh.material.opacity = 0.0;
+              textMesh.material.transparent = true;
+            }
+
+            // Use the group as textMesh
+            textMesh = textGroup;
           }
-          
-          // Use the group as textMesh
-          textMesh = textGroup;
         } else {
           // Default style: Light theme - Dark purple/blue text
           const defaultFillColor = syllableStyle && syllableStyle.fill ? syllableStyle.fill : 0x2d1b4e;
