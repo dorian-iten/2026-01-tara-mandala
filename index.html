@@ -128,6 +128,68 @@
       border-left-color: rgba(244, 212, 124, 0.6);
     }
 
+    /* Speed controls */
+    #speed-controls {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 14px 24px;
+      border-radius: 50px;
+      backdrop-filter: blur(20px);
+      border: 0.5px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    #speed-controls:hover {
+      background: rgba(0, 0, 0, 0.8);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .speed-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(100, 150, 255, 0.15);
+      border: 1px solid rgba(100, 150, 255, 0.5);
+      color: rgba(255, 255, 255, 0.9);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-size: 18px;
+      font-weight: 500;
+      user-select: none;
+    }
+
+    .speed-btn:hover {
+      background: rgba(100, 150, 255, 0.3);
+      border-color: rgba(100, 150, 255, 0.7);
+      transform: scale(1.05);
+    }
+
+    .speed-btn:active {
+      transform: scale(0.95);
+    }
+
+    #speed-label {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 14px;
+      min-width: 80px;
+      text-align: center;
+    }
+
+    #speed-value {
+      color: rgba(255, 255, 255, 0.95);
+      font-weight: 500;
+    }
+
     /* Audio controls */
     #audio-controls {
       position: absolute;
@@ -197,6 +259,23 @@
         padding: 14px 18px;
       }
 
+      #speed-controls {
+        bottom: 20px;
+        padding: 12px 18px;
+        gap: 12px;
+      }
+
+      .speed-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+      }
+
+      #speed-label {
+        font-size: 13px;
+        min-width: 70px;
+      }
+
       #audio-controls {
         bottom: 20px;
         padding: 10px 16px;
@@ -227,6 +306,23 @@
       .dropdown-trigger, .dropdown-option {
         font-size: 15px;
         padding: 12px 16px;
+      }
+
+      #speed-controls {
+        bottom: 15px;
+        padding: 10px 16px;
+        gap: 10px;
+      }
+
+      .speed-btn {
+        width: 30px;
+        height: 30px;
+        font-size: 15px;
+      }
+
+      #speed-label {
+        font-size: 12px;
+        min-width: 65px;
       }
 
       #audio-controls {
@@ -261,6 +357,23 @@
       .dropdown-trigger, .dropdown-option {
         font-size: 14px;
         padding: 10px 14px;
+      }
+
+      #speed-controls {
+        bottom: 10px;
+        padding: 8px 12px;
+        gap: 8px;
+      }
+
+      .speed-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+      }
+
+      #speed-label {
+        font-size: 11px;
+        min-width: 60px;
       }
 
       #audio-controls {
@@ -303,6 +416,12 @@
     </div>
   </div>
 
+  <div id="speed-controls">
+    <button class="speed-btn" id="speed-decrease" aria-label="Decrease speed">−</button>
+    <div id="speed-label">Speed: <span id="speed-value">1.0×</span></div>
+    <button class="speed-btn" id="speed-increase" aria-label="Increase speed">+</button>
+  </div>
+
   <div id="audio-controls">
     <button id="play-pause-btn" aria-label="Play/Pause">▶</button>
     <div id="audio-info">
@@ -332,15 +451,15 @@
     const schemas = [
       {
         name: "Green Tara Mantra",
-        syllables: ["HA", "SVA", "HRING", "HRING", "JNA", "PRA", "RE", "TU", "RE", "TA", "RE", "TU", "TA", "OM"],
+        syllables: ["OM", "TA", "RE", "TU", "TA", "RE", "TU", "RE", "PRA", "JNA", "HRING", "HRING", "SVA", "HA"],
         audioFile: "audio/green-tara.mp3",
-        startIndex: 13 // Start with OM (last in reversed array)
+        startIndex: 0 // Start with OM
       },
       {
         name: "Om Mani Padme Hum",
-        syllables: ["HUM", "ME", "PAD", "NI", "MA", "OM"],
+        syllables: ["OM", "MA", "NI", "PAD", "ME", "HUM"],
         audioFile: "audio/om-mani-padme-hum.mp3",
-        startIndex: 5 // Start with OM (last in reversed array)
+        startIndex: 0 // Start with OM
       },
       {
         name: "Simple Om",
@@ -357,12 +476,13 @@
     let audio = new Audio();
     let isPlaying = false;
     let composer;
+    let rotationSpeed = 0.3; // Default rotation speed
     let revealAnimation = {
       isActive: false,
       startTime: 0,
       revealedCount: 0,
-      delayBetweenWords: 400, // milliseconds between each word reveal
-      fadeDuration: 600 // milliseconds for smooth fade in
+      delayBetweenWords: 250, // milliseconds between each word reveal
+      fadeDuration: 900 // milliseconds for smooth fade in
     };
 
     // Camera position adjustments based on orientation
@@ -425,7 +545,7 @@
       controls.enableDamping = true;
       controls.dampingFactor = 0.05;
       controls.autoRotate = true;
-      controls.autoRotateSpeed = 0.3;
+      controls.autoRotateSpeed = rotationSpeed;
 
       // Lighting
       const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
@@ -526,6 +646,33 @@
 
       // Initialize audio
       updateAudioInfo();
+
+      // Speed controls
+      const speedDecreaseBtn = document.getElementById('speed-decrease');
+      const speedIncreaseBtn = document.getElementById('speed-increase');
+      const speedValueDisplay = document.getElementById('speed-value');
+
+      function updateSpeedDisplay() {
+        // Normalize display: 0.3 base speed = 1.0×
+        const normalizedSpeed = rotationSpeed / 0.3;
+        speedValueDisplay.textContent = normalizedSpeed.toFixed(1) + '×';
+      }
+
+      speedDecreaseBtn.addEventListener('click', () => {
+        // Decrease: use smaller steps for fine control at low speeds
+        const step = rotationSpeed >= 0.6 ? 0.3 : 0.1;
+        rotationSpeed = Math.max(0.0, rotationSpeed - step);
+        controls.autoRotateSpeed = rotationSpeed;
+        updateSpeedDisplay();
+      });
+
+      speedIncreaseBtn.addEventListener('click', () => {
+        // Increase: use bigger steps for faster ramping
+        const step = rotationSpeed >= 0.6 ? 0.3 : 0.1;
+        rotationSpeed = Math.min(3.0, rotationSpeed + step);
+        controls.autoRotateSpeed = rotationSpeed;
+        updateSpeedDisplay();
+      });
 
       // Start animation
       animate();
