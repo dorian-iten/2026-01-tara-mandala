@@ -1318,16 +1318,20 @@
     let orientationMode = 'ring';
 
     // Helper function to create texture from canvas with outlined text
-    function createTextTexture(text, fillColor, outlineColor, outlineWidth, fontSize = 64) {
+    function createTextTexture(text, fillColor, outlineColor, outlineWidth, fontSize = 80) {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
 
-      // Set canvas size (power of 2 for better performance)
-      canvas.width = 512;
-      canvas.height = 256;
+      // Set canvas size (higher resolution for better quality at angles)
+      canvas.width = 1024;
+      canvas.height = 512;
 
       // Clear canvas with transparent background
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Enable better text rendering
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
 
       // Setup font
       ctx.font = `bold ${fontSize}px Arial, sans-serif`;
@@ -1355,6 +1359,10 @@
       const texture = new THREE.CanvasTexture(canvas);
       texture.minFilter = THREE.LinearFilter;
       texture.magFilter = THREE.LinearFilter;
+      // Apply anisotropic filtering to reduce shimmer at angles
+      if (renderer && renderer.capabilities) {
+        texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+      }
       texture.needsUpdate = true;
 
       return texture;
@@ -1415,21 +1423,22 @@
         const angle = angleStep * index + angleOffset + baseAngle;
 
         // Create texture using Canvas→Texture method
-        // outlineWidth from config (0.02) * 200 = 4px outline
-        const texture = createTextTexture(syllable, fillColor, outlineColor, outlineWidth * 200, 80);
+        // outlineWidth from config (0.02) * 200 = 4px outline (scaled for higher res canvas)
+        const texture = createTextTexture(syllable, fillColor, outlineColor, outlineWidth * 400, 160);
 
         // Create plane geometry for the syllable
         const planeGeometry = new THREE.PlaneGeometry(2, 1);
         const planeMaterial = new THREE.MeshBasicMaterial({
           map: texture,
           transparent: true,
-          alphaTest: 0.01,
           side: THREE.DoubleSide,
           depthTest: true,
-          depthWrite: true  // Enable depth write for proper occlusion
+          depthWrite: false,  // Disable to prevent z-fighting between syllables
+          opacity: 1.0
         });
 
         const textMesh = new THREE.Mesh(planeGeometry, planeMaterial);
+        textMesh.renderOrder = 2; // Render after TAM (renderOrder 1) for proper occlusion
 
         // Position on the ring
         textMesh.position.x = Math.cos(angle) * radius;
