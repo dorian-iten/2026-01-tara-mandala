@@ -1325,29 +1325,38 @@
       const ctx = canvas.getContext('2d');
 
       // Set canvas size (power of 2 for better performance)
-      canvas.width = 256;
-      canvas.height = 128;
+      canvas.width = 512;
+      canvas.height = 256;
+
+      // Clear canvas with transparent background
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // Setup font
-      ctx.font = `bold ${fontSize}px Arial`;
+      ctx.font = `bold ${fontSize}px Arial, sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
+
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
 
       // Draw outline first (if width > 0)
       if (outlineWidth > 0) {
         ctx.strokeStyle = outlineColor;
         ctx.lineWidth = outlineWidth * 2; // Canvas uses total width
         ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
         ctx.miterLimit = 2;
-        ctx.strokeText(text, canvas.width / 2, canvas.height / 2);
+        ctx.strokeText(text, centerX, centerY);
       }
 
       // Draw fill on top
       ctx.fillStyle = fillColor;
-      ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+      ctx.fillText(text, centerX, centerY);
 
-      // Create texture
+      // Create texture with better settings
       const texture = new THREE.CanvasTexture(canvas);
+      texture.minFilter = THREE.LinearFilter;
+      texture.magFilter = THREE.LinearFilter;
       texture.needsUpdate = true;
 
       return texture;
@@ -1408,13 +1417,15 @@
         const angle = angleStep * index + angleOffset + baseAngle;
 
         // Create texture using Canvas→Texture method
-        const texture = createTextTexture(syllable, fillColor, outlineColor, outlineWidth * 10, 64);
+        // outlineWidth from config (0.02) * 200 = 4px outline
+        const texture = createTextTexture(syllable, fillColor, outlineColor, outlineWidth * 200, 80);
 
         // Create plane geometry for the syllable
         const planeGeometry = new THREE.PlaneGeometry(2, 1);
         const planeMaterial = new THREE.MeshBasicMaterial({
           map: texture,
           transparent: true,
+          alphaTest: 0.01,
           side: THREE.DoubleSide,
           depthTest: true,
           depthWrite: false
