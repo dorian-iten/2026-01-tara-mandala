@@ -299,6 +299,168 @@
     </div>
   </div>
 
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+
+    // Store preview scenes for each mantra
+    const previewScenes = [];
+
+    // Helper function to create texture from canvas with outlined text
+    function createTextTexture(text, fillColor, outlineColor, outlineWidth, fontSize = 80) {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      canvas.width = 512;
+      canvas.height = 256;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      ctx.font = `bold ${fontSize}px Arial, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+
+      // Draw outline
+      if (outlineWidth > 0) {
+        ctx.strokeStyle = outlineColor;
+        ctx.lineWidth = outlineWidth * 2;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.miterLimit = 2;
+        ctx.strokeText(text, centerX, centerY);
+      }
+
+      // Draw fill
+      ctx.fillStyle = fillColor;
+      ctx.fillText(text, centerX, centerY);
+
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.minFilter = THREE.LinearFilter;
+      texture.magFilter = THREE.LinearFilter;
+      texture.needsUpdate = true;
+
+      return texture;
+    }
+
+    // Create a 3D preview scene for a mantra
+    function createPreviewScene(canvasId, mantra) {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return null;
+
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x1a1a1a);
+
+      const camera = new THREE.PerspectiveCamera(60, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
+      camera.position.set(0, 0, 6);
+
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+      renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+
+      // Add lighting
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+      scene.add(ambientLight);
+
+      const pointLight = new THREE.PointLight(0xffffff, 0.8);
+      pointLight.position.set(5, 5, 5);
+      scene.add(pointLight);
+
+      // Center sphere
+      const sphereGeometry = new THREE.SphereGeometry(1.5, 32, 32);
+      const sphereMaterial = new THREE.MeshPhongMaterial({
+        color: 0xffffff,
+        emissive: 0xffffff,
+        emissiveIntensity: 0.2,
+        shininess: 100
+      });
+      const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+      scene.add(sphere);
+
+      // Create syllables
+      const syllables = [];
+      const syllableStyle = mantra.syllableStyle || {};
+      const fillColor = syllableStyle.fill || '#ffffff';
+      const outlineColor = syllableStyle.outlineColor || '#000000';
+      const outlineWidth = (syllableStyle.outlineWidth || 0) * 200;
+
+      // Only show first 3 syllables to keep preview simple
+      const syllablesToShow = mantra.syllables.slice(0, 3);
+      const radius = 3.5;
+      const angleStep = (Math.PI * 2) / syllablesToShow.length;
+
+      syllablesToShow.forEach((syllable, index) => {
+        const angle = angleStep * index + Math.PI / 2;
+        const texture = createTextTexture(syllable, fillColor, outlineColor, outlineWidth);
+
+        const planeGeometry = new THREE.PlaneGeometry(1.5, 0.75);
+        const planeMaterial = new THREE.MeshBasicMaterial({
+          map: texture,
+          transparent: true,
+          alphaTest: 0.01,
+          side: THREE.DoubleSide
+        });
+
+        const mesh = new THREE.Mesh(planeGeometry, planeMaterial);
+        mesh.position.x = Math.cos(angle) * radius;
+        mesh.position.z = Math.sin(angle) * radius;
+        mesh.userData.angle = angle;
+
+        scene.add(mesh);
+        syllables.push(mesh);
+      });
+
+      // Animation loop
+      let rotationAngle = 0;
+      function animate() {
+        if (!document.body.contains(canvas)) return; // Stop if canvas removed
+
+        rotationAngle += 0.005;
+
+        syllables.forEach((mesh) => {
+          const angle = mesh.userData.angle + rotationAngle;
+          mesh.position.x = Math.cos(angle) * radius;
+          mesh.position.z = Math.sin(angle) * radius;
+          mesh.lookAt(camera.position);
+        });
+
+        sphere.rotation.y += 0.005;
+
+        renderer.render(scene, camera);
+        requestAnimationFrame(animate);
+      }
+      animate();
+
+      return {
+        scene,
+        camera,
+        renderer,
+        syllables,
+        sphere,
+        updateColors: (newFillColor, newOutlineColor, newOutlineWidth) => {
+          syllables.forEach((mesh, index) => {
+            const syllable = syllablesToShow[index];
+            const texture = createTextTexture(syllable, newFillColor, newOutlineColor, newOutlineWidth * 200);
+            mesh.material.map = texture;
+            mesh.material.needsUpdate = true;
+          });
+        }
+      };
+    }
+
+    // Export functions to global scope
+    window.createPreviewScene = createPreviewScene;
+    window.previewScenes = previewScenes;
+  </script>
+
   <script>
     let config = null;
     let adminPassword = null;
@@ -377,6 +539,11 @@
         card.innerHTML = `
           <h2>${mantra.name}</h2>
 
+          <div class="preview-container">
+            <canvas class="preview-canvas" id="preview-${index}"></canvas>
+            <div class="preview-label">Live Preview</div>
+          </div>
+
           <div class="form-group">
             <label>Mantra Name</label>
             <input type="text" value="${mantra.name}"
@@ -431,18 +598,18 @@
             <div class="form-group">
               <label>Syllable Fill Color</label>
               <input type="color" value="${mantra.syllableStyle?.fill || '#ffffff'}"
-                     onchange="updateSyllableStyle(${index}, 'fill', this.value)">
+                     onchange="updateSyllableStyleAndPreview(${index}, 'fill', this.value)">
             </div>
             <div class="form-group">
               <label>Syllable Outline Color</label>
               <input type="color" value="${mantra.syllableStyle?.outlineColor || '#000000'}"
-                     onchange="updateSyllableStyle(${index}, 'outlineColor', this.value)">
+                     onchange="updateSyllableStyleAndPreview(${index}, 'outlineColor', this.value)">
             </div>
             <div class="form-group">
               <label>Syllable Outline Width</label>
               <input type="number" step="0.01" min="0" max="1"
                      value="${mantra.syllableStyle?.outlineWidth || 0.02}"
-                     onchange="updateSyllableStyle(${index}, 'outlineWidth', parseFloat(this.value))">
+                     onchange="updateSyllableStyleAndPreview(${index}, 'outlineWidth', parseFloat(this.value))">
             </div>
           </div>
 
@@ -459,6 +626,14 @@
         `;
         container.appendChild(card);
       });
+
+      // Initialize 3D previews after DOM is ready
+      setTimeout(() => {
+        config.mantras.forEach((mantra, index) => {
+          const previewScene = window.createPreviewScene(`preview-${index}`, mantra);
+          window.previewScenes[index] = previewScene;
+        });
+      }, 100);
     }
 
     function updateMantra(index, field, value) {
@@ -470,6 +645,22 @@
         config.mantras[index].syllableStyle = {};
       }
       config.mantras[index].syllableStyle[field] = value;
+    }
+
+    function updateSyllableStyleAndPreview(index, field, value) {
+      // Update the config
+      updateSyllableStyle(index, field, value);
+
+      // Update the preview if it exists
+      if (window.previewScenes[index]) {
+        const mantra = config.mantras[index];
+        const style = mantra.syllableStyle || {};
+        window.previewScenes[index].updateColors(
+          style.fill || '#ffffff',
+          style.outlineColor || '#000000',
+          style.outlineWidth || 0.02
+        );
+      }
     }
 
     function updateMantraGradient(index, jsonString) {
