@@ -29,13 +29,22 @@ Visit `/admin` or `/admin.html` on your deployed application.
 
 ### Initial Setup
 
-1. **Set Admin Password**: Before deploying, set the `ADMIN_PASSWORD` environment variable in Vercel:
-   ```bash
-   vercel env add ADMIN_PASSWORD
-   ```
-   Or use the Vercel dashboard: Project Settings → Environment Variables
+Before using the admin interface, you need to configure two things in Vercel:
 
-2. **Default Password**: If not set, the default password is `admin123` (for testing only)
+1. **Enable Vercel Blob Storage**:
+   - Go to your project in the Vercel Dashboard
+   - Navigate to the "Storage" tab
+   - Click "Create Database" and select "Blob"
+   - This will automatically add the `BLOB_READ_WRITE_TOKEN` environment variable
+
+2. **Set Admin Password**:
+   - In Vercel Dashboard: Project Settings → Environment Variables
+   - Add `ADMIN_PASSWORD` with your desired password
+   - Or use CLI: `vercel env add ADMIN_PASSWORD`
+
+3. **Default Password**: If not set, the default password is `admin123` (for testing only)
+
+**Note**: Configuration changes are persisted in Vercel Blob storage, not in the filesystem. The `mantras.json` file serves as the default configuration that is used until you make changes via the admin interface.
 
 ### Using the Admin Interface
 
@@ -105,7 +114,28 @@ The admin interface uses a serverless API endpoint at `/api/config`:
 
 ### Deployment
 
-The application is configured for Vercel deployment with the included `vercel.json` file:
-- Serverless API functions are automatically deployed
-- Admin route is properly configured
-- Environment variables are securely stored
+The application is configured for Vercel deployment:
+
+1. **Install dependencies** (first time only):
+   ```bash
+   npm install
+   ```
+
+2. **Deploy to Vercel**:
+   ```bash
+   vercel --prod
+   ```
+
+3. **Set up storage and environment variables** (see Initial Setup above)
+
+**How it works**:
+- `mantras.json` is the default configuration built into the app
+- When you make changes via `/admin`, they're saved to Vercel Blob storage
+- The app reads from Blob storage first, falling back to `mantras.json` if no custom config exists
+- This means changes persist across deployments without modifying your code
+
+**Technical details**:
+- Serverless API functions are automatically deployed from the `/api` directory
+- Admin interface is accessible at `/admin`
+- Blob storage provides persistent, scalable configuration storage
+- Environment variables are securely stored in Vercel

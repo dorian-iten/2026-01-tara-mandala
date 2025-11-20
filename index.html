@@ -1078,7 +1078,8 @@
       // Get the TAM image path for the current schema
       const schema = schemas[schemaIndex || currentSchema];
       const tamImagePath = schema.tamImage || 'images/tam-4.png';
-      const tamOutlineColor = schema.tamOutlineColor || null;
+      // Support both new (tamOutlineColor) and old (outlineColor) field names for backward compatibility
+      const tamOutlineColor = schema.tamOutlineColor || schema.outlineColor || null;
       const tamColor = schema.tamColor || '#ffffff';
 
       // Load PNG texture
