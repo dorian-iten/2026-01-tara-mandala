@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3D Outline Lab · Mantra Syllables</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        font-family: "Space Grotesk", "Inter", system-ui, -apple-system, sans-serif;
+        color: #1b1036;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        padding: 40px 24px 60px;
+        background: radial-gradient(circle at 20% 20%, #fef6ff, #e9f3ff 45%, #e3ffe9 80%);
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+      }
+
+      main {
+        width: min(1280px, 100%);
+        background: rgba(255, 255, 255, 0.94);
+        border-radius: 32px;
+        border: 1px solid rgba(68, 32, 115, 0.12);
+        box-shadow: 0 32px 80px rgba(45, 19, 88, 0.18);
+        overflow: hidden;
+      }
+
+      header {
+        padding: 36px 44px 18px;
+      }
+
+      header h1 {
+        margin: 0 0 12px;
+        font-size: clamp(28px, 4vw, 42px);
+      }
+
+      header p {
+        margin: 0;
+        color: rgba(27, 16, 54, 0.75);
+        line-height: 1.6;
+      }
+
+      .control-panel {
+        padding: 28px 44px 32px;
+        background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(14, 165, 233, 0.08));
+        border-top: 1px solid rgba(124, 58, 237, 0.12);
+        border-bottom: 1px solid rgba(14, 165, 233, 0.12);
+        display: grid;
+        gap: 22px;
+      }
+
+      .control-panel .row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 20px;
+      }
+
+      label {
+        font-weight: 600;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: rgba(17, 9, 32, 0.7);
+      }
+
+      .control-panel input[type="text"],
+      .control-panel input[type="color"],
+      .control-panel input[type="range"] {
+        width: 100%;
+        border: 1px solid rgba(17, 9, 32, 0.15);
+        border-radius: 12px;
+        padding: 12px 14px;
+        font: inherit;
+        margin-top: 6px;
+        background: #fff;
+      }
+
+      .range-field {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .range-field span {
+        font-weight: 600;
+        min-width: 55px;
+        text-align: right;
+      }
+
+      .tech-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 28px;
+        padding: 36px 44px 48px;
+      }
+
+      .tech-card {
+        background: rgba(247, 244, 255, 0.95);
+        border-radius: 28px;
+        border: 1px solid rgba(32, 15, 58, 0.08);
+        box-shadow: 0 18px 45px rgba(21, 7, 34, 0.08);
+        padding: 26px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .tech-card.full-width {
+        grid-column: 1 / -1;
+      }
+
+      .card-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 14px;
+      }
+
+      .card-heading h2 {
+        margin: 0;
+        font-size: 18px;
+      }
+
+      .tag {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: rgba(27, 16, 54, 0.7);
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: rgba(124, 58, 237, 0.18);
+      }
+
+      .three-wrapper {
+        border-radius: 22px;
+        border: 1px solid rgba(123, 63, 255, 0.18);
+        overflow: hidden;
+        background: radial-gradient(circle at 30% 40%, #13041f, #05010f 70%);
+        position: relative;
+      }
+
+      canvas.three-board {
+        width: 100%;
+        height: 320px;
+        display: block;
+      }
+
+      .tech-card p {
+        margin: 0;
+        color: rgba(27, 16, 54, 0.75);
+        line-height: 1.5;
+      }
+
+      .insights {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 18px;
+        margin-top: 12px;
+      }
+
+      .insights h3 {
+        margin: 0 0 8px;
+        font-size: 13px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(27, 16, 54, 0.55);
+      }
+
+      .insights ul {
+        margin: 0;
+        padding-left: 18px;
+        color: rgba(27, 16, 54, 0.75);
+        font-size: 14px;
+        line-height: 1.45;
+      }
+
+      .orientation-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 14px 0 6px;
+        padding: 8px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.65);
+        border: 1px solid rgba(27, 16, 54, 0.12);
+      }
+
+      .orientation-controls label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 600;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: rgba(27, 16, 54, 0.7);
+      }
+
+      .full-width canvas.three-board {
+        height: 420px;
+      }
+
+      footer {
+        padding: 0 44px 44px;
+        color: rgba(27, 16, 54, 0.65);
+        font-size: 14px;
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 24px 12px 40px;
+        }
+
+        main {
+          border-radius: 24px;
+        }
+
+        header,
+        .control-panel,
+        .tech-grid,
+        footer {
+          padding-left: 20px;
+          padding-right: 20px;
+        }
+
+        canvas.three-board {
+          height: 260px;
+        }
+
+        .full-width canvas.three-board {
+          height: 320px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>3D Outline Sandbox</h1>
+        <p>
+          Three self-contained WebGL scenes to prototype how we can render white mantra syllables with a crisp border.
+          Each card uses a different technique so we can gauge quality, cost, and portability back into the main spiral.
+        </p>
+      </header>
+
+      <section class="control-panel">
+        <div class="row">
+          <label>
+            Syllable text
+            <input id="syllable-input" type="text" value="PRA" maxlength="14" />
+          </label>
+          <label>
+            Fill color
+            <input id="fill-color" type="color" value="#ffffff" />
+          </label>
+          <label>
+            Stroke color
+            <input id="stroke-color" type="color" value="#ff3366" />
+          </label>
+        </div>
+        <div class="row">
+          <label>
+            Stroke width
+            <div class="range-field">
+              <input id="stroke-width" type="range" min="1" max="20" value="5" />
+              <span id="stroke-width-display">5px</span>
+            </div>
+          </label>
+        </div>
+      </section>
+
+      <section class="tech-grid">
+        <article class="tech-card">
+          <div class="card-heading">
+            <h2>1 · Scaled Backside Shell</h2>
+            <span class="tag">Pure geometry</span>
+          </div>
+          <p>
+            Duplicate the glyph mesh, flip it to `BackSide`, and scale it by a factor related to the stroke width. Super
+            lightweight and plays nicely with instancing or instanced buffers.
+          </p>
+          <div class="three-wrapper">
+            <canvas id="demo-scale-shell" class="three-board" aria-label="Scaled outline demo"></canvas>
+          </div>
+          <div class="insights">
+            <div>
+              <h3>Pros</h3>
+              <ul>
+                <li>Ultra-cheap draw call, works with instancing.</li>
+                <li>No custom shader or post-processing.</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Cons</h3>
+              <ul>
+                <li>Inflation is uniform, so thin stems swell.</li>
+                <li>Counters/inner shapes can collapse at high widths.</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="tech-card">
+          <div class="card-heading">
+            <h2>2 · Normal-Push Shader</h2>
+            <span class="tag">Custom shader</span>
+          </div>
+          <p>
+            Use a `ShaderMaterial` to push the duplicate mesh along its normals instead of scaling the whole object.
+            Produces a truer “stroke” thickness, even when glyph proportions change.
+          </p>
+          <div class="three-wrapper">
+            <canvas id="demo-normal-push" class="three-board" aria-label="Normal push outline demo"></canvas>
+          </div>
+          <div class="insights">
+            <div>
+              <h3>Pros</h3>
+              <ul>
+                <li>Stroke thickness stays even around all contours.</li>
+                <li>Still just two meshes—easy to plug into the ring.</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Cons</h3>
+              <ul>
+                <li>Needs a small shader tweak (no pure material drop-in).</li>
+                <li>Slightly higher cost than the scaled shell.</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="tech-card">
+          <div class="card-heading">
+            <h2>3 · Edge Hybrid (Line2)</h2>
+            <span class="tag">Thick wireframe</span>
+          </div>
+          <p>
+            Render the filled mesh and layer a `Line2` outline built from `EdgesGeometry`. This keeps GPU cost low while
+            letting us dial outline width in screen space.
+          </p>
+          <div class="three-wrapper">
+            <canvas id="demo-edge-lines" class="three-board" aria-label="Edge outline demo"></canvas>
+          </div>
+          <div class="insights">
+            <div>
+              <h3>Pros</h3>
+              <ul>
+                <li>Lines stay razor sharp in screen space.</li>
+                <li>Fantastic for graphic/outlined looks.</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Cons</h3>
+              <ul>
+                <li>No fill stroke—just contours, so counters stay hollow.</li>
+                <li>Looks wireframe when viewed up close.</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="tech-card">
+          <div class="card-heading">
+            <h2>4 · SVG Texture Plane</h2>
+            <span class="tag">Dynamic texture</span>
+          </div>
+          <p>
+            Render the syllable as high-res vector art (fill + stroke) on an offscreen canvas, convert it into a texture,
+            and map it to a plane in 3D space. We keep crisp outlines without fighting mesh artifacts.
+          </p>
+          <div class="three-wrapper">
+            <canvas id="demo-texture-plane" class="three-board" aria-label="Texture plane outline demo"></canvas>
+          </div>
+          <div class="insights">
+            <div>
+              <h3>Pros</h3>
+              <ul>
+                <li>Pixel-perfect stroke control using SVG/canvas.</li>
+                <li>Only one quad per syllable—fast and artifact free.</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Cons</h3>
+              <ul>
+                <li>No genuine 3D depth on the glyph.</li>
+                <li>Needs a texture update when colors/text change.</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="tech-card full-width">
+          <div class="card-heading">
+            <h2>5 · Texture Ring Variants</h2>
+            <span class="tag">Multi-syllable</span>
+          </div>
+          <p>
+            A ring of syllable planes rendered from the same SVG/canvas pipeline. Toggle the orientation mode to compare
+            fixed planes vs. billboarding towards the camera. This mirrors the final experience with multiple syllables
+            orbiting a center mantra seal.
+          </p>
+          <div class="orientation-controls" role="group" aria-label="Ring orientation mode">
+            <label>
+              <input type="radio" name="ring-orientation" value="radial" checked />
+              Fixed radial
+            </label>
+            <label>
+              <input type="radio" name="ring-orientation" value="billboard" />
+              Billboard
+            </label>
+          </div>
+          <div class="orientation-controls" role="group" aria-label="Ring depth style">
+            <label>
+              <input type="radio" name="ring-depth" value="flat" checked />
+              Flat
+            </label>
+            <label>
+              <input type="radio" name="ring-depth" value="layered" />
+              Layered rim
+            </label>
+            <label>
+              <input type="radio" name="ring-depth" value="bevel" />
+              Bevel map
+            </label>
+          </div>
+          <div class="three-wrapper">
+            <canvas id="demo-texture-ring" class="three-board" aria-label="Texture ring demo"></canvas>
+          </div>
+          <div class="insights">
+            <div>
+              <h3>Pros</h3>
+              <ul>
+                <li>Shows how billboarding keeps characters legible in the spiral.</li>
+                <li>Easy to mix multiple syllables with varied spacing.</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Cons</h3>
+              <ul>
+                <li>Requires per-frame orientation updates when billboarding.</li>
+                <li>Purely flat planes, so depth cues rely on lighting/post FX.</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <footer>
+        Every demo runs inside its own three.js scene, so you can lift whichever approach feels best back into
+        `index.html`. Swap the materials on the mantra syllable meshes or reuse the shader/Line2 logic directly.
+      </footer>
+    </main>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module">
+      import * as THREE from "three";
+      import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
+      import { FontLoader } from "three/addons/loaders/FontLoader.js";
+      import { Line2 } from "three/addons/lines/Line2.js";
+      import { LineMaterial } from "three/addons/lines/LineMaterial.js";
+      import { LineGeometry } from "three/addons/lines/LineGeometry.js";
+
+      const textInput = document.getElementById("syllable-input");
+      const fillInput = document.getElementById("fill-color");
+      const strokeInput = document.getElementById("stroke-color");
+      const widthInput = document.getElementById("stroke-width");
+      const widthDisplay = document.getElementById("stroke-width-display");
+      const ringOrientationInputs = document.querySelectorAll('input[name="ring-orientation"]');
+      const ringDepthInputs = document.querySelectorAll('input[name="ring-depth"]');
+
+      const state = {
+        text: "PRA",
+        fill: "#ffffff",
+        stroke: "#ff3366",
+        strokeWidth: 5
+      };
+      const sampleSyllables = ["OM", "TA", "RE", "TU", "TA", "RE", "TU", "RE", "PRA", "JNA", "HRING", "HRING", "SVA", "HA"];
+
+      const demoConfigs = [
+        { id: "demo-scale-shell", strategy: "scaleShell" },
+        { id: "demo-normal-push", strategy: "normalPush" },
+        { id: "demo-edge-lines", strategy: "edgeLines" }
+      ];
+
+      class OutlineDemo {
+        constructor(canvas, strategy) {
+          this.canvas = canvas;
+          this.strategy = strategy;
+          this.scene = new THREE.Scene();
+          this.scene.background = null;
+          this.camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
+          this.camera.position.set(0, 0, 14);
+          this.renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            alpha: true,
+            canvas: this.canvas
+          });
+          this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+          this.renderer.setClearColor(0x000000, 0);
+          this.group = new THREE.Group();
+          this.scene.add(this.group);
+          this.clock = new THREE.Clock();
+          this.font = null;
+          this.options = { ...state };
+          this.disposables = [];
+          this.lineMaterial = null;
+
+          const hemi = new THREE.HemisphereLight(0xffffff, 0x08020f, 0.9);
+          this.scene.add(hemi);
+          const dir = new THREE.DirectionalLight(0xffffff, 0.8);
+          dir.position.set(6, 8, 10);
+          this.scene.add(dir);
+
+          this.handleResize();
+        }
+
+        initialize(font) {
+          this.font = font;
+          this.rebuild();
+          this.animate();
+        }
+
+        setOptions(options) {
+          this.options = { ...this.options, ...options };
+          if (!this.font) return;
+          this.rebuild();
+        }
+
+        rebuild() {
+          this.clearGroup();
+
+          const baseGeometry = new TextGeometry(this.options.text, {
+            font: this.font,
+            size: 3.4,
+            height: 0.4,
+            curveSegments: 12,
+            bevelEnabled: false
+          });
+          baseGeometry.center();
+
+          const fillMaterial = new THREE.MeshStandardMaterial({
+            color: new THREE.Color(this.options.fill),
+            roughness: 0.35,
+            metalness: 0.1,
+            polygonOffset: true,
+            polygonOffsetFactor: -1,
+            polygonOffsetUnits: -1
+          });
+          const fillMesh = new THREE.Mesh(baseGeometry.clone(), fillMaterial);
+          this.group.add(fillMesh);
+          this.disposables.push(fillMesh.geometry, fillMaterial);
+
+          if (this.strategy === "scaleShell") {
+            this.addScaledOutline(baseGeometry);
+          } else if (this.strategy === "normalPush") {
+            this.addNormalOutline(baseGeometry);
+          } else if (this.strategy === "edgeLines") {
+            this.addEdgeOutline(baseGeometry);
+          }
+
+          baseGeometry.dispose();
+        }
+
+        addScaledOutline(baseGeometry) {
+          const outlineMaterial = new THREE.MeshBasicMaterial({
+            color: new THREE.Color(this.options.stroke),
+            side: THREE.BackSide,
+            transparent: false
+          });
+          const outlineMesh = new THREE.Mesh(baseGeometry.clone(), outlineMaterial);
+          const inflate = 1 + this.options.strokeWidth * 0.015;
+          outlineMesh.scale.set(inflate, inflate, inflate);
+          this.group.add(outlineMesh);
+          this.disposables.push(outlineMesh.geometry, outlineMaterial);
+        }
+
+        addNormalOutline(baseGeometry) {
+          const outlineMaterial = new THREE.MeshStandardMaterial({
+            color: new THREE.Color(this.options.stroke),
+            roughness: 0.2,
+            metalness: 0.05,
+            side: THREE.BackSide,
+            polygonOffset: true,
+            polygonOffsetFactor: 1,
+            polygonOffsetUnits: 1,
+            onBeforeCompile: (shader) => {
+              shader.uniforms.thickness = { value: this.options.strokeWidth * 0.045 };
+              shader.vertexShader = shader.vertexShader.replace(
+                "#include <begin_vertex>",
+                `
+                vec3 displacedPosition = transformed + normal * thickness;
+                transformed = displacedPosition;
+                `
+              );
+              outlineMaterial.userData.shader = shader;
+            }
+          });
+          const outlineMesh = new THREE.Mesh(baseGeometry.clone(), outlineMaterial);
+          this.group.add(outlineMesh);
+          this.disposables.push(outlineMesh.geometry, outlineMaterial);
+        }
+
+        addEdgeOutline(baseGeometry) {
+          const edgesGeometry = new THREE.EdgesGeometry(baseGeometry.clone(), 1);
+          const lineGeometry = new LineGeometry();
+          lineGeometry.setPositions(Array.from(edgesGeometry.attributes.position.array));
+
+          const lineMaterial = new LineMaterial({
+            color: new THREE.Color(this.options.stroke),
+            linewidth: Math.max(1, this.options.strokeWidth * 1.1),
+            dashed: false,
+            alphaToCoverage: true
+          });
+          const { clientWidth = 300, clientHeight = 200 } = this.canvas;
+          lineMaterial.resolution.set(clientWidth, clientHeight);
+
+          const lines = new Line2(lineGeometry, lineMaterial);
+          lines.computeLineDistances();
+          this.group.add(lines);
+
+          this.lineMaterial = lineMaterial;
+          this.disposables.push(edgesGeometry, lineGeometry, lineMaterial);
+        }
+
+        clearGroup() {
+          while (this.group.children.length) {
+            this.group.remove(this.group.children[0]);
+          }
+          this.disposables.forEach((item) => {
+            if (item && typeof item.dispose === "function") {
+              item.dispose();
+            }
+          });
+          this.disposables = [];
+          this.lineMaterial = null;
+        }
+
+        handleResize() {
+          const width = this.canvas.clientWidth || this.canvas.offsetWidth || 300;
+          const height = this.canvas.clientHeight || this.canvas.offsetHeight || 200;
+          this.camera.aspect = width / height;
+          this.camera.updateProjectionMatrix();
+          this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+          this.renderer.setSize(width, height, false);
+          if (this.lineMaterial) {
+            this.lineMaterial.resolution.set(width, height);
+          }
+        }
+
+        animate() {
+          this.animationId = requestAnimationFrame(() => this.animate());
+          const elapsed = this.clock.getElapsedTime();
+          this.group.rotation.y = elapsed * 0.4;
+          this.group.rotation.x = Math.sin(elapsed * 0.4) * 0.08;
+          if (this.lineMaterial) {
+            const width = this.canvas.clientWidth || 300;
+            const height = this.canvas.clientHeight || 200;
+            this.lineMaterial.resolution.set(width, height);
+          }
+          this.renderer.render(this.scene, this.camera);
+        }
+      }
+
+      class TextureRingDemo {
+        constructor(canvas) {
+          this.canvas = canvas;
+          this.scene = new THREE.Scene();
+          this.camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+          this.camera.position.set(0, 1.5, 16);
+          this.renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            alpha: true,
+            canvas: this.canvas
+          });
+          this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+          this.renderer.setClearColor(0x000000, 0);
+
+          const ambient = new THREE.AmbientLight(0xffffff, 1);
+          this.scene.add(ambient);
+          const dir = new THREE.DirectionalLight(0xffffff, 1.5);
+          dir.position.set(5, 8, 10);
+          this.scene.add(dir);
+
+          this.group = new THREE.Group();
+          this.scene.add(this.group);
+
+          this.textureWidth = 1024;
+          this.textureHeight = 512;
+          this.planeHeight = 2.4;
+          this.planeWidth = this.planeHeight * (this.textureWidth / this.textureHeight);
+          this.planeGeometry = new THREE.PlaneGeometry(this.planeWidth, this.planeHeight, 64, 16);
+          this.maxAnisotropy = this.renderer.capabilities.getMaxAnisotropy();
+
+          this.radius = 7.5;
+          this.rotationSpeed = 0.25;
+          this.orientation = "radial";
+          this.depthStyle = "flat";
+          this.options = { ...state };
+          this.sampleSyllables = sampleSyllables;
+
+          this.origin = new THREE.Vector3();
+          this.cameraWorld = new THREE.Vector3();
+          this.clock = new THREE.Clock();
+
+          this.syllableGroups = [];
+          this.createRing();
+          this.handleResize();
+        }
+
+        createRing() {
+          this.sampleSyllables.forEach((syllable, index) => {
+            const holder = new THREE.Group();
+            const angle = (index / this.sampleSyllables.length) * Math.PI * 2;
+            holder.position.set(Math.cos(angle) * this.radius, 0, Math.sin(angle) * this.radius);
+            holder.userData.angle = angle;
+            this.group.add(holder);
+
+            const assets = this.createTextureAssets(syllable);
+            const groupRecord = {
+              holder,
+              syllable,
+              assets,
+              frontNode: null,
+              extraNodes: []
+            };
+            this.syllableGroups.push(groupRecord);
+          });
+
+          this.applyDepthStyle(true);
+          this.updateOrientation(true);
+        }
+
+        createTextureAssets(text) {
+          const colorCanvas = document.createElement("canvas");
+          colorCanvas.width = this.textureWidth;
+          colorCanvas.height = this.textureHeight;
+          const colorCtx = colorCanvas.getContext("2d");
+          this.drawColorMap(colorCtx, colorCanvas.width, colorCanvas.height, text);
+          const colorTexture = new THREE.CanvasTexture(colorCanvas);
+          colorTexture.encoding = THREE.sRGBEncoding;
+          colorTexture.anisotropy = this.maxAnisotropy;
+          colorTexture.needsUpdate = true;
+
+          const heightCanvas = document.createElement("canvas");
+          heightCanvas.width = this.textureWidth;
+          heightCanvas.height = this.textureHeight;
+          const heightCtx = heightCanvas.getContext("2d");
+          this.drawHeightMap(heightCtx, heightCanvas.width, heightCanvas.height, text);
+          const heightTexture = new THREE.CanvasTexture(heightCanvas);
+          heightTexture.encoding = THREE.LinearEncoding;
+          heightTexture.needsUpdate = true;
+
+          return { colorTexture, heightTexture };
+        }
+
+        drawColorMap(ctx, width, height, text) {
+          ctx.save();
+          ctx.clearRect(0, 0, width, height);
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.lineJoin = "round";
+          ctx.lineCap = "round";
+          const fontSize = height * 0.55;
+          ctx.font = `700 ${fontSize}px "Space Grotesk", "Inter", sans-serif`;
+          ctx.strokeStyle = this.options.stroke;
+          ctx.fillStyle = this.options.fill;
+          ctx.lineWidth = Math.max(6, this.options.strokeWidth * 10);
+          const centerY = height / 2 + fontSize * 0.05;
+          ctx.strokeText(text, width / 2, centerY);
+          ctx.fillText(text, width / 2, centerY);
+          ctx.restore();
+        }
+
+        drawHeightMap(ctx, width, height, text) {
+          ctx.save();
+          ctx.clearRect(0, 0, width, height);
+          ctx.fillStyle = "#000";
+          ctx.fillRect(0, 0, width, height);
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          const fontSize = height * 0.55;
+          ctx.font = `700 ${fontSize}px "Space Grotesk", "Inter", sans-serif`;
+          ctx.fillStyle = "#fff";
+          ctx.filter = "blur(14px)";
+          const centerY = height / 2 + fontSize * 0.05;
+          ctx.fillText(text, width / 2, centerY);
+          ctx.filter = "none";
+          ctx.globalAlpha = 0.35;
+          ctx.fillText(text, width / 2, centerY);
+          ctx.restore();
+        }
+
+        setOptions(options) {
+          this.options = { ...this.options, ...options };
+          this.updateTextures();
+        }
+
+        updateTextures() {
+          this.syllableGroups.forEach((group) => {
+            const oldAssets = group.assets;
+            group.assets = this.createTextureAssets(group.syllable);
+            this.applyDepthToGroup(group);
+            if (oldAssets) {
+              this.disposeAssets(oldAssets);
+            }
+          });
+        }
+
+        createBasicMaterial(texture, extra = {}) {
+          return new THREE.MeshBasicMaterial({
+            map: texture,
+            transparent: true,
+            alphaTest: 0.05,
+            side: THREE.DoubleSide,
+            depthWrite: extra.depthWrite ?? true,
+            ...extra
+          });
+        }
+
+        createPlaneMesh(material) {
+          return new THREE.Mesh(this.planeGeometry, material);
+        }
+
+        buildStyleNodes(assets) {
+          if (this.depthStyle === "layered") {
+            const front = this.createPlaneMesh(this.createBasicMaterial(assets.colorTexture));
+            const rimColor = new THREE.Color(this.options.stroke || "#ff3366").multiplyScalar(0.6);
+            const rim = this.createPlaneMesh(
+              this.createBasicMaterial(assets.colorTexture, {
+                color: rimColor,
+                opacity: 0.9,
+                depthWrite: false
+              })
+            );
+            rim.position.z = 0.15;
+            rim.scale.set(1.08, 1.08, 1);
+            return { front, extras: [rim] };
+          }
+
+          if (this.depthStyle === "bevel") {
+            const material = new THREE.MeshStandardMaterial({
+              map: assets.colorTexture,
+              transparent: true,
+              alphaTest: 0.05,
+              roughness: 0.2,
+              metalness: 0.2,
+              bumpMap: assets.heightTexture,
+              bumpScale: 1.25,
+              displacementMap: assets.heightTexture,
+              displacementScale: 0.08,
+              side: THREE.DoubleSide
+            });
+            const front = this.createPlaneMesh(material);
+            return { front, extras: [] };
+          }
+
+          const front = this.createPlaneMesh(this.createBasicMaterial(assets.colorTexture));
+          return { front, extras: [] };
+        }
+
+        clearNodes(group) {
+          const removeNode = (node) => {
+            if (!node) return;
+            group.holder.remove(node);
+            this.disposeNode(node);
+          };
+          removeNode(group.frontNode);
+          group.frontNode = null;
+          (group.extraNodes || []).forEach(removeNode);
+          group.extraNodes = [];
+        }
+
+        disposeNode(node) {
+          if (!node) return;
+          if (node.isMesh) {
+            const materials = Array.isArray(node.material) ? node.material : [node.material];
+            materials.forEach((mat) => {
+              if (mat && typeof mat.dispose === "function") {
+                mat.dispose();
+              }
+            });
+          }
+          if (node.children) {
+            [...node.children].forEach((child) => {
+              node.remove(child);
+              this.disposeNode(child);
+            });
+          }
+        }
+
+        disposeAssets(assets) {
+          if (assets.colorTexture) assets.colorTexture.dispose();
+          if (assets.heightTexture) assets.heightTexture.dispose();
+        }
+
+        applyDepthToGroup(group) {
+          this.clearNodes(group);
+          const nodes = this.buildStyleNodes(group.assets);
+          group.frontNode = nodes.front;
+          group.extraNodes = nodes.extras || [];
+          if (group.frontNode) {
+            group.holder.add(group.frontNode);
+          }
+          group.extraNodes.forEach((node) => group.holder.add(node));
+        }
+
+        applyDepthStyle(initial = false) {
+          this.syllableGroups.forEach((group) => {
+            if (!group.assets) {
+              group.assets = this.createTextureAssets(group.syllable);
+            }
+            this.applyDepthToGroup(group);
+          });
+          if (!initial) {
+            this.updateOrientation();
+          }
+        }
+
+        setDepthStyle(mode) {
+          if (mode === this.depthStyle) return;
+          this.depthStyle = mode;
+          this.applyDepthStyle();
+        }
+
+        setOrientation(mode) {
+          this.orientation = mode;
+          this.updateOrientation();
+        }
+
+        updateOrientation(initial = false) {
+          this.syllableGroups.forEach(({ holder }) => {
+            if (this.orientation === "radial") {
+              holder.lookAt(this.origin);
+            } else if (!initial) {
+              holder.rotation.set(0, 0, 0);
+            }
+          });
+        }
+
+        handleResize() {
+          const width = this.canvas.clientWidth || this.canvas.offsetWidth || 300;
+          const height = this.canvas.clientHeight || this.canvas.offsetHeight || 200;
+          this.camera.aspect = width / height;
+          this.camera.updateProjectionMatrix();
+          this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+          this.renderer.setSize(width, height, false);
+        }
+
+        initialize() {
+          this.animate();
+        }
+
+        animate() {
+          requestAnimationFrame(() => this.animate());
+          const delta = this.clock.getDelta();
+          this.group.rotation.y += delta * this.rotationSpeed;
+          this.camera.getWorldPosition(this.cameraWorld);
+          if (this.orientation === "billboard") {
+            this.syllableGroups.forEach(({ holder }) => {
+              holder.lookAt(this.cameraWorld);
+            });
+          }
+          this.renderer.render(this.scene, this.camera);
+        }
+      }
+
+      class TexturePlaneDemo {
+        constructor(canvas) {
+          this.canvas = canvas;
+          this.scene = new THREE.Scene();
+          this.camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
+          this.camera.position.set(0, 0, 10);
+          this.renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            alpha: true,
+            canvas: this.canvas
+          });
+          this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+          this.renderer.setClearColor(0x000000, 0);
+
+          this.group = new THREE.Group();
+          this.scene.add(this.group);
+
+          this.offscreen = document.createElement("canvas");
+          this.offscreen.width = 2048;
+          this.offscreen.height = 1024;
+          this.ctx = this.offscreen.getContext("2d");
+
+          this.texture = new THREE.CanvasTexture(this.offscreen);
+          this.texture.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
+          this.texture.encoding = THREE.sRGBEncoding;
+          this.texture.needsUpdate = true;
+
+          const planeHeight = 4.5;
+          const planeWidth = planeHeight * (this.offscreen.width / this.offscreen.height);
+          const planeGeo = new THREE.PlaneGeometry(planeWidth, planeHeight);
+          const planeMat = new THREE.MeshBasicMaterial({
+            map: this.texture,
+            transparent: true,
+            alphaTest: 0.05,
+            side: THREE.DoubleSide
+          });
+          this.plane = new THREE.Mesh(planeGeo, planeMat);
+          this.group.add(this.plane);
+
+          const ambient = new THREE.AmbientLight(0xffffff, 0.8);
+          this.scene.add(ambient);
+
+          this.clock = new THREE.Clock();
+          this.options = { ...state };
+          this.handleResize();
+        }
+
+        initialize() {
+          this.updateTexture();
+          this.animate();
+        }
+
+        setOptions(options) {
+          this.options = { ...this.options, ...options };
+          this.updateTexture();
+        }
+
+        updateTexture() {
+          const ctx = this.ctx;
+          const { width, height } = this.offscreen;
+          ctx.save();
+          ctx.clearRect(0, 0, width, height);
+          ctx.fillStyle = "rgba(0,0,0,0)";
+          ctx.fillRect(0, 0, width, height);
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.lineJoin = "round";
+          ctx.lineCap = "round";
+
+          const fontSize = height * 0.6;
+          ctx.font = `700 ${fontSize}px "Space Grotesk", "Inter", sans-serif`;
+          ctx.strokeStyle = this.options.stroke;
+          ctx.fillStyle = this.options.fill;
+          ctx.lineWidth = Math.max(6, this.options.strokeWidth * 12);
+
+          const text = (this.options.text || "PRA").toUpperCase();
+          const centerY = height / 2 + fontSize * 0.04;
+          ctx.strokeText(text, width / 2, centerY);
+          ctx.fillText(text, width / 2, centerY);
+          ctx.restore();
+          this.texture.needsUpdate = true;
+        }
+
+        handleResize() {
+          const width = this.canvas.clientWidth || this.canvas.offsetWidth || 300;
+          const height = this.canvas.clientHeight || this.canvas.offsetHeight || 200;
+          this.camera.aspect = width / height;
+          this.camera.updateProjectionMatrix();
+          this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+          this.renderer.setSize(width, height, false);
+        }
+
+        animate() {
+          this.animationId = requestAnimationFrame(() => this.animate());
+          const elapsed = this.clock.getElapsedTime();
+          this.group.rotation.y = Math.sin(elapsed * 0.5) * 0.2;
+          this.group.rotation.x = Math.sin(elapsed * 0.3) * 0.05;
+          this.renderer.render(this.scene, this.camera);
+        }
+      }
+
+      const demos = demoConfigs.map(
+        (config) => new OutlineDemo(document.getElementById(config.id), config.strategy)
+      );
+      const textureDemo = new TexturePlaneDemo(document.getElementById("demo-texture-plane"));
+      const textureRingDemo = new TextureRingDemo(document.getElementById("demo-texture-ring"));
+
+      textureDemo.initialize();
+      textureRingDemo.initialize();
+
+      const loader = new FontLoader();
+      loader.load(
+        "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/fonts/helvetiker_regular.typeface.json",
+        (font) => {
+          demos.forEach((demo) => demo.initialize(font));
+          syncDemos();
+        }
+      );
+
+      function syncDemos() {
+        demos.forEach((demo) => demo.setOptions(state));
+        textureDemo.setOptions(state);
+        textureRingDemo.setOptions(state);
+      }
+
+      textInput.addEventListener("input", () => {
+        state.text = (textInput.value.trim() || "PRA").toUpperCase();
+        syncDemos();
+      });
+
+      fillInput.addEventListener("input", () => {
+        state.fill = fillInput.value;
+        syncDemos();
+      });
+
+      strokeInput.addEventListener("input", () => {
+        state.stroke = strokeInput.value;
+        syncDemos();
+      });
+
+      widthInput.addEventListener("input", () => {
+        state.strokeWidth = parseInt(widthInput.value, 10);
+        widthDisplay.textContent = `${state.strokeWidth}px`;
+        syncDemos();
+      });
+
+      ringOrientationInputs.forEach((input) => {
+        input.addEventListener("change", (event) => {
+          if (event.target.checked) {
+            textureRingDemo.setOrientation(event.target.value);
+          }
+        });
+      });
+
+      ringDepthInputs.forEach((input) => {
+        input.addEventListener("change", (event) => {
+          if (event.target.checked) {
+            textureRingDemo.setDepthStyle(event.target.value);
+          }
+        });
+      });
+
+      window.addEventListener("resize", () => {
+        demos.forEach((demo) => demo.handleResize());
+        textureDemo.handleResize();
+        textureRingDemo.handleResize();
+      });
+    </script>
+  </body>
+</html>
