@@ -139,6 +139,44 @@
       display: inline-block;
       margin-bottom: 10px;
     }
+
+    .mode-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+
+    .mode-btn {
+      padding: 10px;
+      border: 2px solid #667eea;
+      background: white;
+      color: #667eea;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 0.85em;
+    }
+
+    .mode-btn:hover {
+      background: #f0f0f0;
+    }
+
+    .mode-btn.active {
+      background: #667eea;
+      color: white;
+    }
+
+    select {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.9em;
+      background: white;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -147,6 +185,17 @@
   <div class="controls">
     <div class="method-tag">✅ Canvas → Texture Method</div>
     <h2>Outline Controls</h2>
+
+    <div class="control-group">
+      <label>Orientation Mode</label>
+      <div class="mode-selector">
+        <button class="mode-btn active" id="billboardBtn">Billboard</button>
+        <button class="mode-btn" id="ringBtn">Ring</button>
+      </div>
+      <small style="color: #666; font-size: 0.8em; display: block; margin-top: 5px;">
+        Billboard: faces camera | Ring: faces outward
+      </small>
+    </div>
 
     <div class="control-group">
       <label>Fill Color</label>
@@ -192,6 +241,8 @@
       Each syllable is rendered on canvas with stroke+fill, then used as a texture on a plane.
     </p>
     <p style="margin-top: 8px;">
+      <strong>Billboard Mode:</strong> Syllables always face the camera<br>
+      <strong>Ring Mode:</strong> Syllables face outward, creating a true ring shape<br>
       <strong>Performance:</strong> Much better than extruded geometry!<br>
       <strong>Quality:</strong> Perfect, consistent outlines.
     </p>
@@ -254,7 +305,8 @@
       outlineColor: '#ff0000',
       outlineWidth: 4,
       fontSize: 64,
-      rotationSpeed: 1.0
+      rotationSpeed: 1.0,
+      orientationMode: 'billboard' // 'billboard' or 'ring'
     };
 
     // Function to create texture from canvas with outlined text
@@ -351,6 +403,8 @@
     const fontSizeInput = document.getElementById('fontSize');
     const rotationSpeedInput = document.getElementById('rotationSpeed');
     const resetBtn = document.getElementById('resetBtn');
+    const billboardBtn = document.getElementById('billboardBtn');
+    const ringBtn = document.getElementById('ringBtn');
 
     const outlineWidthValue = document.getElementById('outlineWidthValue');
     const fontSizeValue = document.getElementById('fontSizeValue');
@@ -389,6 +443,19 @@
       updateConfig();
     });
 
+    // Mode switching
+    billboardBtn.addEventListener('click', () => {
+      config.orientationMode = 'billboard';
+      billboardBtn.classList.add('active');
+      ringBtn.classList.remove('active');
+    });
+
+    ringBtn.addEventListener('click', () => {
+      config.orientationMode = 'ring';
+      ringBtn.classList.add('active');
+      billboardBtn.classList.remove('active');
+    });
+
     // Animation
     let rotationAngle = 0;
     const baseRotationSpeed = 0.0005;
@@ -407,8 +474,20 @@
         mesh.position.x = Math.cos(angle) * radius;
         mesh.position.z = Math.sin(angle) * radius;
 
-        // Make syllables face camera (billboard effect)
-        mesh.lookAt(camera.position);
+        // Handle orientation based on mode
+        if (config.orientationMode === 'billboard') {
+          // Billboard mode: always face camera
+          mesh.lookAt(camera.position);
+        } else {
+          // Ring mode: face outward from center (normal aligned with world center)
+          // Calculate outward direction from center
+          const outwardPosition = new THREE.Vector3(
+            mesh.position.x * 2,
+            mesh.position.y,
+            mesh.position.z * 2
+          );
+          mesh.lookAt(outwardPosition);
+        }
       });
 
       // Gentle sphere rotation
