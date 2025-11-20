@@ -436,7 +436,9 @@
       function animate() {
         if (!document.body.contains(canvas)) return; // Stop if canvas removed
 
-        rotationAngle += 0.005;
+        // Match main app rotation speed (0.3 degrees per frame ~= 0.0052 radians)
+        // Use negative to match camera rotation direction (clockwise when viewed from above)
+        rotationAngle -= 0.002;
 
         syllables.forEach((mesh) => {
           const angle = mesh.userData.angle + rotationAngle;
@@ -445,7 +447,7 @@
           mesh.lookAt(camera.position);
         });
 
-        sphere.rotation.y += 0.005;
+        sphere.rotation.y -= 0.002;
 
         renderer.render(scene, camera);
         requestAnimationFrame(animate);

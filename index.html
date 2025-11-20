@@ -634,8 +634,8 @@
           if (mantra.syllableStyle) {
             const style = mantra.syllableStyle;
             syllableStyle = {
-              fill: style.fill ? parseInt(String(style.fill).replace(/^#/, '').replace(/^0x/i, ''), 16) : null,
-              outlineColor: style.outlineColor ? parseInt(String(style.outlineColor).replace(/^#/, '').replace(/^0x/i, ''), 16) : null,
+              fill: style.fill || '#ffffff',  // Keep as hex string for Canvas API
+              outlineColor: style.outlineColor || '#000000',  // Keep as hex string for Canvas API
               outlineWidth: style.outlineWidth || 0
             };
           }
