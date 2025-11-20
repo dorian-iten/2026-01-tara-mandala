@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
@@ -19,15 +20,15 @@
     body {
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, sans-serif;
       background: radial-gradient(circle at center,
-        #f0e0ff 0%,
-        #e0f0ff 12.5%,
-        #e0ffe0 25%,
-        #fff8e0 37.5%,
-        #ffe0e8 50%,
-        #f0e0ff 62.5%,
-        #e0f0ff 75%,
-        #e0ffe0 87.5%,
-        #fff8e0 100%);
+          #f0e0ff 0%,
+          #e0f0ff 12.5%,
+          #e0ffe0 25%,
+          #fff8e0 37.5%,
+          #ffe0e8 50%,
+          #f0e0ff 62.5%,
+          #e0f0ff 75%,
+          #e0ffe0 87.5%,
+          #fff8e0 100%);
       overflow: hidden;
       touch-action: none;
     }
@@ -308,7 +309,8 @@
       border-radius: 50px;
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.3);
-      display: none; /* Disabled for now */
+      display: none;
+      /* Disabled for now */
       align-items: center;
       gap: 12px;
     }
@@ -360,7 +362,8 @@
         min-width: 240px;
       }
 
-      .dropdown-trigger, .dropdown-option {
+      .dropdown-trigger,
+      .dropdown-option {
         font-size: 16px;
         padding: 14px 18px;
       }
@@ -421,7 +424,8 @@
         min-width: 220px;
       }
 
-      .dropdown-trigger, .dropdown-option {
+      .dropdown-trigger,
+      .dropdown-option {
         font-size: 15px;
         padding: 12px 16px;
       }
@@ -484,7 +488,8 @@
         min-width: 200px;
       }
 
-      .dropdown-trigger, .dropdown-option {
+      .dropdown-trigger,
+      .dropdown-option {
         font-size: 14px;
         padding: 10px 14px;
       }
@@ -554,6 +559,7 @@
     }
   </style>
 </head>
+
 <body>
   <div id="container"></div>
 
@@ -571,8 +577,10 @@
 
   <button id="fullscreen-toggle" aria-label="Toggle fullscreen">
     <svg viewBox="0 0 24 24">
-      <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" class="fullscreen-enter"/>
-      <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" class="fullscreen-exit" style="display:none;"/>
+      <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"
+        class="fullscreen-enter" />
+      <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"
+        class="fullscreen-exit" style="display:none;" />
     </svg>
   </button>
 
@@ -619,7 +627,7 @@
       try {
         const response = await fetch('mantras.json');
         const config = await response.json();
-        
+
         // Process schemas: convert outlineColor string to number, ensure defaults
         schemas = config.mantras.map(mantra => {
           let outlineColor = null;
@@ -628,7 +636,7 @@
             const colorStr = String(mantra.outlineColor).replace(/^#/, '').replace(/^0x/i, '');
             outlineColor = parseInt(colorStr, 16);
           }
-          
+
           // Process syllableStyle if present
           let syllableStyle = null;
           if (mantra.syllableStyle) {
@@ -639,7 +647,7 @@
               outlineWidth: style.outlineWidth || 0
             };
           }
-          
+
           return {
             name: mantra.name,
             syllables: mantra.syllables,
@@ -651,7 +659,7 @@
             startIndex: mantra.startIndex || 0
           };
         });
-        
+
         console.log('Loaded mantras configuration:', schemas);
         return schemas;
       } catch (error) {
@@ -701,10 +709,10 @@
 
       const colors = gradientConfig.colors.map(c => `${c.color} ${c.position}%`).join(', ');
       const gradientType = gradientConfig.type === 'linear' ? 'linear-gradient' : 'radial-gradient';
-      const gradientValue = gradientType === 'radial-gradient' 
+      const gradientValue = gradientType === 'radial-gradient'
         ? `radial-gradient(circle at center, ${colors})`
         : `linear-gradient(${gradientConfig.direction || 'to bottom'}, ${colors})`;
-      
+
       document.body.style.background = gradientValue;
     }
 
@@ -712,10 +720,10 @@
     function populateDropdown() {
       const dropdownMenu = document.querySelector('.dropdown-menu');
       const dropdownLabel = document.querySelector('.dropdown-label');
-      
+
       // Clear existing options
       dropdownMenu.innerHTML = '';
-      
+
       // Create options for each mantra
       schemas.forEach((schema, index) => {
         const option = document.createElement('div');
@@ -724,7 +732,7 @@
         option.dataset.value = index;
         dropdownMenu.appendChild(option);
       });
-      
+
       // Set initial label
       if (schemas[currentSchema]) {
         dropdownLabel.textContent = schemas[currentSchema].name;
@@ -771,15 +779,15 @@
     async function init() {
       // Load mantras configuration first
       await loadMantrasConfig();
-      
+
       // Apply initial background gradient
       if (schemas[currentSchema] && schemas[currentSchema].backgroundGradient) {
         applyBackgroundGradient(schemas[currentSchema].backgroundGradient);
       }
-      
+
       // Populate dropdown with loaded mantras
       populateDropdown();
-      
+
       // Scene with atmospheric fog
       scene = new THREE.Scene();
       // Fog: color matching the subtle rainbow gradient background
@@ -793,8 +801,8 @@
       camera.position.set(camPos.x, camPos.y, camPos.z);
 
       // Renderer with enhanced quality settings
-      renderer = new THREE.WebGLRenderer({ 
-        antialias: true, 
+      renderer = new THREE.WebGLRenderer({
+        antialias: true,
         alpha: true,
         depth: true,
         logarithmicDepthBuffer: false,
@@ -928,13 +936,13 @@
 
       // Hide fullscreen button if running as PWA (standalone mode) or if fullscreen API not supported
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
-                          window.navigator.standalone ||
-                          document.referrer.includes('android-app://');
+        window.navigator.standalone ||
+        document.referrer.includes('android-app://');
 
       const supportsFullscreen = document.documentElement.requestFullscreen ||
-                                document.documentElement.webkitRequestFullscreen ||
-                                document.documentElement.mozRequestFullScreen ||
-                                document.documentElement.msRequestFullscreen;
+        document.documentElement.webkitRequestFullscreen ||
+        document.documentElement.mozRequestFullScreen ||
+        document.documentElement.msRequestFullscreen;
 
       // Hide button if in standalone mode OR if fullscreen not supported (like iOS Safari)
       if (isStandalone || (!supportsFullscreen && /iPad|iPhone|iPod/.test(navigator.userAgent))) {
@@ -943,9 +951,9 @@
 
       function updateFullscreenIcon() {
         const isFullscreen = document.fullscreenElement ||
-                            document.webkitFullscreenElement ||
-                            document.mozFullScreenElement ||
-                            document.msFullscreenElement;
+          document.webkitFullscreenElement ||
+          document.mozFullScreenElement ||
+          document.msFullscreenElement;
 
         if (isFullscreen) {
           fullscreenEnter.style.display = 'none';
@@ -958,9 +966,9 @@
 
       fullscreenToggle.addEventListener('click', () => {
         if (!document.fullscreenElement &&
-            !document.webkitFullscreenElement &&
-            !document.mozFullScreenElement &&
-            !document.msFullscreenElement) {
+          !document.webkitFullscreenElement &&
+          !document.mozFullScreenElement &&
+          !document.msFullscreenElement) {
           // Enter fullscreen
           const elem = document.documentElement;
 
@@ -1149,7 +1157,7 @@
 
           // Ensure texture is ready
           texture.needsUpdate = true;
-          
+
           // Get aspect ratio from texture to avoid distortion
           const aspectRatio = texture.image.width / texture.image.height;
           const height = 4.0; // Slightly larger to ensure visibility
@@ -1267,7 +1275,7 @@
           // Use default renderOrder (0) and let depth buffer handle occlusion naturally
           // depthWrite: true ensures proper depth testing with syllables
           tamPlane.renderOrder = 0;
-          
+
           // TAM plane renders after white sphere (renderOrder 2 > 0) so it's visible on top
           // depthTest ensures syllables in front will occlude TAM
           // Even though both are at same position, higher renderOrder ensures TAM renders in later pass
@@ -1278,7 +1286,7 @@
           console.log('TAM color:', tamColor);
           console.log('TAM outline color:', tamOutlineColor);
           scene.add(tamPlane);
-          
+
           console.log('TAM plane added to scene. Total objects in scene:', scene.children.length);
         },
         (progress) => {
@@ -1357,7 +1365,7 @@
 
       // Create texture with better settings
       const texture = new THREE.CanvasTexture(canvas);
-      texture.minFilter = THREE.LinearFilter;
+      texture.minFilter = THREE.LinearMipmapLinearFilter;
       texture.magFilter = THREE.LinearFilter;
       // Apply anisotropic filtering to reduce shimmer at angles
       if (renderer && renderer.capabilities) {
@@ -1600,4 +1608,5 @@
     init();
   </script>
 </body>
+
 </html>
