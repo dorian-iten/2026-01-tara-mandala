@@ -1241,7 +1241,7 @@
               transparent: true,
               side: THREE.DoubleSide,
               depthTest: true, // Enable depth test so syllables can occlude TAM
-              depthWrite: false, // Disable depth write like the white sphere
+              depthWrite: true, // Enable depth write so syllables in front can occlude TAM
               fog: false
             });
           } else {
@@ -1263,10 +1263,10 @@
           // Position slightly in front of white sphere center to ensure it renders on top
           // Small offset (0.01) ensures visibility without noticeable separation
           tamPlane.position.set(0, 0, 0.01);
-          
-          // Use renderOrder 2 to render after white sphere (0) and syllables (default 0)
-          // This ensures TAM renders on top of white sphere
-          tamPlane.renderOrder = 2;
+
+          // Use renderOrder 1 to render after white sphere (0) but allow depth testing with syllables
+          // depthWrite: true allows syllables to properly occlude TAM when in front
+          tamPlane.renderOrder = 1;
           
           // TAM plane renders after white sphere (renderOrder 2 > 0) so it's visible on top
           // depthTest ensures syllables in front will occlude TAM
@@ -1426,7 +1426,7 @@
           alphaTest: 0.01,
           side: THREE.DoubleSide,
           depthTest: true,
-          depthWrite: false
+          depthWrite: true  // Enable depth write for proper occlusion
         });
 
         const textMesh = new THREE.Mesh(planeGeometry, planeMaterial);
