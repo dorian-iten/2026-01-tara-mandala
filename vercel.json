@@ -1,13 +1,10 @@
 {
-  "version": 2,
+  "buildCommand": null,
+  "outputDirectory": ".",
   "routes": [
     {
       "src": "/admin",
       "dest": "/admin.html"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
     }
   ]
 }
