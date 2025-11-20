@@ -206,6 +206,57 @@
       font-weight: 500;
     }
 
+    /* Mode controls - Light theme */
+    #mode-controls {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.6);
+      padding: 8px;
+      border-radius: 50px;
+      backdrop-filter: blur(30px);
+      border: 0.5px solid rgba(102, 126, 234, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    }
+
+    #mode-controls:hover {
+      background: rgba(255, 255, 255, 0.75);
+      border-color: rgba(102, 126, 234, 0.5);
+    }
+
+    .mode-btn {
+      padding: 10px 24px;
+      border-radius: 50px;
+      background: transparent;
+      border: none;
+      color: rgba(45, 27, 78, 0.7);
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-size: 14px;
+      font-weight: 500;
+      user-select: none;
+    }
+
+    .mode-btn:hover {
+      color: rgba(45, 27, 78, 0.9);
+      background: rgba(102, 126, 234, 0.1);
+    }
+
+    .mode-btn.active {
+      background: rgba(102, 126, 234, 0.2);
+      color: rgba(45, 27, 78, 0.95);
+      border: 1px solid rgba(102, 126, 234, 0.5);
+    }
+
+    .mode-btn:active {
+      transform: scale(0.95);
+    }
+
     /* Fullscreen toggle - Light theme */
     #fullscreen-toggle {
       position: absolute;
@@ -525,7 +576,12 @@
     </svg>
   </button>
 
-  <div id="speed-controls">
+  <div id="mode-controls">
+    <button class="mode-btn active" id="mode-billboard" aria-label="Billboard mode">Flat</button>
+    <button class="mode-btn" id="mode-ring" aria-label="Ring mode">Ring</button>
+  </div>
+
+  <div id="speed-controls" style="display: none;">
     <button class="speed-btn" id="speed-decrease" aria-label="Decrease speed">−</button>
     <div id="speed-label">Speed: <span id="speed-value">1.0×</span></div>
     <button class="speed-btn" id="speed-increase" aria-label="Increase speed">+</button>
@@ -551,8 +607,6 @@
   <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-    import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-    import { FontLoader } from 'three/addons/loaders/FontLoader.js';
     import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
     import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
     import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
@@ -679,7 +733,6 @@
 
     let scene, camera, renderer, controls;
     let glowBall, textMeshes = [];
-    let font;
     let currentSchema = 0;
     let audio = new Audio();
     let isPlaying = false;
@@ -778,19 +831,10 @@
       // Create glowing ball
       createGlowBall();
 
-      // Load font and create text
-      const loader = new FontLoader();
-      loader.load(
-        'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/fonts/helvetiker_regular.typeface.json',
-        (loadedFont) => {
-          font = loadedFont;
-          createTextRing(currentSchema);
-          // Add TAMM text to the sphere
-          addTammToSphere(currentSchema);
-          // Set camera to look at start syllable
-          setCameraToStartSyllable();
-        }
-      );
+      // Create text ring and TAM character
+      createTextRing(currentSchema);
+      addTammToSphere(currentSchema);
+      setCameraToStartSyllable();
 
       // Event listeners
       window.addEventListener('resize', onWindowResize);
@@ -986,6 +1030,22 @@
         rotationSpeed = Math.min(3.0, rotationSpeed + step);
         controls.autoRotateSpeed = rotationSpeed;
         updateSpeedDisplay();
+      });
+
+      // Mode toggle controls
+      const modeBillboardBtn = document.getElementById('mode-billboard');
+      const modeRingBtn = document.getElementById('mode-ring');
+
+      modeBillboardBtn.addEventListener('click', () => {
+        orientationMode = 'billboard';
+        modeBillboardBtn.classList.add('active');
+        modeRingBtn.classList.remove('active');
+      });
+
+      modeRingBtn.addEventListener('click', () => {
+        orientationMode = 'ring';
+        modeRingBtn.classList.add('active');
+        modeBillboardBtn.classList.remove('active');
       });
 
       // Start animation
@@ -1256,6 +1316,43 @@
       // scene.add(particles);
     }
 
+    // Orientation mode: 'billboard' or 'ring'
+    let orientationMode = 'billboard';
+
+    // Helper function to create texture from canvas with outlined text
+    function createTextTexture(text, fillColor, outlineColor, outlineWidth, fontSize = 64) {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      // Set canvas size (power of 2 for better performance)
+      canvas.width = 256;
+      canvas.height = 128;
+
+      // Setup font
+      ctx.font = `bold ${fontSize}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      // Draw outline first (if width > 0)
+      if (outlineWidth > 0) {
+        ctx.strokeStyle = outlineColor;
+        ctx.lineWidth = outlineWidth * 2; // Canvas uses total width
+        ctx.lineJoin = 'round';
+        ctx.miterLimit = 2;
+        ctx.strokeText(text, canvas.width / 2, canvas.height / 2);
+      }
+
+      // Draw fill on top
+      ctx.fillStyle = fillColor;
+      ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+      // Create texture
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.needsUpdate = true;
+
+      return texture;
+    }
+
     function setCameraToStartSyllable() {
       if (textMeshes.length === 0) return;
 
@@ -1271,7 +1368,7 @@
       // Calculate start syllable position on the ring
       const startX = Math.cos(startAngle) * radius;
       const startZ = Math.sin(startAngle) * radius;
-      
+
       // Keep target at center (0,0,0) to keep scene centered on blue sphere
       controls.target.set(0, 0, 0);
       const camPos = getCameraPosition();
@@ -1281,7 +1378,13 @@
 
     function createTextRing(schemaIndex) {
       // Remove old text meshes
-      textMeshes.forEach(mesh => scene.remove(mesh));
+      textMeshes.forEach(mesh => {
+        // Dispose of textures and materials to free memory
+        if (mesh.material.map) mesh.material.map.dispose();
+        mesh.material.dispose();
+        mesh.geometry.dispose();
+        scene.remove(mesh);
+      });
       textMeshes = [];
 
       const syllables = schemas[schemaIndex].syllables;
@@ -1295,149 +1398,52 @@
       // Offset angle so start syllable faces camera
       const angleOffset = -angleStep * startIndex;
 
+      // Get syllable style configuration
+      const syllableStyle = schemas[schemaIndex].syllableStyle || {};
+      const fillColor = syllableStyle.fill || '#ffffff';
+      const outlineColor = syllableStyle.outlineColor || '#000000';
+      const outlineWidth = syllableStyle.outlineWidth || 0;
+
       syllables.forEach((syllable, index) => {
         const angle = angleStep * index + angleOffset + baseAngle;
 
-        const textGeometry = new TextGeometry(syllable, {
-          font: font,
-          size: 0.4,
-          height: 0.05,
-          curveSegments: 12,
-          bevelEnabled: true,
-          bevelThickness: 0.005,
-          bevelSize: 0.005,
-          bevelSegments: 3
+        // Create texture using Canvas→Texture method
+        const texture = createTextTexture(syllable, fillColor, outlineColor, outlineWidth * 10, 64);
+
+        // Create plane geometry for the syllable
+        const planeGeometry = new THREE.PlaneGeometry(2, 1);
+        const planeMaterial = new THREE.MeshBasicMaterial({
+          map: texture,
+          transparent: true,
+          side: THREE.DoubleSide,
+          depthTest: true,
+          depthWrite: false
         });
 
-        textGeometry.computeBoundingBox();
-        const centerOffset = -0.5 * (textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x);
+        const textMesh = new THREE.Mesh(planeGeometry, planeMaterial);
 
-        // Get syllable style configuration if available
-        const syllableStyle = schemas[schemaIndex].syllableStyle;
-        
-        let textMesh;
-        if (syllableStyle && syllableStyle.outlineColor && syllableStyle.outlineWidth > 0) {
-          // Simple approach: scale geometry slightly for outline, render back faces
-          const fillColor = syllableStyle.fill || 0xffffff;
-          const outlineColor = syllableStyle.outlineColor;
-          
-          // Scale factor for outline (small expansion)
-          const outlineScale = 1 + (syllableStyle.outlineWidth * 0.01);
-          
-          // Create outline material
-          const outlineMaterial = new THREE.MeshBasicMaterial({
-            color: outlineColor,
-            side: THREE.DoubleSide,
-            depthWrite: false,
-            depthTest: true
-          });
-          
-          // Create fill material
-          const fillMaterial = new THREE.MeshPhongMaterial({
-            color: fillColor,
-            emissive: fillColor,
-            emissiveIntensity: 0.1,
-            shininess: 120,
-            specular: fillColor,
-            depthWrite: true,
-            depthTest: true
-          });
-          
-          // Create outline mesh (scaled geometry)
-          const outlineGeometry = textGeometry.clone();
-          outlineGeometry.translate(centerOffset, 0, 0);
-          // Scale the geometry for outline
-          outlineGeometry.scale(outlineScale, outlineScale, 1);
-          const outlineMesh = new THREE.Mesh(outlineGeometry, outlineMaterial);
-          outlineMesh.renderOrder = 0;
-          
-          // Create fill mesh (normal size)
-          textMesh = new THREE.Mesh(textGeometry, fillMaterial);
-          textMesh.geometry.translate(centerOffset, 0, 0);
-          textMesh.renderOrder = 1;
-          
-          // Create a group to hold both meshes
-          const textGroup = new THREE.Group();
-          textGroup.add(outlineMesh);
-          textGroup.add(textMesh);
-          
-          // Position the group
-          const position = {
-            x: Math.cos(angle) * radius,
-            z: Math.sin(angle) * radius,
-            y: 0
-          };
-          
-          textGroup.position.set(position.x, position.y, position.z);
-          textGroup.rotation.y = -angle + Math.PI / 2;
-          
-          // Store userData on the group
-          textGroup.userData.originalIndex = index;
-          textGroup.userData.revealOrder = (index - startIndex + syllables.length) % syllables.length;
-          textGroup.userData.outlineMesh = outlineMesh;
-          textGroup.userData.fillMesh = textMesh;
-          
-          // Initially hide both except the first one
-          if (index === startIndex) {
-            outlineMesh.material.opacity = 1.0;
-            outlineMesh.material.transparent = false;
-            textMesh.material.opacity = 1.0;
-            textMesh.material.transparent = false;
-          } else {
-            outlineMesh.material.opacity = 0.0;
-            outlineMesh.material.transparent = true;
-            textMesh.material.opacity = 0.0;
-            textMesh.material.transparent = true;
-          }
-          
-          // Use the group as textMesh
-          textMesh = textGroup;
+        // Position on the ring
+        textMesh.position.x = Math.cos(angle) * radius;
+        textMesh.position.z = Math.sin(angle) * radius;
+        textMesh.position.y = 0;
+
+        // Store angle for later orientation updates
+        textMesh.userData.angle = angle;
+        textMesh.userData.originalIndex = index;
+        textMesh.userData.revealOrder = (index - startIndex + syllables.length) % syllables.length;
+
+        // Initially hide all except the first one
+        if (index === startIndex) {
+          textMesh.material.opacity = 1.0;
         } else {
-          // Default style: Light theme - Dark purple/blue text
-          const defaultFillColor = syllableStyle && syllableStyle.fill ? syllableStyle.fill : 0x2d1b4e;
-          const textMaterial = new THREE.MeshPhongMaterial({
-            color: defaultFillColor,
-            emissive: syllableStyle && syllableStyle.fill ? defaultFillColor : 0x4a2c6d,
-            shininess: 120,
-            specular: syllableStyle && syllableStyle.fill ? defaultFillColor : 0x5c3a7a,
-            emissiveIntensity: 0.3
-          });
-
-          textMesh = new THREE.Mesh(textGeometry, textMaterial);
+          textMesh.material.opacity = 0.0;
         }
 
-        // Position, rotate, and setup (only if not already done for outline style)
-        if (!syllableStyle || !syllableStyle.outlineColor || syllableStyle.outlineWidth <= 0) {
-          // Position on the ring
-          textMesh.position.x = Math.cos(angle) * radius;
-          textMesh.position.z = Math.sin(angle) * radius;
-          textMesh.position.y = 0;
-
-          // Rotate to face outward
-          textMesh.rotation.y = -angle + Math.PI / 2;
-
-          // Center the text
-          textMesh.geometry.translate(centerOffset, 0, 0);
-
-          // Store original index for reveal animation
-          textMesh.userData.originalIndex = index;
-          textMesh.userData.revealOrder = (index - startIndex + syllables.length) % syllables.length;
-          
-          // Initially hide all words except the first one (startIndex)
-          if (index === startIndex) {
-            textMesh.material.opacity = 1.0;
-            textMesh.material.transparent = false;
-          } else {
-            textMesh.material.opacity = 0.0;
-            textMesh.material.transparent = true;
-          }
-        }
-
-        // Add fill mesh (or default mesh) to scene
+        // Add to scene
         scene.add(textMesh);
         textMeshes.push(textMesh);
       });
-      
+
       // Start reveal animation
       revealAnimation.isActive = true;
       revealAnimation.startTime = performance.now();
@@ -1458,31 +1464,39 @@
         tamPlane.lookAt(camera.position);
       }
 
+      // Handle syllable orientation based on mode
+      textMeshes.forEach((mesh) => {
+        if (orientationMode === 'billboard') {
+          // Billboard mode: always face camera
+          mesh.lookAt(camera.position);
+        } else {
+          // Ring mode: face outward from center
+          const outwardPosition = new THREE.Vector3(
+            mesh.position.x * 2,
+            mesh.position.y,
+            mesh.position.z * 2
+          );
+          mesh.lookAt(outwardPosition);
+        }
+      });
+
       // Handle reveal animation with smooth easing
       if (revealAnimation.isActive && textMeshes.length > 0) {
         const elapsed = performance.now() - revealAnimation.startTime;
         const schema = schemas[currentSchema];
         const syllables = schema.syllables;
-        
+
         // Smooth easing function (ease-out cubic)
         const easeOutCubic = (t) => {
           return 1 - Math.pow(1 - t, 3);
         };
-        
+
         // Reveal words based on their order around the ring
         textMeshes.forEach((mesh) => {
           const revealOrder = mesh.userData.revealOrder;
           const wordStartTime = revealOrder * revealAnimation.delayBetweenWords;
           const wordElapsed = elapsed - wordStartTime;
-          
-          // Handle group structure (for outlined text)
-          let outlineMesh = null;
-          let fillMesh = mesh;
-          if (mesh.userData.outlineMesh && mesh.userData.fillMesh) {
-            outlineMesh = mesh.userData.outlineMesh;
-            fillMesh = mesh.userData.fillMesh;
-          }
-          
+
           let opacity;
           if (wordElapsed < 0) {
             // Word hasn't started revealing yet
@@ -1495,18 +1509,12 @@
             // Word is fully visible
             opacity = 1.0;
           }
-          
-          // Apply opacity to fill mesh
-          fillMesh.material.opacity = opacity;
-          fillMesh.material.transparent = opacity < 1.0;
-          
-          // Apply opacity to outline mesh if it exists
-          if (outlineMesh) {
-            outlineMesh.material.opacity = opacity;
-            outlineMesh.material.transparent = opacity < 1.0;
-          }
+
+          // Apply opacity
+          mesh.material.opacity = opacity;
+          mesh.material.transparent = opacity < 1.0;
         });
-        
+
         // Check if animation is complete
         const totalDuration = (syllables.length - 1) * revealAnimation.delayBetweenWords + revealAnimation.fadeDuration;
         if (elapsed >= totalDuration) {
