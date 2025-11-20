@@ -425,8 +425,38 @@
 
     .add-syllable {
       display: flex;
+      flex-direction: column;
       gap: 8px;
       margin-top: 8px;
+    }
+
+    .sanskrit-helpers {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .sanskrit-btn {
+      padding: 4px 8px;
+      background: rgba(139, 127, 199, 0.2);
+      border: 1px solid rgba(139, 127, 199, 0.3);
+      border-radius: 4px;
+      color: var(--text-main);
+      font-size: 12px;
+      cursor: pointer;
+      font-family: 'Crimson Pro', serif;
+      transition: all 0.2s;
+    }
+
+    .sanskrit-btn:hover {
+      background: var(--purple);
+      color: white;
+      border-color: var(--purple);
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
     }
 
     .add-syllable input {
@@ -609,7 +639,7 @@
       canvas.height = 256;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      ctx.font = `bold ${fontSize}px Arial, sans-serif`;
+      ctx.font = `bold ${fontSize}px "Crimson Pro", serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
 
@@ -873,8 +903,15 @@
                     `).join('')}
                   </div>
                   <div class="add-syllable">
-                    <input type="text" id="newSyllable-${index}" placeholder="Add syllable">
-                    <button onclick="addSyllable(${index})">Add</button>
+                    <div class="sanskrit-helpers">
+                      ${['Ā', 'Ī', 'Ū', 'Ṛ', 'Ḷ', 'Ṅ', 'Ñ', 'Ṭ', 'Ḍ', 'Ṇ', 'Ś', 'Ṣ', 'Ḥ', 'Ṃ'].map(char =>
+          `<button class="sanskrit-btn" onclick="insertSanskritChar(${index}, '${char}')">${char}</button>`
+        ).join('')}
+                    </div>
+                    <div class="input-row">
+                      <input type="text" id="newSyllable-${index}" placeholder="Add syllable">
+                      <button onclick="addSyllable(${index})">Add</button>
+                    </div>
                   </div>
                 </div>
 
@@ -1006,6 +1043,12 @@
     function removeSyllable(mantraIndex, syllableIndex) {
       config.mantras[mantraIndex].syllables.splice(syllableIndex, 1);
       renderMantraList();
+    }
+
+    function insertSanskritChar(index, char) {
+      const input = document.getElementById(`newSyllable-${index}`);
+      input.value += char;
+      input.focus();
     }
 
     async function saveAllChanges() {

@@ -1,8 +1,23 @@
 {
   "mantras": [
     {
-      "name": "Tara Vajra Sarasvati",
-      "syllables": ["OM", "TA", "RE", "TU", "TA", "RE", "TU", "RE", "PRA", "JNA", "HRING", "HRING", "SVA", "HA"],
+      "name": "Tara Turavira",
+      "syllables": [
+        "OṂ",
+        "TĀ",
+        "RE",
+        "TU",
+        "TTĀ",
+        "RE",
+        "TU",
+        "RE",
+        "BO",
+        "DHI",
+        "CI",
+        "TTA",
+        "SVĀ",
+        "HĀ"
+      ],
       "audioFile": "audio/green-tara.mp3",
       "tamImage": "images/tam-sarasvati.png",
       "tamColor": "#ffffff",
@@ -15,75 +30,115 @@
       "backgroundGradient": {
         "type": "radial",
         "colors": [
-          { "color": "#f0e0ff", "position": 0 },
-          { "color": "#e0f0ff", "position": 12.5 },
-          { "color": "#e0ffe0", "position": 25 },
-          { "color": "#fff8e0", "position": 37.5 },
-          { "color": "#ffe0e8", "position": 50 },
-          { "color": "#f0e0ff", "position": 62.5 },
-          { "color": "#e0f0ff", "position": 75 },
-          { "color": "#e0ffe0", "position": 87.5 },
-          { "color": "#fff8e0", "position": 100 }
+          {
+            "color": "#f0e0ff",
+            "position": 0
+          },
+          {
+            "color": "#e0f0ff",
+            "position": 12.5
+          },
+          {
+            "color": "#e0ffe0",
+            "position": 25
+          },
+          {
+            "color": "#fff8e0",
+            "position": 37.5
+          },
+          {
+            "color": "#ffe0e8",
+            "position": 50
+          },
+          {
+            "color": "#f0e0ff",
+            "position": 62.5
+          },
+          {
+            "color": "#e0f0ff",
+            "position": 75
+          },
+          {
+            "color": "#e0ffe0",
+            "position": 87.5
+          },
+          {
+            "color": "#fff8e0",
+            "position": 100
+          }
         ]
       },
       "startIndex": 0
     },
     {
-      "name": "Om Mani Padme Hum",
-      "syllables": ["OM", "MA", "NI", "PAD", "ME", "HUM"],
-      "audioFile": "audio/om-mani-padme-hum.mp3",
-      "tamImage": "images/tam-4.png",
+      "name": "Tara Vajra Sarasvati",
+      "syllables": [
+        "OṂ",
+        "TĀ",
+        "RE",
+        "TU",
+        "TTĀ",
+        "RE",
+        "TU",
+        "RE",
+        "PRA",
+        "JÑĀ",
+        "HRĪṂ",
+        "HRĪṂ",
+        "SVĀ",
+        "HĀ"
+      ],
+      "audioFile": "audio/green-tara.mp3",
+      "tamImage": "images/tam-sarasvati.png",
       "tamColor": "#ffffff",
       "tamOutlineColor": null,
       "syllableStyle": {
         "fill": "#ffffff",
-        "outlineColor": "#000000",
+        "outlineColor": "#4a1a6c",
         "outlineWidth": 0.02
       },
       "backgroundGradient": {
         "type": "radial",
         "colors": [
-          { "color": "#f0e0ff", "position": 0 },
-          { "color": "#e0f0ff", "position": 12.5 },
-          { "color": "#e0ffe0", "position": 25 },
-          { "color": "#fff8e0", "position": 37.5 },
-          { "color": "#ffe0e8", "position": 50 },
-          { "color": "#f0e0ff", "position": 62.5 },
-          { "color": "#e0f0ff", "position": 75 },
-          { "color": "#e0ffe0", "position": 87.5 },
-          { "color": "#fff8e0", "position": 100 }
-        ]
-      },
-      "startIndex": 0
-    },
-    {
-      "name": "Simple Om",
-      "syllables": ["OM", "OM"],
-      "audioFile": "audio/om.mp3",
-      "tamImage": "images/tam-4.png",
-      "tamColor": "#ffffff",
-      "tamOutlineColor": null,
-      "syllableStyle": {
-        "fill": "#ffffff",
-        "outlineColor": "#000000",
-        "outlineWidth": 0.02
-      },
-      "backgroundGradient": {
-        "type": "radial",
-        "colors": [
-          { "color": "#f0e0ff", "position": 0 },
-          { "color": "#e0f0ff", "position": 12.5 },
-          { "color": "#e0ffe0", "position": 25 },
-          { "color": "#fff8e0", "position": 37.5 },
-          { "color": "#ffe0e8", "position": 50 },
-          { "color": "#f0e0ff", "position": 62.5 },
-          { "color": "#e0f0ff", "position": 75 },
-          { "color": "#e0ffe0", "position": 87.5 },
-          { "color": "#fff8e0", "position": 100 }
+          {
+            "color": "#f0e0ff",
+            "position": 0
+          },
+          {
+            "color": "#e0f0ff",
+            "position": 12.5
+          },
+          {
+            "color": "#e0ffe0",
+            "position": 25
+          },
+          {
+            "color": "#fff8e0",
+            "position": 37.5
+          },
+          {
+            "color": "#ffe0e8",
+            "position": 50
+          },
+          {
+            "color": "#f0e0ff",
+            "position": 62.5
+          },
+          {
+            "color": "#e0f0ff",
+            "position": 75
+          },
+          {
+            "color": "#e0ffe0",
+            "position": 87.5
+          },
+          {
+            "color": "#fff8e0",
+            "position": 100
+          }
         ]
       },
       "startIndex": 0
     }
   ]
 }
-
