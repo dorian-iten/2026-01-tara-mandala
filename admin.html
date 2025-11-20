@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mantra Admin Panel</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: #666;
+    }
+
+    .login-card {
+      background: white;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      max-width: 400px;
+      margin: 100px auto;
+    }
+
+    .login-card h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #555;
+      font-weight: 500;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    input[type="color"] {
+      width: 100%;
+      height: 50px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #5568d3;
+    }
+
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .mantra-list {
+      display: grid;
+      gap: 20px;
+    }
+
+    .mantra-card {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+
+    .mantra-card h2 {
+      color: #333;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .color-group {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    .color-group .form-group {
+      flex: 1;
+      margin-bottom: 0;
+    }
+
+    .color-preview {
+      width: 50px;
+      height: 50px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      padding-top: 20px;
+      border-top: 2px solid #f0f0f0;
+    }
+
+    .success-message,
+    .error-message {
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+
+    .success-message {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .error-message {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .syllable-editor {
+      margin-bottom: 20px;
+    }
+
+    .syllable-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .syllable-tag {
+      background: #f0f0f0;
+      padding: 8px 12px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .syllable-tag button {
+      background: #ff6b6b;
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+
+    .add-syllable {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .add-syllable input {
+      flex: 1;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .logout-btn {
+      background: #dc3545;
+      margin-left: 10px;
+    }
+
+    .logout-btn:hover {
+      background: #c82333;
+    }
+
+    textarea {
+      min-height: 100px;
+      font-family: monospace;
+      resize: vertical;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-card">
+      <h2>Admin Login</h2>
+      <div class="form-group">
+        <label for="passwordInput">Password</label>
+        <input type="password" id="passwordInput" placeholder="Enter admin password">
+      </div>
+      <button onclick="login()">Login</button>
+      <div id="loginError" class="error-message hidden"></div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="hidden">
+      <div class="header">
+        <h1>Mantra Configuration Admin Panel</h1>
+        <p>Manage your mantra settings and colors</p>
+        <div style="margin-top: 20px;">
+          <button onclick="saveAllChanges()">Save All Changes</button>
+          <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+      </div>
+
+      <div id="messageArea"></div>
+
+      <div id="mantraList" class="mantra-list">
+        <!-- Mantra cards will be dynamically generated here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let config = null;
+    let adminPassword = null;
+
+    // Check if already logged in (session storage)
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedPassword = sessionStorage.getItem('adminPassword');
+      if (savedPassword) {
+        adminPassword = savedPassword;
+        loadConfig();
+      }
+    });
+
+    async function login() {
+      const password = document.getElementById('passwordInput').value;
+      const errorDiv = document.getElementById('loginError');
+
+      if (!password) {
+        errorDiv.textContent = 'Please enter a password';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      adminPassword = password;
+      sessionStorage.setItem('adminPassword', password);
+
+      // Try to load config (this will validate the password)
+      const success = await loadConfig();
+      if (!success) {
+        errorDiv.textContent = 'Invalid password';
+        errorDiv.classList.remove('hidden');
+        adminPassword = null;
+        sessionStorage.removeItem('adminPassword');
+      }
+    }
+
+    function logout() {
+      adminPassword = null;
+      sessionStorage.removeItem('adminPassword');
+      document.getElementById('loginScreen').classList.remove('hidden');
+      document.getElementById('adminPanel').classList.add('hidden');
+      document.getElementById('passwordInput').value = '';
+    }
+
+    async function loadConfig() {
+      try {
+        // First try to load from API
+        const response = await fetch('/api/config');
+
+        if (response.ok) {
+          config = await response.json();
+        } else {
+          // Fallback to loading mantras.json directly
+          const fallbackResponse = await fetch('/mantras.json');
+          config = await fallbackResponse.json();
+        }
+
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('adminPanel').classList.remove('hidden');
+        renderMantraList();
+        return true;
+      } catch (error) {
+        console.error('Error loading config:', error);
+        showMessage('Error loading configuration: ' + error.message, 'error');
+        return false;
+      }
+    }
+
+    function renderMantraList() {
+      const container = document.getElementById('mantraList');
+      container.innerHTML = '';
+
+      config.mantras.forEach((mantra, index) => {
+        const card = document.createElement('div');
+        card.className = 'mantra-card';
+        card.innerHTML = `
+          <h2>${mantra.name}</h2>
+
+          <div class="form-group">
+            <label>Mantra Name</label>
+            <input type="text" value="${mantra.name}"
+                   onchange="updateMantra(${index}, 'name', this.value)">
+          </div>
+
+          <div class="syllable-editor">
+            <label>Syllables</label>
+            <div class="syllable-list" id="syllables-${index}">
+              ${mantra.syllables.map((syl, sylIndex) => `
+                <div class="syllable-tag">
+                  <span>${syl}</span>
+                  <button onclick="removeSyllable(${index}, ${sylIndex})">×</button>
+                </div>
+              `).join('')}
+            </div>
+            <div class="add-syllable">
+              <input type="text" id="newSyllable-${index}" placeholder="Add syllable">
+              <button onclick="addSyllable(${index})">Add</button>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>TAM Image Path</label>
+              <input type="text" value="${mantra.tamImage}"
+                     onchange="updateMantra(${index}, 'tamImage', this.value)">
+            </div>
+            <div class="form-group">
+              <label>Audio File Path</label>
+              <input type="text" value="${mantra.audioFile}"
+                     onchange="updateMantra(${index}, 'audioFile', this.value)">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>TAM Color</label>
+              <input type="color" value="${mantra.tamColor || '#ffffff'}"
+                     onchange="updateMantra(${index}, 'tamColor', this.value)">
+            </div>
+            <div class="form-group">
+              <label>TAM Outline Color</label>
+              <input type="color" value="${mantra.tamOutlineColor || '#000000'}"
+                     onchange="updateMantra(${index}, 'tamOutlineColor', this.value)">
+              <small style="color: #666;">Leave as #000000 for no outline</small>
+            </div>
+          </div>
+
+          <h3 style="margin: 20px 0 10px 0; color: #555;">Syllable Styling</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Syllable Fill Color</label>
+              <input type="color" value="${mantra.syllableStyle?.fill || '#ffffff'}"
+                     onchange="updateSyllableStyle(${index}, 'fill', this.value)">
+            </div>
+            <div class="form-group">
+              <label>Syllable Outline Color</label>
+              <input type="color" value="${mantra.syllableStyle?.outlineColor || '#000000'}"
+                     onchange="updateSyllableStyle(${index}, 'outlineColor', this.value)">
+            </div>
+            <div class="form-group">
+              <label>Syllable Outline Width</label>
+              <input type="number" step="0.01" min="0" max="1"
+                     value="${mantra.syllableStyle?.outlineWidth || 0.02}"
+                     onchange="updateSyllableStyle(${index}, 'outlineWidth', parseFloat(this.value))">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Start Index</label>
+            <input type="number" min="0" value="${mantra.startIndex || 0}"
+                   onchange="updateMantra(${index}, 'startIndex', parseInt(this.value))">
+          </div>
+
+          <div class="form-group">
+            <label>Background Gradient (JSON)</label>
+            <textarea onchange="updateMantraGradient(${index}, this.value)">${JSON.stringify(mantra.backgroundGradient, null, 2)}</textarea>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function updateMantra(index, field, value) {
+      config.mantras[index][field] = value;
+    }
+
+    function updateSyllableStyle(index, field, value) {
+      if (!config.mantras[index].syllableStyle) {
+        config.mantras[index].syllableStyle = {};
+      }
+      config.mantras[index].syllableStyle[field] = value;
+    }
+
+    function updateMantraGradient(index, jsonString) {
+      try {
+        const gradient = JSON.parse(jsonString);
+        config.mantras[index].backgroundGradient = gradient;
+      } catch (error) {
+        showMessage('Invalid gradient JSON: ' + error.message, 'error');
+      }
+    }
+
+    function addSyllable(index) {
+      const input = document.getElementById(`newSyllable-${index}`);
+      const syllable = input.value.trim().toUpperCase();
+      if (syllable) {
+        config.mantras[index].syllables.push(syllable);
+        input.value = '';
+        renderMantraList();
+      }
+    }
+
+    function removeSyllable(mantraIndex, syllableIndex) {
+      config.mantras[mantraIndex].syllables.splice(syllableIndex, 1);
+      renderMantraList();
+    }
+
+    async function saveAllChanges() {
+      if (!adminPassword) {
+        showMessage('Please login first', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/config', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            password: adminPassword,
+            config: config
+          })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          showMessage('Configuration saved successfully! Changes will be visible after page reload.', 'success');
+        } else {
+          showMessage('Error: ' + (result.error || 'Failed to save configuration'), 'error');
+          if (response.status === 401) {
+            logout();
+          }
+        }
+      } catch (error) {
+        console.error('Error saving config:', error);
+        showMessage('Error saving configuration: ' + error.message, 'error');
+      }
+    }
+
+    function showMessage(message, type) {
+      const messageArea = document.getElementById('messageArea');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = type === 'success' ? 'success-message' : 'error-message';
+      messageDiv.textContent = message;
+      messageArea.innerHTML = '';
+      messageArea.appendChild(messageDiv);
+
+      // Auto-hide after 5 seconds
+      setTimeout(() => {
+        messageDiv.remove();
+      }, 5000);
+    }
+  </script>
+</body>
+</html>

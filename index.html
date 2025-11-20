@@ -1078,7 +1078,8 @@
       // Get the TAM image path for the current schema
       const schema = schemas[schemaIndex || currentSchema];
       const tamImagePath = schema.tamImage || 'images/tam-4.png';
-      const outlineColor = schema.outlineColor || null;
+      const tamOutlineColor = schema.tamOutlineColor || null;
+      const tamColor = schema.tamColor || '#ffffff';
 
       // Load PNG texture
       const textureLoader = new THREE.TextureLoader();
@@ -1103,18 +1104,26 @@
           const planeGeometry = new THREE.PlaneGeometry(width, height);
 
           let planeMaterial;
-          
+
+          // Parse TAM color
+          const tamColorRGB = parseInt(tamColor.replace('#', ''), 16);
+          const tamR = ((tamColorRGB >> 16) & 255) / 255.0;
+          const tamG = ((tamColorRGB >> 8) & 255) / 255.0;
+          const tamB = (tamColorRGB & 255) / 255.0;
+
           // If outline color is specified, use a custom shader for outline effect
-          if (outlineColor) {
+          if (tamOutlineColor && tamOutlineColor !== '#000000') {
             // Convert hex color to vec3
-            const r = ((outlineColor >> 16) & 255) / 255.0;
-            const g = ((outlineColor >> 8) & 255) / 255.0;
-            const b = (outlineColor & 255) / 255.0;
+            const outlineColorRGB = parseInt(tamOutlineColor.replace('#', ''), 16);
+            const r = ((outlineColorRGB >> 16) & 255) / 255.0;
+            const g = ((outlineColorRGB >> 8) & 255) / 255.0;
+            const b = (outlineColorRGB & 255) / 255.0;
 
             // Custom shader material with outline effect
             planeMaterial = new THREE.ShaderMaterial({
               uniforms: {
                 texture: { value: texture },
+                tamColor: { value: new THREE.Vector3(tamR, tamG, tamB) },
                 outlineColor: { value: new THREE.Vector3(r, g, b) },
                 outlineWidth: { value: 0.01 } // Outline width in UV space
               },
@@ -1127,17 +1136,18 @@
               `,
               fragmentShader: `
                 uniform sampler2D texture;
+                uniform vec3 tamColor;
                 uniform vec3 outlineColor;
                 uniform float outlineWidth;
                 varying vec2 vUv;
-                
+
                 void main() {
                   vec4 texColor = texture2D(texture, vUv);
                   float alpha = texColor.a;
-                  
-                  // If pixel is fully opaque, show the texture
+
+                  // If pixel is fully opaque, show the texture with TAM color tint
                   if (alpha > 0.99) {
-                    gl_FragColor = texColor;
+                    gl_FragColor = vec4(texColor.rgb * tamColor, texColor.a);
                     return;
                   }
                   
@@ -1179,6 +1189,7 @@
             // Standard material without outline
             planeMaterial = new THREE.MeshBasicMaterial({
               map: texture,
+              color: new THREE.Color(tamR, tamG, tamB),
               transparent: true,
               opacity: 1.0,
               side: THREE.DoubleSide,
@@ -1205,7 +1216,8 @@
           console.log('TAM plane created and added to scene', tamPlane);
           console.log('TAM plane position:', tamPlane.position);
           console.log('TAM plane renderOrder:', tamPlane.renderOrder);
-          console.log('TAM outline color:', outlineColor);
+          console.log('TAM color:', tamColor);
+          console.log('TAM outline color:', tamOutlineColor);
           scene.add(tamPlane);
           
           console.log('TAM plane added to scene. Total objects in scene:', scene.children.length);
