@@ -4,7 +4,6 @@
   "type": "module",
   "description": "3D Mantra visualization app with admin interface",
   "scripts": {
-    "dev": "vercel dev",
     "build": "echo 'No build required'",
     "deploy": "vercel --prod"
   },
