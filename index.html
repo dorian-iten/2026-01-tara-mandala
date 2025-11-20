@@ -577,8 +577,8 @@
   </button>
 
   <div id="mode-controls">
-    <button class="mode-btn active" id="mode-billboard" aria-label="Billboard mode">Flat</button>
-    <button class="mode-btn" id="mode-ring" aria-label="Ring mode">Ring</button>
+    <button class="mode-btn active" id="mode-ring" aria-label="Ring mode">Ring</button>
+    <button class="mode-btn" id="mode-billboard" aria-label="Billboard mode">Flat</button>
   </div>
 
   <div id="speed-controls" style="display: none;">
@@ -880,18 +880,16 @@
 
         // Update schema
         currentSchema = value;
-        
+
         // Apply background gradient for new schema
         if (schemas[currentSchema] && schemas[currentSchema].backgroundGradient) {
           applyBackgroundGradient(schemas[currentSchema].backgroundGradient);
         }
-        
-        if (font) {
-          createTextRing(currentSchema);
-          // Update TAM image for new schema
-          addTammToSphere(currentSchema);
-          setCameraToStartSyllable();
-        }
+
+        // Update text ring and TAM for new schema
+        createTextRing(currentSchema);
+        addTammToSphere(currentSchema);
+        setCameraToStartSyllable();
         updateAudioInfo();
 
         // Stop current audio when switching
@@ -1317,7 +1315,7 @@
     }
 
     // Orientation mode: 'billboard' or 'ring'
-    let orientationMode = 'billboard';
+    let orientationMode = 'ring';
 
     // Helper function to create texture from canvas with outlined text
     function createTextTexture(text, fillColor, outlineColor, outlineWidth, fontSize = 64) {
