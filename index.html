@@ -1091,7 +1091,7 @@
         fog: false // Not affected by atmospheric fog
       });
       glowBall = new THREE.Mesh(geometry, material);
-      glowBall.renderOrder = 0; // Render first, behind everything else
+      glowBall.renderOrder = -1; // Render first, behind everything else
       scene.add(glowBall);
 
       // Outer white glow effect (semi-transparent larger sphere)
@@ -1105,7 +1105,7 @@
         fog: false // Not affected by atmospheric fog
       });
       const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
-      glowMesh.renderOrder = -1; // Render even earlier for glow
+      glowMesh.renderOrder = -2; // Render even earlier for glow
       scene.add(glowMesh);
 
       // Additional outer glow layer for more pronounced effect
@@ -1119,7 +1119,7 @@
         fog: false // Not affected by atmospheric fog
       });
       const outerGlowMesh = new THREE.Mesh(outerGlowGeometry, outerGlowMaterial);
-      outerGlowMesh.renderOrder = -1; // Render early for glow
+      outerGlowMesh.renderOrder = -2; // Render early for glow
       scene.add(outerGlowMesh);
 
       // Add particle effect around the ball
@@ -1264,9 +1264,9 @@
           // Small offset (0.01) ensures visibility without noticeable separation
           tamPlane.position.set(0, 0, 0.01);
 
-          // Use renderOrder 1 to render after white sphere (0) but allow depth testing with syllables
-          // depthWrite: true allows syllables to properly occlude TAM when in front
-          tamPlane.renderOrder = 1;
+          // Use default renderOrder (0) and let depth buffer handle occlusion naturally
+          // depthWrite: true ensures proper depth testing with syllables
+          tamPlane.renderOrder = 0;
           
           // TAM plane renders after white sphere (renderOrder 2 > 0) so it's visible on top
           // depthTest ensures syllables in front will occlude TAM
@@ -1433,12 +1433,12 @@
           transparent: true,
           side: THREE.DoubleSide,
           depthTest: true,
-          depthWrite: false,  // Disable to prevent z-fighting between syllables
-          opacity: 1.0
+          depthWrite: true,  // Enable for proper depth sorting between syllables
+          opacity: 1.0,
+          alphaTest: 0.1  // Small threshold to discard fully transparent pixels
         });
 
         const textMesh = new THREE.Mesh(planeGeometry, planeMaterial);
-        textMesh.renderOrder = 2; // Render after TAM (renderOrder 1) for proper occlusion
 
         // Position on the ring
         textMesh.position.x = Math.cos(angle) * radius;
