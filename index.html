@@ -241,6 +241,8 @@
       font-size: 14px;
       font-weight: 500;
       user-select: none;
+      min-width: 80px;
+      text-align: center;
     }
 
     .mode-btn:hover {
@@ -561,21 +563,22 @@
       #mode-controls {
         bottom: auto;
         left: auto;
-        right: 10px;
+        right: 20px;
         top: 50%;
         transform: translateY(-50%);
         flex-direction: column;
-        padding: 0;
-        gap: 12px;
-        background: none;
-        border: none;
-        box-shadow: none;
-        backdrop-filter: none;
+        padding: 8px;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.6);
+        border: 0.5px solid rgba(102, 126, 234, 0.3);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(30px);
+        border-radius: 10px;
       }
 
       #mode-controls:hover {
-        background: none;
-        border: none;
+        background: rgba(255, 255, 255, 0.75);
+        border-color: rgba(102, 126, 234, 0.5);
       }
     }
   </style>
