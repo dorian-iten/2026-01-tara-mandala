@@ -61,7 +61,8 @@
       border: 0.5px solid rgba(102, 126, 234, 0.3);
       border-radius: 10px;
       color: #2d1b4e;
-      font-size: 18px;
+      font-family: "Crimson Pro", serif;
+      font-size: 20px;
       cursor: pointer;
       backdrop-filter: blur(30px);
       display: flex;
@@ -89,9 +90,9 @@
     .dropdown-arrow {
       width: 0;
       height: 0;
-      border-left: 4px solid transparent;
-      border-right: 4px solid transparent;
-      border-top: 5px solid rgba(45, 27, 78, 0.7);
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 7px solid rgba(45, 27, 78, 0.7);
       transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
@@ -127,7 +128,8 @@
     .dropdown-option {
       padding: 18px 24px;
       color: rgba(45, 27, 78, 0.7);
-      font-size: 18px;
+      font-family: "Crimson Pro", serif;
+      font-size: 20px;
       cursor: pointer;
       transition: all 0.2s ease;
       border-left: 3px solid transparent;
@@ -241,6 +243,7 @@
       color: rgba(45, 27, 78, 0.7);
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: "Crimson Pro", serif;
       font-size: 14px;
       font-weight: 500;
       user-select: none;
@@ -786,9 +789,7 @@
     let revealAnimation = {
       isActive: false,
       startTime: 0,
-      revealedCount: 0,
-      delayBetweenWords: 250, // milliseconds between each word reveal
-      fadeDuration: 900 // milliseconds for smooth fade in
+      fadeDuration: 800 // milliseconds for smooth unified fade in
     };
 
     // Camera position adjustments based on orientation
@@ -890,6 +891,12 @@
       const dropdownLabel = document.querySelector('.dropdown-label');
       const dropdownOptions = document.querySelectorAll('.dropdown-option');
 
+      //Set initial dropdown arrow color to match TAM color
+      const dropdownArrow = document.querySelector('.dropdown-arrow');
+      if (dropdownArrow && schemas[currentSchema] && schemas[currentSchema].tamColor) {
+        dropdownArrow.style.borderTopColor = schemas[currentSchema].tamColor;
+      }
+
       dropdownTrigger.addEventListener('click', () => {
         dropdownTrigger.classList.toggle('active');
         dropdownMenu.classList.toggle('show');
@@ -933,6 +940,13 @@
         // Update text ring and TAM for new schema
         createTextRing(currentSchema);
         addTammToSphere(currentSchema);
+
+        // Update dropdown arrow color to match TAM color
+        const dropdownArrow = document.querySelector('.dropdown-arrow');
+        if (dropdownArrow && schemas[currentSchema] && schemas[currentSchema].tamColor) {
+          dropdownArrow.style.borderTopColor = schemas[currentSchema].tamColor;
+        }
+
         setCameraToStartSyllable();
         updateAudioInfo();
 
@@ -1618,7 +1632,6 @@
       // Start reveal animation
       revealAnimation.isActive = true;
       revealAnimation.startTime = performance.now();
-      revealAnimation.revealedCount = 1; // First word is already visible
     }
 
     function animate() {
@@ -1651,44 +1664,34 @@
         }
       });
 
-      // Handle reveal animation with smooth easing
+      // Handle reveal animation with smooth easing - all syllables fade in together
       if (revealAnimation.isActive && textMeshes.length > 0) {
         const elapsed = performance.now() - revealAnimation.startTime;
-        const schema = schemas[currentSchema];
-        const syllables = schema.syllables;
 
         // Smooth easing function (ease-out cubic)
         const easeOutCubic = (t) => {
           return 1 - Math.pow(1 - t, 3);
         };
 
-        // Reveal words based on their order around the ring
+        // Calculate unified opacity for all syllables
+        let opacity;
+        if (elapsed < revealAnimation.fadeDuration) {
+          // All syllables fade in together
+          const progress = Math.min(1.0, elapsed / revealAnimation.fadeDuration);
+          opacity = easeOutCubic(progress);
+        } else {
+          // All syllables are fully visible
+          opacity = 1.0;
+        }
+
+        // Apply the same opacity to all syllables
         textMeshes.forEach((mesh) => {
-          const revealOrder = mesh.userData.revealOrder;
-          const wordStartTime = revealOrder * revealAnimation.delayBetweenWords;
-          const wordElapsed = elapsed - wordStartTime;
-
-          let opacity;
-          if (wordElapsed < 0) {
-            // Word hasn't started revealing yet
-            opacity = 0.0;
-          } else if (wordElapsed < revealAnimation.fadeDuration) {
-            // Word is currently fading in
-            const progress = Math.min(1.0, wordElapsed / revealAnimation.fadeDuration);
-            opacity = easeOutCubic(progress);
-          } else {
-            // Word is fully visible
-            opacity = 1.0;
-          }
-
-          // Apply opacity
           mesh.material.opacity = opacity;
           mesh.material.transparent = opacity < 1.0;
         });
 
         // Check if animation is complete
-        const totalDuration = (syllables.length - 1) * revealAnimation.delayBetweenWords + revealAnimation.fadeDuration;
-        if (elapsed >= totalDuration) {
+        if (elapsed >= revealAnimation.fadeDuration) {
           revealAnimation.isActive = false;
           // Ensure all words are fully visible
           textMeshes.forEach((mesh) => {

@@ -31,27 +31,27 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#fff9e6",
+            "color": "#ffe0e0",
             "position": 0
           },
           {
-            "color": "#ffe680",
+            "color": "#ffb3b3",
             "position": 20
           },
           {
-            "color": "#ffdb4d",
+            "color": "#ff8080",
             "position": 40
           },
           {
-            "color": "#ffd633",
+            "color": "#ff4d4d",
             "position": 60
           },
           {
-            "color": "#ffcc00",
+            "color": "#ff1a1a",
             "position": 80
           },
           {
-            "color": "#e6b800",
+            "color": "#cc0000",
             "position": 100
           }
         ]
