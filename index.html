@@ -57,34 +57,31 @@
 
     .dropdown-trigger {
       padding: 18px 24px;
-      background: rgba(255, 255, 255, 0.6);
-      border: 0.5px solid rgba(102, 126, 234, 0.3);
+      background: transparent;
+      border: none;
       border-radius: 10px;
       color: #2d1b4e;
       font-family: "Crimson Pro", serif;
-      font-size: 20px;
+      font-size: 22px;
+      font-weight: 700;
       cursor: pointer;
-      backdrop-filter: blur(30px);
+      backdrop-filter: none;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       user-select: none;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
     }
 
     .dropdown-trigger:hover {
-      background: rgba(255, 255, 255, 0.75);
-      border-color: rgba(102, 126, 234, 0.5);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
     }
 
     .dropdown-trigger.active {
       border-bottom-left-radius: 0;
       border-bottom-right-radius: 0;
-      border-color: rgba(102, 126, 234, 0.4);
-      background: rgba(255, 255, 255, 0.75);
     }
 
     .dropdown-arrow {
@@ -105,18 +102,14 @@
       top: 100%;
       left: 0;
       right: 0;
-      background: rgba(255, 255, 255, 0.6);
-      border: 0.5px solid rgba(102, 126, 234, 0.4);
-      border-top: none;
-      border-bottom-left-radius: 10px;
-      border-bottom-right-radius: 10px;
-      backdrop-filter: blur(30px);
-      overflow: hidden;
+      background: transparent;
+      border: none;
+      border-radius: 0 0 10px 10px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
       max-height: 0;
-      opacity: 0;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+      transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       pointer-events: none;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
     }
 
     .dropdown-menu.show {
@@ -127,9 +120,10 @@
 
     .dropdown-option {
       padding: 18px 24px;
-      color: rgba(45, 27, 78, 0.7);
+      color: rgba(45, 27, 78, 0.85);
       font-family: "Crimson Pro", serif;
-      font-size: 20px;
+      font-size: 22px;
+      font-weight: 700;
       cursor: pointer;
       transition: all 0.2s ease;
       border-left: 3px solid transparent;
@@ -137,15 +131,13 @@
     }
 
     .dropdown-option:hover {
-      background: rgba(102, 126, 234, 0.15);
-      color: rgba(45, 27, 78, 0.95);
-      border-left-color: rgba(102, 126, 234, 0.8);
+      color: rgba(45, 27, 78, 1);
+      border-left-color: currentColor;
     }
 
     .dropdown-option.selected {
-      color: rgba(45, 27, 78, 0.9);
-      background: rgba(102, 126, 234, 0.1);
-      border-left-color: rgba(102, 126, 234, 0.6);
+      color: rgba(45, 27, 78, 1);
+      border-left-color: currentColor;
     }
 
     /* Speed controls - Light theme */
@@ -240,26 +232,26 @@
       border-radius: 50px;
       background: transparent;
       border: none;
-      color: rgba(45, 27, 78, 0.7);
+      color: rgba(45, 27, 78, 0.85);
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       font-family: "Crimson Pro", serif;
-      font-size: 14px;
-      font-weight: 500;
+      font-size: 16px;
+      font-weight: 700;
       user-select: none;
       min-width: 80px;
       text-align: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     }
 
     .mode-btn:hover {
-      color: rgba(45, 27, 78, 0.9);
-      background: rgba(102, 126, 234, 0.1);
+      color: rgba(45, 27, 78, 1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
 
     .mode-btn.active {
-      background: rgba(102, 126, 234, 0.2);
-      color: rgba(45, 27, 78, 0.95);
-      border: 1px solid rgba(102, 126, 234, 0.5);
+      color: rgba(45, 27, 78, 1);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
     }
 
     .mode-btn:active {
