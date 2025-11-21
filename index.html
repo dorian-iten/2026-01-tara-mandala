@@ -1425,7 +1425,7 @@
 
               // Get aspect ratio from SVG to avoid distortion
               const aspectRatio = img.width / img.height;
-              const height = 4.0;
+              const height = 3.6;
               const width = height * aspectRatio;
 
               console.log('TAM SVG loaded and rendered to texture');
@@ -1487,7 +1487,7 @@
 
             // Get aspect ratio from texture to avoid distortion
             const aspectRatio = texture.image.width / texture.image.height;
-            const height = 4.0; // Slightly larger to ensure visibility
+            const height = 3.6; // Slightly smaller relative to white sphere
             const width = height * aspectRatio;
 
             console.log('TAM texture dimensions:', texture.image.width, 'x', texture.image.height);
