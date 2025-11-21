@@ -54,17 +54,17 @@
 
     .custom-dropdown {
       position: relative;
-      min-width: 360px;
+      min-width: 280px;
     }
 
     .dropdown-trigger {
-      padding: 18px 24px;
+      padding: 14px 20px;
       background: rgba(255, 255, 255, 0.85);
       border: none;
       border-radius: 10px;
       color: #2d1b4e;
       font-family: "Noto Sans", sans-serif;
-      font-size: 22px;
+      font-size: 18px;
       font-weight: 700;
       cursor: pointer;
       backdrop-filter: none;
@@ -74,11 +74,11 @@
       gap: 12px;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       user-select: none;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
     }
 
     .dropdown-trigger:hover {
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
     }
 
     .dropdown-trigger.active {
@@ -89,9 +89,9 @@
     .dropdown-arrow {
       width: 0;
       height: 0;
-      border-left: 6px solid transparent;
-      border-right: 6px solid transparent;
-      border-top: 7px solid rgba(45, 27, 78, 0.7);
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 6px solid rgba(45, 27, 78, 0.7);
       transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
@@ -107,7 +107,7 @@
       background: rgba(255, 255, 255, 0.85);
       border: none;
       border-radius: 0 0 10px 10px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
       max-height: 0;
       overflow: hidden;
       transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -121,10 +121,10 @@
     }
 
     .dropdown-option {
-      padding: 18px 24px;
+      padding: 14px 20px;
       color: rgba(45, 27, 78, 0.85);
       font-family: "Noto Sans", sans-serif;
-      font-size: 22px;
+      font-size: 18px;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.2s ease;
@@ -157,7 +157,7 @@
       display: flex;
       align-items: center;
       gap: 16px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.5);
     }
 
     #speed-controls:hover {
@@ -221,20 +221,16 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.5);
     }
 
-    #mode-controls:hover {
-      background: rgba(255, 255, 255, 0.75);
-      border-color: rgba(102, 126, 234, 0.5);
-    }
 
     .mode-btn {
       padding: 10px 24px;
       border-radius: 50px;
-      background: rgba(255, 255, 255, 0.85);
-      border: none;
-      color: rgba(45, 27, 78, 0.85);
+      background: rgba(255, 255, 255, 0.4);
+      border: 0.5px solid rgba(128, 128, 128, 0.3);
+      color: rgba(45, 27, 78, 0.5);
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       font-family: "Noto Sans", sans-serif;
@@ -243,17 +239,21 @@
       user-select: none;
       min-width: 80px;
       text-align: center;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
 
     .mode-btn:hover {
+      background: rgba(255, 255, 255, 0.85);
+      border: 0.5px solid rgba(128, 128, 128, 0.6);
       color: rgba(45, 27, 78, 1);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
     }
 
     .mode-btn.active {
+      background: rgba(255, 255, 255, 0.85);
+      border: 0.5px solid rgba(128, 128, 128, 0.6);
       color: rgba(45, 27, 78, 1);
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
     }
 
     .mode-btn:active {
@@ -571,13 +571,10 @@
         gap: 8px;
         background: rgba(255, 255, 255, 0.85);
         border: none;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
         border-radius: 10px;
       }
 
-      #mode-controls:hover {
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
-      }
     }
   </style>
 </head>
