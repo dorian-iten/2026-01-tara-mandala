@@ -57,7 +57,7 @@
 
     .dropdown-trigger {
       padding: 18px 24px;
-      background: transparent;
+      background: rgba(255, 255, 255, 0.85);
       border: none;
       border-radius: 10px;
       color: #2d1b4e;
@@ -102,7 +102,7 @@
       top: 100%;
       left: 0;
       right: 0;
-      background: transparent;
+      background: rgba(255, 255, 255, 0.85);
       border: none;
       border-radius: 0 0 10px 10px;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
@@ -230,7 +230,7 @@
     .mode-btn {
       padding: 10px 24px;
       border-radius: 50px;
-      background: transparent;
+      background: rgba(255, 255, 255, 0.85);
       border: none;
       color: rgba(45, 27, 78, 0.85);
       cursor: pointer;
@@ -567,16 +567,14 @@
         flex-direction: column;
         padding: 8px;
         gap: 8px;
-        background: rgba(255, 255, 255, 0.6);
-        border: 0.5px solid rgba(102, 126, 234, 0.3);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5);
-        backdrop-filter: blur(30px);
+        background: rgba(255, 255, 255, 0.85);
+        border: none;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
         border-radius: 10px;
       }
 
       #mode-controls:hover {
-        background: rgba(255, 255, 255, 0.75);
-        border-color: rgba(102, 126, 234, 0.5);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
       }
     }
   </style>
