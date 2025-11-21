@@ -652,7 +652,14 @@
     // Load mantras configuration from JSON file
     async function loadMantrasConfig() {
       try {
-        const response = await fetch('mantras.json');
+        const response = await fetch(`mantras.json?t=${Date.now()}`, {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
+        });
         const config = await response.json();
 
         // Process schemas: convert outlineColor string to number, ensure defaults
@@ -680,6 +687,8 @@
             syllables: mantra.syllables,
             audioFile: mantra.audioFile,
             tamImage: mantra.tamImage,
+            tamColor: mantra.tamColor || '#ffffff',
+            tamOutlineColor: mantra.tamOutlineColor || null,
             outlineColor: outlineColor,
             syllableStyle: syllableStyle,
             backgroundGradient: mantra.backgroundGradient || null,
@@ -1130,7 +1139,7 @@
       scene.add(glowBall);
 
       // Outer white glow effect (semi-transparent larger sphere)
-      const glowGeometry = new THREE.SphereGeometry(2.4, 32, 32);
+      const glowGeometry = new THREE.SphereGeometry(2.2, 32, 32);
       const glowMaterial = new THREE.MeshBasicMaterial({
         color: 0xffffff, // White
         transparent: true, // Transparent for glow effect
@@ -1144,7 +1153,7 @@
       scene.add(glowMesh);
 
       // Additional outer glow layer for more pronounced effect
-      const outerGlowGeometry = new THREE.SphereGeometry(2.8, 32, 32);
+      const outerGlowGeometry = new THREE.SphereGeometry(2.5, 32, 32);
       const outerGlowMaterial = new THREE.MeshBasicMaterial({
         color: 0xffffff, // White
         transparent: true,
@@ -1175,155 +1184,261 @@
       const tamOutlineColor = schema.tamOutlineColor || schema.outlineColor || null;
       const tamColor = schema.tamColor || '#ffffff';
 
-      // Load PNG texture
-      const textureLoader = new THREE.TextureLoader();
-      textureLoader.load(
-        tamImagePath,
-        (texture) => {
-          console.log('TAM texture loaded successfully!', texture);
+      // Check if this is an SVG file
+      const isSVG = tamImagePath.toLowerCase().endsWith('.svg');
 
-          // Ensure texture is ready
-          texture.minFilter = THREE.LinearMipmapLinearFilter;
-          texture.needsUpdate = true;
+      if (isSVG) {
+        // Load and process SVG
+        fetch(tamImagePath)
+          .then(response => response.text())
+          .then(svgText => {
+            // Parse SVG
+            const parser = new DOMParser();
+            const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+            const svgElement = svgDoc.documentElement;
 
-          // Get aspect ratio from texture to avoid distortion
-          const aspectRatio = texture.image.width / texture.image.height;
-          const height = 4.0; // Slightly larger to ensure visibility
-          const width = height * aspectRatio;
+            // Find the path element (should be the first/only path in our SVG)
+            const pathElement = svgElement.querySelector('path');
 
-          console.log('TAM texture dimensions:', texture.image.width, 'x', texture.image.height);
-          console.log('TAM plane size:', width, 'x', height);
-          console.log('TAM aspect ratio:', aspectRatio);
+            if (pathElement) {
+              // Apply fill color from JSON
+              pathElement.setAttribute('fill', tamColor);
 
-          // Create a plane geometry for the character with correct aspect ratio
-          const planeGeometry = new THREE.PlaneGeometry(width, height);
+              // Apply stroke/outline if specified
+              if (tamOutlineColor && tamOutlineColor !== '#000000') {
+                pathElement.setAttribute('stroke', tamOutlineColor);
+                pathElement.setAttribute('stroke-width', '4'); // Thinner outline
+              }
+            }
 
-          let planeMaterial;
+            // Serialize the modified SVG back to string
+            const serializer = new XMLSerializer();
+            const modifiedSvgString = serializer.serializeToString(svgElement);
 
-          // Parse TAM color
-          const tamColorRGB = parseInt(tamColor.replace('#', ''), 16);
-          const tamR = ((tamColorRGB >> 16) & 255) / 255.0;
-          const tamG = ((tamColorRGB >> 8) & 255) / 255.0;
-          const tamB = (tamColorRGB & 255) / 255.0;
+            // Create an image from the SVG
+            const img = new Image();
+            const svgBlob = new Blob([modifiedSvgString], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(svgBlob);
 
-          // If outline color is specified, use a custom shader for outline effect
-          if (tamOutlineColor && tamOutlineColor !== '#000000') {
-            // Convert hex color to vec3
-            const outlineColorRGB = parseInt(tamOutlineColor.replace('#', ''), 16);
-            const r = ((outlineColorRGB >> 16) & 255) / 255.0;
-            const g = ((outlineColorRGB >> 8) & 255) / 255.0;
-            const b = (outlineColorRGB & 255) / 255.0;
+            img.onload = function () {
+              // Create a canvas to render the SVG at high resolution
+              const canvas = document.createElement('canvas');
+              const ctx = canvas.getContext('2d');
 
-            // Custom shader material with outline effect
-            planeMaterial = new THREE.ShaderMaterial({
-              uniforms: {
-                texture: { value: texture },
-                tamColor: { value: new THREE.Vector3(tamR, tamG, tamB) },
-                outlineColor: { value: new THREE.Vector3(r, g, b) },
-                outlineWidth: { value: 0.01 } // Outline width in UV space
-              },
-              vertexShader: `
-                varying vec2 vUv;
-                void main() {
-                  vUv = uv;
-                  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-                }
-              `,
-              fragmentShader: `
-                uniform sampler2D texture;
-                uniform vec3 tamColor;
-                uniform vec3 outlineColor;
-                uniform float outlineWidth;
-                varying vec2 vUv;
+              // Use higher resolution for crisp rendering (2x the SVG dimensions)
+              const scale = 2;
+              canvas.width = img.width * scale;
+              canvas.height = img.height * scale;
 
-                void main() {
-                  vec4 texColor = texture2D(texture, vUv);
-                  float alpha = texColor.a;
+              // Draw the SVG image to canvas
+              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-                  // If pixel is fully opaque, show the texture with TAM color tint
-                  if (alpha > 0.99) {
-                    gl_FragColor = vec4(texColor.rgb * tamColor, texColor.a);
-                    return;
+              // Create Three.js texture from canvas
+              const texture = new THREE.CanvasTexture(canvas);
+              texture.minFilter = THREE.LinearMipmapLinearFilter;
+              texture.needsUpdate = true;
+
+              // Get aspect ratio from SVG to avoid distortion
+              const aspectRatio = img.width / img.height;
+              const height = 4.0;
+              const width = height * aspectRatio;
+
+              console.log('TAM SVG loaded and rendered to texture');
+              console.log('SVG dimensions:', img.width, 'x', img.height);
+              console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
+              console.log('TAM plane size:', width, 'x', height);
+              console.log('TAM aspect ratio:', aspectRatio);
+              console.log('TAM color:', tamColor);
+              console.log('TAM outline color:', tamOutlineColor);
+
+              // Create a plane geometry for the character with correct aspect ratio
+              const planeGeometry = new THREE.PlaneGeometry(width, height);
+
+              // Use basic material for SVG (colors are already applied in the SVG)
+              const planeMaterial = new THREE.MeshBasicMaterial({
+                map: texture,
+                transparent: true,
+                opacity: 1.0,
+                side: THREE.DoubleSide,
+                depthTest: true,
+                depthWrite: true,
+                fog: false
+              });
+
+              tamPlane = new THREE.Mesh(planeGeometry, planeMaterial);
+
+              // Position slightly in front of white sphere center to ensure it renders on top
+              tamPlane.position.set(0, 0, 0.01);
+              tamPlane.renderOrder = 0;
+
+              console.log('TAM plane created and added to scene', tamPlane);
+              scene.add(tamPlane);
+              console.log('TAM plane added to scene. Total objects in scene:', scene.children.length);
+
+              // Clean up the blob URL
+              URL.revokeObjectURL(url);
+            };
+
+            img.onerror = function (error) {
+              console.error('Failed to load SVG image:', error);
+            };
+
+            img.src = url;
+          })
+          .catch(error => {
+            console.error('Failed to load SVG file:', error);
+          });
+      } else {
+        // Load PNG texture (existing code)
+        const textureLoader = new THREE.TextureLoader();
+        textureLoader.load(
+          tamImagePath,
+          (texture) => {
+            console.log('TAM texture loaded successfully!', texture);
+
+            // Ensure texture is ready
+            texture.minFilter = THREE.LinearMipmapLinearFilter;
+            texture.needsUpdate = true;
+
+            // Get aspect ratio from texture to avoid distortion
+            const aspectRatio = texture.image.width / texture.image.height;
+            const height = 4.0; // Slightly larger to ensure visibility
+            const width = height * aspectRatio;
+
+            console.log('TAM texture dimensions:', texture.image.width, 'x', texture.image.height);
+            console.log('TAM plane size:', width, 'x', height);
+            console.log('TAM aspect ratio:', aspectRatio);
+
+            // Create a plane geometry for the character with correct aspect ratio
+            const planeGeometry = new THREE.PlaneGeometry(width, height);
+
+            let planeMaterial;
+
+            // Parse TAM color
+            const tamColorRGB = parseInt(tamColor.replace('#', ''), 16);
+            const tamR = ((tamColorRGB >> 16) & 255) / 255.0;
+            const tamG = ((tamColorRGB >> 8) & 255) / 255.0;
+            const tamB = (tamColorRGB & 255) / 255.0;
+
+            // If outline color is specified, use a custom shader for outline effect
+            if (tamOutlineColor && tamOutlineColor !== '#000000') {
+              // Convert hex color to vec3
+              const outlineColorRGB = parseInt(tamOutlineColor.replace('#', ''), 16);
+              const r = ((outlineColorRGB >> 16) & 255) / 255.0;
+              const g = ((outlineColorRGB >> 8) & 255) / 255.0;
+              const b = (outlineColorRGB & 255) / 255.0;
+
+              // Custom shader material with outline effect
+              planeMaterial = new THREE.ShaderMaterial({
+                uniforms: {
+                  texture: { value: texture },
+                  tamColor: { value: new THREE.Vector3(tamR, tamG, tamB) },
+                  outlineColor: { value: new THREE.Vector3(r, g, b) },
+                  outlineWidth: { value: 0.01 } // Outline width in UV space
+                },
+                vertexShader: `
+                  varying vec2 vUv;
+                  void main() {
+                    vUv = uv;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
                   }
-                  
-                  // Sample neighboring pixels to detect edges
-                  vec2 pixelSize = vec2(outlineWidth, outlineWidth);
-                  
-                  // Sample 8 neighboring pixels to find maximum alpha
-                  float maxNeighborAlpha = 0.0;
-                  maxNeighborAlpha = max(maxNeighborAlpha, texture2D(texture, vUv + vec2(0.0, pixelSize.y)).a);
-                  maxNeighborAlpha = max(maxNeighborAlpha, texture2D(texture, vUv + vec2(0.0, -pixelSize.y)).a);
-                  maxNeighborAlpha = max(maxNeighborAlpha, texture2D(texture, vUv + vec2(pixelSize.x, 0.0)).a);
-                  maxNeighborAlpha = max(maxNeighborAlpha, texture2D(texture, vUv + vec2(-pixelSize.x, 0.0)).a);
-                  maxNeighborAlpha = max(maxNeighborAlpha, texture2D(texture, vUv + vec2(pixelSize.x, pixelSize.y)).a);
-                  maxNeighborAlpha = max(maxNeighborAlpha, texture2D(texture, vUv + vec2(-pixelSize.x, pixelSize.y)).a);
-                  maxNeighborAlpha = max(maxNeighborAlpha, texture2D(texture, vUv + vec2(pixelSize.x, -pixelSize.y)).a);
-                  maxNeighborAlpha = max(maxNeighborAlpha, texture2D(texture, vUv + vec2(-pixelSize.x, -pixelSize.y)).a);
-                  
-                  // If current pixel is transparent but has opaque neighbors, draw outline
-                  if (alpha < 0.5 && maxNeighborAlpha > 0.5) {
-                    // Calculate outline strength based on how transparent we are
-                    float outlineStrength = (1.0 - alpha) * smoothstep(0.5, 1.0, maxNeighborAlpha);
-                    gl_FragColor = vec4(outlineColor, outlineStrength);
-                  } else if (alpha > 0.0) {
-                    // Show the texture with its original alpha
-                    gl_FragColor = texColor;
-                  } else {
-                    // Fully transparent
-                    discard;
+                `,
+                fragmentShader: `
+                  uniform sampler2D texture;
+                  uniform vec3 tamColor;
+                  uniform vec3 outlineColor;
+                  uniform float outlineWidth;
+                  varying vec2 vUv;
+
+                  void main() {
+                    vec4 texColor = texture2D(texture, vUv);
+                    float alpha = texColor.a;
+
+                    // If pixel is fully opaque, show the texture with TAM color tint
+                    if (alpha > 0.99) {
+                      gl_FragColor = vec4(texColor.rgb * tamColor, texColor.a);
+                      return;
+                    }
+                    
+                    // Sample neighboring pixels to detect edges
+                    vec2 pixelSize = vec2(outlineWidth, outlineWidth);
+                    
+                    // Sample 8 neighboring pixels to find maximum alpha
+                    float maxNeighborAlpha = 0.0;
+                    maxNeighborAlpha = max(maxNeighborAlpha, texture2D(texture, vUv + vec2(0.0, pixelSize.y)).a);
+                    maxNeighborAlpha = max(maxNeighborAlpha, texture2D(texture, vUv + vec2(0.0, -pixelSize.y)).a);
+                    maxNeighborAlpha = max(maxNeighborAlpha, texture2D(texture, vUv + vec2(pixelSize.x, 0.0)).a);
+                    maxNeighborAlpha = max(maxNeighborAlpha, texture2D(texture, vUv + vec2(-pixelSize.x, 0.0)).a);
+                    maxNeighborAlpha = max(maxNeighborAlpha, texture2D(texture, vUv + vec2(pixelSize.x, pixelSize.y)).a);
+                    maxNeighborAlpha = max(maxNeighborAlpha, texture2D(texture, vUv + vec2(-pixelSize.x, pixelSize.y)).a);
+                    maxNeighborAlpha = max(maxNeighborAlpha, texture2D(texture, vUv + vec2(pixelSize.x, -pixelSize.y)).a);
+                    maxNeighborAlpha = max(maxNeighborAlpha, texture2D(texture, vUv + vec2(-pixelSize.x, -pixelSize.y)).a);
+                    
+                    // If current pixel is transparent but has opaque neighbors, draw outline
+                    if (alpha < 0.5 && maxNeighborAlpha > 0.5) {
+                      // Calculate outline strength based on how transparent we are
+                      float outlineStrength = (1.0 - alpha) * smoothstep(0.5, 1.0, maxNeighborAlpha);
+                      gl_FragColor = vec4(outlineColor, outlineStrength);
+                    } else if (alpha > 0.0) {
+                      // Show the texture with its original alpha
+                      gl_FragColor = texColor;
+                    } else {
+                      // Fully transparent
+                      discard;
+                    }
                   }
-                }
-              `,
-              transparent: true,
-              side: THREE.DoubleSide,
-              depthTest: true, // Enable depth test so syllables can occlude TAM
-              depthWrite: true, // Enable depth write so syllables in front can occlude TAM
-              fog: false
-            });
-          } else {
-            // Standard material without outline
-            planeMaterial = new THREE.MeshBasicMaterial({
-              map: texture,
-              color: new THREE.Color(tamR, tamG, tamB),
-              transparent: true,
-              opacity: 1.0,
-              side: THREE.DoubleSide,
-              depthTest: true,
-              depthWrite: true,
-              fog: false
-            });
+                `,
+                transparent: true,
+                side: THREE.DoubleSide,
+                depthTest: true, // Enable depth test so syllables can occlude TAM
+                depthWrite: true, // Enable depth write so syllables in front can occlude TAM
+                fog: false
+              });
+            } else {
+              // Standard material without outline
+              planeMaterial = new THREE.MeshBasicMaterial({
+                map: texture,
+                color: new THREE.Color(tamR, tamG, tamB),
+                transparent: true,
+                opacity: 1.0,
+                side: THREE.DoubleSide,
+                depthTest: true,
+                depthWrite: true,
+                fog: false
+              });
+            }
+
+            tamPlane = new THREE.Mesh(planeGeometry, planeMaterial);
+
+            // Position slightly in front of white sphere center to ensure it renders on top
+            // Small offset (0.01) ensures visibility without noticeable separation
+            tamPlane.position.set(0, 0, 0.01);
+
+            // Use default renderOrder (0) and let depth buffer handle occlusion naturally
+            // depthWrite: true ensures proper depth testing with syllables
+            tamPlane.renderOrder = 0;
+
+            // TAM plane renders after white sphere (renderOrder 2 > 0) so it's visible on top
+            // depthTest ensures syllables in front will occlude TAM
+            // Even though both are at same position, higher renderOrder ensures TAM renders in later pass
+
+            console.log('TAM plane created and added to scene', tamPlane);
+            console.log('TAM plane position:', tamPlane.position);
+            console.log('TAM plane renderOrder:', tamPlane.renderOrder);
+            console.log('TAM color:', tamColor);
+            console.log('TAM outline color:', tamOutlineColor);
+            scene.add(tamPlane);
+
+            console.log('TAM plane added to scene. Total objects in scene:', scene.children.length);
+          },
+          (progress) => {
+            console.log('Loading TAM texture...', (progress.loaded / progress.total * 100).toFixed(0) + '%');
+          },
+          (error) => {
+            console.error('Failed to load TAM texture:', error);
           }
-
-          tamPlane = new THREE.Mesh(planeGeometry, planeMaterial);
-
-          // Position slightly in front of white sphere center to ensure it renders on top
-          // Small offset (0.01) ensures visibility without noticeable separation
-          tamPlane.position.set(0, 0, 0.01);
-
-          // Use default renderOrder (0) and let depth buffer handle occlusion naturally
-          // depthWrite: true ensures proper depth testing with syllables
-          tamPlane.renderOrder = 0;
-
-          // TAM plane renders after white sphere (renderOrder 2 > 0) so it's visible on top
-          // depthTest ensures syllables in front will occlude TAM
-          // Even though both are at same position, higher renderOrder ensures TAM renders in later pass
-
-          console.log('TAM plane created and added to scene', tamPlane);
-          console.log('TAM plane position:', tamPlane.position);
-          console.log('TAM plane renderOrder:', tamPlane.renderOrder);
-          console.log('TAM color:', tamColor);
-          console.log('TAM outline color:', tamOutlineColor);
-          scene.add(tamPlane);
-
-          console.log('TAM plane added to scene. Total objects in scene:', scene.children.length);
-        },
-        (progress) => {
-          console.log('Loading TAM texture...', progress);
-        },
-        (error) => {
-          console.error('TAM character image not found:', error);
-        }
-      );
+        );
+      }
     }
 
     function createParticles() {

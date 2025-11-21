@@ -1,7 +1,7 @@
 {
   "mantras": [
     {
-      "name": "Tara Turavira",
+      "name": "1. Tara Turavira",
       "syllables": [
         "OṂ",
         "TĀ",
@@ -19,8 +19,8 @@
         "HĀ"
       ],
       "audioFile": "audio/green-tara.mp3",
-      "tamImage": "images/tam-sarasvati.png",
-      "tamColor": "#ffffff",
+      "tamImage": "images/tam-paths.svg",
+      "tamColor": "#d32f2f",
       "tamOutlineColor": null,
       "syllableStyle": {
         "fill": "#ffffff",
@@ -31,39 +31,27 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#f0e0ff",
+            "color": "#fff9e6",
             "position": 0
           },
           {
-            "color": "#e0f0ff",
-            "position": 12.5
+            "color": "#ffe680",
+            "position": 20
           },
           {
-            "color": "#e0ffe0",
-            "position": 25
+            "color": "#ffdb4d",
+            "position": 40
           },
           {
-            "color": "#fff8e0",
-            "position": 37.5
+            "color": "#ffd633",
+            "position": 60
           },
           {
-            "color": "#ffe0e8",
-            "position": 50
+            "color": "#ffcc00",
+            "position": 80
           },
           {
-            "color": "#f0e0ff",
-            "position": 62.5
-          },
-          {
-            "color": "#e0f0ff",
-            "position": 75
-          },
-          {
-            "color": "#e0ffe0",
-            "position": 87.5
-          },
-          {
-            "color": "#fff8e0",
+            "color": "#e6b800",
             "position": 100
           }
         ]
@@ -71,7 +59,7 @@
       "startIndex": 0
     },
     {
-      "name": "Tara Vajra Sarasvati",
+      "name": "2. Tara Vajra Sarasvati",
       "syllables": [
         "OṂ",
         "TĀ",
@@ -89,9 +77,9 @@
         "HĀ"
       ],
       "audioFile": "audio/green-tara.mp3",
-      "tamImage": "images/tam-sarasvati.png",
+      "tamImage": "images/tam-paths.svg",
       "tamColor": "#ffffff",
-      "tamOutlineColor": null,
+      "tamOutlineColor": "#808080",
       "syllableStyle": {
         "fill": "#ffffff",
         "outlineColor": "#4a1a6c",
