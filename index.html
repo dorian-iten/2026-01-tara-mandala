@@ -252,51 +252,47 @@
       left: 50%;
       transform: translateX(-50%);
       z-index: 10;
-      background: rgba(255, 255, 255, 0.6);
-      padding: 8px;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 6px;
       border-radius: 50px;
-      backdrop-filter: blur(30px);
-      border: 0.5px solid rgba(102, 126, 234, 0.3);
       display: flex;
       align-items: center;
-      gap: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      gap: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      border: 0.5px solid rgba(200, 200, 200, 0.3);
     }
-
 
     .mode-btn {
       padding: 10px 24px;
       border-radius: 50px;
-      background: rgba(255, 255, 255, 0.4);
-      border: 0.5px solid rgba(128, 128, 128, 0.3);
-      color: rgba(45, 27, 78, 0.5);
+      background: transparent;
+      border: 1px solid rgba(120, 100, 180, 0);
+      color: rgba(45, 27, 78, 0.6);
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       font-family: "Noto Sans", sans-serif;
       font-size: 16px;
       font-weight: 400;
       user-select: none;
-      min-width: 80px;
+      flex: 1;
+      min-width: 0;
       text-align: center;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      box-shadow: none;
     }
 
     .mode-btn:hover {
-      background: rgba(255, 255, 255, 0.85);
-      border: 0.5px solid rgba(128, 128, 128, 0.6);
-      color: rgba(45, 27, 78, 1);
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+      color: rgba(45, 27, 78, 0.8);
     }
 
     .mode-btn.active {
-      background: rgba(255, 255, 255, 0.85);
-      border: 0.5px solid rgba(128, 128, 128, 0.6);
-      color: rgba(45, 27, 78, 1);
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+      background: rgba(200, 190, 230, 0.6);
+      border: 1px solid rgba(120, 100, 180, 0.5);
+      color: rgba(45, 27, 78, 0.9);
+      box-shadow: none;
     }
 
     .mode-btn:active {
-      transform: scale(0.95);
+      transform: scale(0.98);
     }
 
     /* Fullscreen toggle - Light theme */
@@ -607,12 +603,30 @@
         top: 50%;
         transform: translateY(-50%);
         flex-direction: column;
-        padding: 8px;
-        gap: 8px;
-        background: rgba(255, 255, 255, 0.85);
+        padding: 0;
+        gap: 4px;
+        background: transparent;
         border: none;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
-        border-radius: 10px;
+        box-shadow: none;
+        border-radius: 0;
+      }
+
+      .mode-btn {
+        background: rgba(255, 255, 255, 0.4);
+        border: 1px solid rgba(200, 200, 200, 0.2);
+        border-radius: 50px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        min-width: 0;
+        width: 100%;
+      }
+
+      .mode-btn.active {
+        background: rgba(255, 255, 255, 0.85);
+        border: 1px solid rgba(200, 200, 200, 0.3);
+      }
+
+      .mode-btn:active {
+        transform: none;
       }
 
     }
