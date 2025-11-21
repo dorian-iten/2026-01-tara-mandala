@@ -922,9 +922,10 @@
                            onchange="updateMantra(${index}, 'tamImage', this.value)">
                   </div>
                   <div class="form-group">
-                    <label>Audio File</label>
-                    <input type="text" value="${mantra.audioFile}"
-                           onchange="updateMantra(${index}, 'audioFile', this.value)">
+                    <label>Audio File (optional)</label>
+                    <input type="text" value="${mantra.audioFile || ''}"
+                           placeholder="Leave empty if no audio"
+                           onchange="updateMantra(${index}, 'audioFile', this.value || null)">
                   </div>
                 </div>
               </div>
