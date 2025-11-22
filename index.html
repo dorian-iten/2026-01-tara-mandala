@@ -53,7 +53,7 @@
       height: 100vh;
       pointer-events: none;
       z-index: 1;
-      background: 
+      background:
         linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.15) 3%, rgba(0, 0, 0, 0.06) 6%, rgba(0, 0, 0, 0.02) 8%, transparent 10%),
         linear-gradient(to left, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.15) 3%, rgba(0, 0, 0, 0.06) 6%, rgba(0, 0, 0, 0.02) 8%, transparent 10%),
         linear-gradient(to top, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.15) 3%, rgba(0, 0, 0, 0.06) 6%, rgba(0, 0, 0, 0.02) 8%, transparent 10%),
@@ -188,61 +188,65 @@
       left: 50%;
       transform: translateX(-50%);
       z-index: 10;
-      background: rgba(255, 255, 255, 0.6);
-      padding: 14px 24px;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 6px;
       border-radius: 50px;
-      backdrop-filter: blur(30px);
-      border: 0.5px solid rgba(102, 126, 234, 0.3);
       display: flex;
       align-items: center;
-      gap: 16px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      gap: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      border: 0.5px solid rgba(200, 200, 200, 0.3);
+      backdrop-filter: blur(30px);
     }
 
     #speed-controls:hover {
-      background: rgba(255, 255, 255, 0.75);
-      border-color: rgba(102, 126, 234, 0.5);
+      background: rgba(255, 255, 255, 0.95);
+      border-color: rgba(200, 200, 200, 0.5);
     }
 
     .speed-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: rgba(102, 126, 234, 0.2);
-      border: 1px solid rgba(102, 126, 234, 0.5);
-      color: rgba(45, 27, 78, 0.9);
+      padding: 10px 16px;
+      border-radius: 50px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: rgba(45, 27, 78, 0.6);
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: "Noto Sans", sans-serif;
       font-size: 18px;
-      font-weight: 500;
+      font-weight: 400;
       user-select: none;
       line-height: 1;
-      padding-bottom: 2px;
+      min-width: 44px;
     }
 
     .speed-btn:hover {
-      background: rgba(102, 126, 234, 0.35);
-      border-color: rgba(102, 126, 234, 0.7);
-      transform: scale(1.05);
+      color: rgba(45, 27, 78, 0.9);
+      background: rgba(200, 190, 230, 0.3);
+      transform: none;
     }
 
     .speed-btn:active {
       transform: scale(0.95);
+      background: rgba(200, 190, 230, 0.5);
     }
 
     #speed-label {
-      color: rgba(45, 27, 78, 0.7);
+      color: rgba(45, 27, 78, 0.8);
       font-size: 14px;
-      min-width: 80px;
+      min-width: 90px;
       text-align: center;
+      font-family: "Noto Sans", sans-serif;
+      font-weight: 400;
+      padding: 0 4px;
     }
 
     #speed-value {
-      color: rgba(45, 27, 78, 0.95);
-      font-weight: 500;
+      color: rgba(45, 27, 78, 1);
+      font-weight: 600;
     }
 
     /* Mode controls - Light theme */
@@ -658,12 +662,12 @@
     </svg>
   </button>
 
-  <div id="mode-controls">
+  <div id="mode-controls" style="display: none;">
     <button class="mode-btn active" id="mode-ring" aria-label="Ring mode">Ring</button>
     <button class="mode-btn" id="mode-billboard" aria-label="Billboard mode">Flat</button>
   </div>
 
-  <div id="speed-controls" style="display: none;">
+  <div id="speed-controls">
     <button class="speed-btn" id="speed-decrease" aria-label="Decrease speed">−</button>
     <div id="speed-label">Speed: <span id="speed-value">1.0×</span></div>
     <button class="speed-btn" id="speed-increase" aria-label="Increase speed">+</button>
@@ -785,17 +789,17 @@
     function darkenColor(hex, amount) {
       // Remove # if present
       hex = hex.replace('#', '');
-      
+
       // Parse RGB
       const r = parseInt(hex.substring(0, 2), 16);
       const g = parseInt(hex.substring(2, 4), 16);
       const b = parseInt(hex.substring(4, 6), 16);
-      
+
       // Darken by reducing each component
       const newR = Math.max(0, Math.floor(r * (1 - amount)));
       const newG = Math.max(0, Math.floor(g * (1 - amount)));
       const newB = Math.max(0, Math.floor(b * (1 - amount)));
-      
+
       // Convert back to hex
       return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
     }
@@ -809,11 +813,11 @@
 
       // For radial gradients, prefer center colors; for linear, use middle colors
       const colors = gradientConfig.colors;
-      
+
       // Find the color closest to center (position 0% or closest to center)
       let centerColor = colors[0].color;
       let minDistance = Math.abs(colors[0].position - 0);
-      
+
       for (const colorStop of colors) {
         const distance = Math.abs(colorStop.position - 0);
         if (distance < minDistance) {
@@ -821,7 +825,7 @@
           centerColor = colorStop.color;
         }
       }
-      
+
       return centerColor;
     }
 
@@ -832,28 +836,28 @@
 
       // Extract a representative color from the gradient
       const baseColor = extractColorFromGradient(gradientConfig);
-      
+
       // Darken the color for the vignette (darken by 70-80% for stronger effect)
       const darkenedColor = darkenColor(baseColor, 0.75);
-      
+
       // Convert hex to rgba for better control
       const r = parseInt(darkenedColor.substring(1, 3), 16);
       const g = parseInt(darkenedColor.substring(3, 5), 16);
       const b = parseInt(darkenedColor.substring(5, 7), 16);
-      
+
       // Create vignette that darkens all edges uniformly (not just corners)
       // Use multiple linear gradients - one for each edge
       const luminance = (r * 0.299 + g * 0.587 + b * 0.114) / 255;
       const maxOpacity = luminance > 0.5 ? 0.85 : 0.75; // Strong opacity at edges
       const midOpacity = maxOpacity * 0.5; // Mid-range opacity for smooth transition
-      
+
       // Calculate 10% of viewport for edge darkening
       // Use linear gradients for each edge that fade from transparent to dark
       const edgeColor = `rgba(${r}, ${g}, ${b}, ${maxOpacity * 0.4})`; // Reduced opacity
       const midEdgeColor = `rgba(${r}, ${g}, ${b}, ${maxOpacity * 0.2})`;
       const fadeColor = `rgba(${r}, ${g}, ${b}, ${maxOpacity * 0.08})`;
       const veryFadeColor = `rgba(${r}, ${g}, ${b}, ${maxOpacity * 0.03})`;
-      
+
       // Top edge: softer, more gradual fade (10% coverage)
       const topGradient = `linear-gradient(to bottom, ${edgeColor} 0%, ${midEdgeColor} 3%, ${fadeColor} 6%, ${veryFadeColor} 8%, transparent 10%)`;
       // Right edge: fade from right
@@ -862,7 +866,7 @@
       const bottomGradient = `linear-gradient(to top, ${edgeColor} 0%, ${midEdgeColor} 3%, ${fadeColor} 6%, ${veryFadeColor} 8%, transparent 10%)`;
       // Left edge: fade from left
       const leftGradient = `linear-gradient(to right, ${edgeColor} 0%, ${midEdgeColor} 3%, ${fadeColor} 6%, ${veryFadeColor} 8%, transparent 10%)`;
-      
+
       // Combine all gradients
       vignetteEl.style.background = `${topGradient}, ${rightGradient}, ${bottomGradient}, ${leftGradient}`;
       vignetteEl.style.backgroundSize = '100% 10%, 10% 100%, 100% 10%, 10% 100%';
@@ -918,7 +922,9 @@
     let audio = new Audio();
     let isPlaying = false;
     let composer;
-    let rotationSpeed = 0.3; // Default rotation speed
+    // Load saved speed level or default to 2
+    let speedLevel = parseInt(localStorage.getItem('mantraSpeedLevel') || '2');
+    let rotationSpeed = 0.128 * speedLevel * speedLevel; // Calculate initial rotation speed
     let tamPlane = null; // Reference to TAM character plane
     let revealAnimation = {
       isActive: false,
@@ -1213,25 +1219,38 @@
       const speedValueDisplay = document.getElementById('speed-value');
 
       function updateSpeedDisplay() {
-        // Normalize display: 0.3 base speed = 1.0×
-        const normalizedSpeed = rotationSpeed / 0.3;
-        speedValueDisplay.textContent = normalizedSpeed.toFixed(1) + '×';
+        speedValueDisplay.textContent = speedLevel;
       }
 
-      speedDecreaseBtn.addEventListener('click', () => {
-        // Decrease: use smaller steps for fine control at low speeds
-        const step = rotationSpeed >= 0.6 ? 0.3 : 0.1;
-        rotationSpeed = Math.max(0.0, rotationSpeed - step);
+      function updateRotationSpeed() {
+        // Quadratic curve: 0.128 * level^2
+        // Level 1: ~0.13
+        // Level 5: 3.2
+        // Level 8: ~8.2
+        // Level 10: 12.8 (Matches previous level 8)
+        rotationSpeed = 0.128 * speedLevel * speedLevel;
         controls.autoRotateSpeed = rotationSpeed;
         updateSpeedDisplay();
+
+        // Save to local storage
+        localStorage.setItem('mantraSpeedLevel', speedLevel);
+      }
+
+      // Initialize display
+      updateSpeedDisplay();
+
+      speedDecreaseBtn.addEventListener('click', () => {
+        if (speedLevel > 0) {
+          speedLevel--;
+          updateRotationSpeed();
+        }
       });
 
       speedIncreaseBtn.addEventListener('click', () => {
-        // Increase: use bigger steps for faster ramping
-        const step = rotationSpeed >= 0.6 ? 0.3 : 0.1;
-        rotationSpeed = Math.min(3.0, rotationSpeed + step);
-        controls.autoRotateSpeed = rotationSpeed;
-        updateSpeedDisplay();
+        if (speedLevel < 10) {
+          speedLevel++;
+          updateRotationSpeed();
+        }
       });
 
       // Mode toggle controls
@@ -1292,7 +1311,7 @@
       const audioControls = document.getElementById('audio-controls');
       const audioTitle = document.getElementById('audio-title');
       const audioStatus = document.getElementById('audio-status');
-      
+
       // Check if audio file is defined
       if (schema.audioFile) {
         audioTitle.textContent = schema.name;
