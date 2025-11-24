@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "type": "module",
   "description": "3D Mantra visualization app with admin interface",
+  "scripts": {
+    "build": "echo 'No build step required for static site'"
+  },
   "dependencies": {
     "@vercel/blob": "^0.23.0"
   },

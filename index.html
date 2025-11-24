@@ -207,7 +207,7 @@
     }
 
     .speed-btn {
-      padding: 10px 16px;
+      padding: 8px 14px;
       border-radius: 50px;
       background: transparent;
       border: 1px solid transparent;
@@ -218,11 +218,11 @@
       justify-content: center;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       font-family: "Noto Sans", sans-serif;
-      font-size: 18px;
+      font-size: 15px;
       font-weight: 400;
       user-select: none;
       line-height: 1;
-      min-width: 44px;
+      min-width: 36px;
     }
 
     .speed-btn:hover {
@@ -238,8 +238,8 @@
 
     #speed-label {
       color: rgba(45, 27, 78, 0.8);
-      font-size: 14px;
-      min-width: 90px;
+      font-size: 13px;
+      min-width: 65px;
       text-align: center;
       font-family: "Noto Sans", sans-serif;
       font-weight: 400;
@@ -338,6 +338,57 @@
       stroke: rgba(45, 27, 78, 0.8);
       stroke-width: 2;
       fill: none;
+    }
+
+    /* Navigation controls - Light theme */
+    #nav-controls {
+      position: absolute;
+      bottom: 30px;
+      left: 20px;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 6px;
+      border-radius: 50px;
+      display: none;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      border: 0.5px solid rgba(200, 200, 200, 0.3);
+      backdrop-filter: blur(30px);
+    }
+
+    #nav-controls:hover {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: rgba(200, 200, 200, 0.5);
+    }
+
+    .nav-btn {
+      padding: 8px 14px;
+      border-radius: 50px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: rgba(45, 27, 78, 0.6);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: "Noto Sans", sans-serif;
+      font-size: 15px;
+      font-weight: 400;
+      user-select: none;
+      line-height: 1;
+      min-width: 36px;
+    }
+
+    .nav-btn:hover {
+      background: rgba(200, 190, 230, 0.3);
+      transform: none;
+    }
+
+    .nav-btn:active {
+      transform: scale(0.95);
+      background: rgba(200, 190, 230, 0.5);
     }
 
     /* Audio controls */
@@ -561,14 +612,15 @@
         top: 50%;
         transform: translateY(-50%);
         flex-direction: column;
-        padding: 10px 12px;
-        gap: 8px;
+        padding: 6px;
+        gap: 4px;
       }
 
       .speed-btn {
-        width: 36px;
-        height: 36px;
-        font-size: 16px;
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+        padding: 6px;
       }
 
       #speed-label {
@@ -581,7 +633,7 @@
       }
 
       #speed-value {
-        font-size: 13px;
+        font-size: 12px;
       }
 
       #audio-controls {
@@ -639,6 +691,24 @@
         transform: none;
       }
 
+      /* Navigation controls - Middle left for landscape mobile */
+      #nav-controls {
+        bottom: auto;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        flex-direction: column;
+        padding: 6px;
+        gap: 4px;
+      }
+
+      .nav-btn {
+        width: 40px;
+        height: 40px;
+        padding: 8px;
+        font-size: 14px;
+      }
+
       .dropdown-menu.show {
         max-height: calc(100vh - 120px);
       }
@@ -683,6 +753,11 @@
     <button class="speed-btn" id="speed-decrease" aria-label="Decrease speed">−</button>
     <div id="speed-label">Speed: <span id="speed-value">1.0×</span></div>
     <button class="speed-btn" id="speed-increase" aria-label="Increase speed">+</button>
+  </div>
+
+  <div id="nav-controls">
+    <button class="nav-btn" id="nav-prev" aria-label="Previous mantra">◀</button>
+    <button class="nav-btn" id="nav-next" aria-label="Next mantra">▶</button>
   </div>
 
   <div id="audio-controls">
@@ -822,6 +897,52 @@
       return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
     }
 
+    // Helper function to calculate luminance from hex color
+    function getColorLuminance(hexColor) {
+      // Remove # if present
+      const hex = hexColor.replace('#', '');
+      
+      // Parse RGB
+      const r = parseInt(hex.substring(0, 2), 16) / 255;
+      const g = parseInt(hex.substring(2, 4), 16) / 255;
+      const b = parseInt(hex.substring(4, 6), 16) / 255;
+      
+      // Calculate relative luminance (ITU-R BT.709)
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    }
+
+    // Helper function to get nav button color based on tamColor
+    function getNavButtonColor(tamColor) {
+      if (!tamColor) {
+        return '#2d1b4e'; // Default dark color
+      }
+      
+      const luminance = getColorLuminance(tamColor);
+      
+      // If luminance is high (light color), use dark gray
+      // Threshold of 0.8 means very light colors (near white) will be inverted
+      if (luminance > 0.8) {
+        return '#3a3a3a'; // Dark gray
+      }
+      
+      return tamColor;
+    }
+
+    // Update navigation button colors based on current mantra
+    function updateNavButtonColors() {
+      if (!showAllMantras) return;
+      
+      const navButtons = document.querySelectorAll('.nav-btn');
+      if (navButtons.length === 0) return;
+      
+      const tamColor = schemas[currentSchema]?.tamColor;
+      const buttonColor = getNavButtonColor(tamColor);
+      
+      navButtons.forEach(btn => {
+        btn.style.color = buttonColor;
+      });
+    }
+
     // Helper function to extract a representative color from gradient
     function extractColorFromGradient(gradientConfig) {
       if (!gradientConfig || !gradientConfig.colors || gradientConfig.colors.length === 0) {
@@ -911,8 +1032,17 @@
       updateVignette(gradientConfig); // Update vignette when background changes
     }
 
+    // Check for URL parameter to show all mantras
+    const urlParams = new URLSearchParams(window.location.search);
+    const showAllMantras = urlParams.has('showall');
+
     // Helper function to check if a mantra should be displayed
     function isMantraReleased(schema) {
+      // If showall parameter is present, show all mantras
+      if (showAllMantras) {
+        return true;
+      }
+
       // If override is true, always show the mantra
       if (schema.releaseDateOverride === true) {
         return true;
@@ -1010,6 +1140,13 @@
 
       // Populate dropdown with loaded mantras
       populateDropdown();
+
+      // Show navigation controls if showall parameter is present
+      if (showAllMantras) {
+        document.getElementById('nav-controls').style.display = 'flex';
+        // Set initial nav button colors
+        updateNavButtonColors();
+      }
 
       // Scene with atmospheric fog
       scene = new THREE.Scene();
@@ -1137,6 +1274,9 @@
         if (dropdownArrow && schemas[currentSchema] && schemas[currentSchema].tamColor) {
           dropdownArrow.style.borderTopColor = schemas[currentSchema].tamColor;
         }
+
+        // Update navigation button colors
+        updateNavButtonColors();
 
         setCameraToStartSyllable();
         updateAudioInfo();
@@ -1316,6 +1456,84 @@
         modeRingBtn.classList.add('active');
         modeBillboardBtn.classList.remove('active');
       });
+
+      // Navigation controls
+      const navPrevBtn = document.getElementById('nav-prev');
+      const navNextBtn = document.getElementById('nav-next');
+
+      function navigateToMantra(direction) {
+        // Get all released mantras
+        const releasedMantras = schemas
+          .map((schema, index) => ({ schema, index }))
+          .filter(({ schema }) => isMantraReleased(schema));
+
+        if (releasedMantras.length === 0) return;
+
+        // Find current position in released mantras
+        const currentPos = releasedMantras.findIndex(({ index }) => index === currentSchema);
+        
+        if (currentPos === -1) return;
+
+        // Calculate next position with wrapping
+        let nextPos;
+        if (direction === 'next') {
+          nextPos = (currentPos + 1) % releasedMantras.length;
+        } else {
+          nextPos = (currentPos - 1 + releasedMantras.length) % releasedMantras.length;
+        }
+
+        const nextMantra = releasedMantras[nextPos];
+        
+        // Update schema
+        currentSchema = nextMantra.index;
+
+        // Apply background gradient for new schema
+        if (schemas[currentSchema] && schemas[currentSchema].backgroundGradient) {
+          applyBackgroundGradient(schemas[currentSchema].backgroundGradient);
+        } else {
+          applyBackgroundGradient(null);
+        }
+
+        // Update text ring and TAM for new schema
+        createTextRing(currentSchema);
+        addTammToSphere(currentSchema);
+
+        // Update dropdown arrow color to match TAM color
+        const dropdownArrow = document.querySelector('.dropdown-arrow');
+        if (dropdownArrow && schemas[currentSchema] && schemas[currentSchema].tamColor) {
+          dropdownArrow.style.borderTopColor = schemas[currentSchema].tamColor;
+        }
+
+        // Update navigation button colors
+        updateNavButtonColors();
+
+        // Update dropdown label
+        const dropdownLabel = document.querySelector('.dropdown-label');
+        if (dropdownLabel) {
+          dropdownLabel.textContent = schemas[currentSchema].name;
+        }
+
+        // Update selected state in dropdown
+        const dropdownOptions = document.querySelectorAll('.dropdown-option');
+        dropdownOptions.forEach(opt => {
+          if (parseInt(opt.dataset.value) === currentSchema) {
+            opt.classList.add('selected');
+          } else {
+            opt.classList.remove('selected');
+          }
+        });
+
+        setCameraToStartSyllable();
+        updateAudioInfo();
+
+        // Stop current audio when switching
+        if (isPlaying) {
+          togglePlayPause();
+        }
+      }
+
+      navPrevBtn.addEventListener('click', () => navigateToMantra('prev'));
+      navNextBtn.addEventListener('click', () => navigateToMantra('next'));
 
       // Start animation
       animate();

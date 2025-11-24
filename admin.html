@@ -1296,6 +1296,7 @@
             scene.background = null;
 
             const camera = new THREE.PerspectiveCamera(60, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
+            // Camera straight on at y=0, objects are positioned higher to align with gradient center
             camera.position.set(0, 0, 6);
 
             const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
@@ -1323,11 +1324,13 @@
             });
             const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
             sphere.renderOrder = -1;
+            // Move sphere up to align with gradient center
+            sphere.position.y = 0.8;
             scene.add(sphere);
 
             // Add TAM character if available
             let tamPlane = null;
-            const tamImagePath = config.tamImage || 'images/tam-paths.svg';
+            const tamImagePath = config.tamImage || '/images/tam-paths.svg';
             const tamColor = config.tamColor || '#ffffff';
             const tamOutlineColor = config.tamOutlineColor || null;
 
@@ -1353,7 +1356,7 @@
                         });
 
                         tamPlane = new THREE.Mesh(planeGeometry, planeMaterial);
-                        tamPlane.position.set(0, 0, 0.01);
+                        tamPlane.position.set(0, 0.8, 0.01);
                         tamPlane.renderOrder = 0;
                         scene.add(tamPlane);
                     }
@@ -1388,6 +1391,7 @@
 
                     const mesh = new THREE.Mesh(planeGeometry, planeMaterial);
                     mesh.position.x = Math.cos(angle) * radius;
+                    mesh.position.y = 0.8; // Move syllables up to align with gradient center
                     mesh.position.z = Math.sin(angle) * radius;
                     mesh.userData.angle = angle;
 
@@ -1413,7 +1417,12 @@
                     const radius = 3.5;
                     mesh.position.x = Math.cos(angle) * radius;
                     mesh.position.z = Math.sin(angle) * radius;
-                    mesh.lookAt(camera.position);
+                    // Face forward (toward camera) - billboard style but keep upright (no X/Z tilt)
+                    // Only rotate around Y axis to face camera, keep X and Z at 0
+                    const direction = new THREE.Vector3();
+                    direction.subVectors(camera.position, mesh.position).normalize();
+                    const yRotation = Math.atan2(direction.x, direction.z);
+                    mesh.rotation.set(0, yRotation, 0);
                 });
 
                 sphere.rotation.y -= 0.002;
@@ -1476,7 +1485,7 @@
                                 });
 
                                 tamPlane = new THREE.Mesh(planeGeometry, planeMaterial);
-                                tamPlane.position.set(0, 0, 0.01);
+                                tamPlane.position.set(0, 0.8, 0.01); // Match the Y offset for alignment
                                 tamPlane.renderOrder = 0;
                                 scene.add(tamPlane);
                                 previewScene.tamPlane = tamPlane;
@@ -1571,7 +1580,7 @@
                 updateStatusIndicator('config-status', 'saving', 'Loading...');
 
                 // Load mantras.json directly
-                const response = await fetch(`mantras.json?t=${Date.now()}`, {
+                const response = await fetch(`/mantras.json?t=${Date.now()}`, {
                     cache: 'no-store'
                 });
                 
@@ -1690,8 +1699,8 @@
             const imgA = document.getElementById('img-a');
             const imgB = document.getElementById('img-b');
 
-            imgA.src = `images/Tara/${currentId}a.jpeg`;
-            imgB.src = `images/Tara/${currentId}b.jpeg`;
+            imgA.src = `/images/tara/${currentId}a.jpeg`;
+            imgB.src = `/images/tara/${currentId}b.jpeg`;
 
             // Add click handlers for lightbox
             imgA.onclick = () => openLightbox(imgA.src, `Tara ${currentId} - Mantra Image`);
@@ -1757,7 +1766,20 @@
         }
 
         function updatePreview(tara) {
-            window.createPreviewScene(tara);
+            // Wait for the module script to load createPreviewScene
+            if (typeof window.createPreviewScene === 'function') {
+                window.createPreviewScene(tara);
+            } else {
+                // Retry after a short delay if the module hasn't loaded yet
+                setTimeout(() => {
+                    if (typeof window.createPreviewScene === 'function') {
+                        window.createPreviewScene(tara);
+                    } else {
+                        console.warn('createPreviewScene not available yet, retrying...');
+                        setTimeout(() => updatePreview(tara), 100);
+                    }
+                }, 50);
+            }
         }
 
         function updateColor(textId, value) {
@@ -1797,7 +1819,7 @@
 
         async function updatePreviewTAM() {
             if (window.previewScene && window.previewScene.updateTAM) {
-                const tamImage = 'images/tam-paths.svg'; // Always use the same SVG base
+                const tamImage = '/images/tam-paths.svg'; // Always use the same SVG base
                 const tamColor = document.getElementById('tam_color').value;
                 const tamOutlineColor = document.getElementById('tam_outline_color').value || null;
                 await window.previewScene.updateTAM(tamImage, tamColor, tamOutlineColor);
@@ -2133,7 +2155,22 @@
             // Removed password logic
         });
 
-        loadConfiguration();
+        // Wait for module script to load before initializing
+        function waitForPreviewScene(callback, maxAttempts = 50) {
+            if (typeof window.createPreviewScene === 'function') {
+                callback();
+            } else if (maxAttempts > 0) {
+                setTimeout(() => waitForPreviewScene(callback, maxAttempts - 1), 50);
+            } else {
+                console.error('createPreviewScene failed to load after multiple attempts');
+                // Still try to load configuration even if preview fails
+                callback();
+            }
+        }
+
+        waitForPreviewScene(() => {
+            loadConfiguration();
+        });
     </script>
 </body>
 
