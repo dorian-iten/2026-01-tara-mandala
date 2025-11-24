@@ -140,9 +140,11 @@
     }
 
     .dropdown-menu.show {
-      max-height: 300px;
+      max-height: 500px;
       opacity: 1;
       pointer-events: all;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     .dropdown-option {
@@ -517,6 +519,10 @@
         font-size: 11px;
         max-width: 150px;
       }
+
+      .dropdown-menu.show {
+        max-height: 400px;
+      }
     }
 
     /* Landscape mobile - more compact */
@@ -633,6 +639,10 @@
         transform: none;
       }
 
+      .dropdown-menu.show {
+        max-height: calc(100vh - 120px);
+      }
+
     }
   </style>
 </head>
@@ -640,6 +650,8 @@
 <body>
   <div id="vignette"></div>
   <div id="container"></div>
+
+
 
   <div id="schema-selector">
     <div class="custom-dropdown">
@@ -700,7 +712,7 @@
     // Schema definitions - loaded from JSON config
     let schemas = [];
 
-    // Load mantras configuration from JSON file
+    // Load mantras configuration from local JSON file
     async function loadMantrasConfig() {
       try {
         const response = await fetch(`mantras.json?t=${Date.now()}`, {
@@ -711,6 +723,7 @@
             'Expires': '0'
           }
         });
+
         const config = await response.json();
 
         // Process schemas: convert outlineColor string to number, ensure defaults
@@ -737,17 +750,22 @@
             name: mantra.name,
             syllables: mantra.syllables,
             audioFile: mantra.audioFile || null, // Optional - may be undefined
-            tamImage: mantra.tamImage,
+            syllables: mantra.syllables,
             tamColor: mantra.tamColor || '#ffffff',
             tamOutlineColor: mantra.tamOutlineColor || null,
             outlineColor: outlineColor,
             syllableStyle: syllableStyle,
             backgroundGradient: mantra.backgroundGradient || null,
-            startIndex: mantra.startIndex || 0
+            startIndex: mantra.startIndex || 0,
+            releaseDate: mantra.releaseDate || "",
+            releaseDateOverride: mantra.releaseDateOverride || false
           };
         });
 
         console.log('Loaded mantras configuration:', schemas);
+
+
+
         return schemas;
       } catch (error) {
         console.error('Failed to load mantras.json, using fallback:', error);
@@ -756,7 +774,7 @@
           {
             name: "Tara Vajra Sarasvati",
             syllables: ["OM", "TA", "RE", "TU", "TA", "RE", "TU", "RE", "PRA", "JNA", "HRING", "HRING", "SVA", "HA"],
-            tamImage: "images/tam-sarasvati.png",
+            syllables: ["OṂ", "TĀ", "RE", "TU", "TTĀ", "RE", "TU", "RE", "PRA", "JÑĀ", "HRĪṂ", "HRĪṂ", "SVĀ", "HĀ"],
             outlineColor: 0x1a3a5c,
             syllableStyle: null,
             backgroundGradient: null,
@@ -765,7 +783,7 @@
           {
             name: "Om Mani Padme Hum",
             syllables: ["OM", "MA", "NI", "PAD", "ME", "HUM"],
-            tamImage: "images/tam-4.png",
+            syllables: ["OṂ", "TĀ", "RE", "TU", "TTĀ", "RE", "TU", "RE", "MA", "MA", "Ā", "YUR", "PU", "NYE", "JNĀ", "NA", "PU", "SHTIM", "KU", "RU", "SVĀ", "HĀ"],
             outlineColor: null,
             syllableStyle: null,
             backgroundGradient: null,
@@ -774,7 +792,7 @@
           {
             name: "Simple Om",
             syllables: ["OM", "OM"],
-            tamImage: "images/tam-4.png",
+            syllables: ["OṂ", "TĀ", "RE", "TU", "TTĀ", "RE", "TU", "RE", "MA", "MA", "Ā", "YUR", "PU", "NYE", "JNĀ", "NA", "PU", "SHTIM", "KU", "RU", "SVĀ", "HĀ"],
             outlineColor: null,
             syllableStyle: null,
             backgroundGradient: null,
@@ -893,6 +911,27 @@
       updateVignette(gradientConfig); // Update vignette when background changes
     }
 
+    // Helper function to check if a mantra should be displayed
+    function isMantraReleased(schema) {
+      // If override is true, always show the mantra
+      if (schema.releaseDateOverride === true) {
+        return true;
+      }
+
+      // If no release date is set, hide the mantra
+      if (!schema.releaseDate || schema.releaseDate === '') {
+        return false;
+      }
+
+      // Check if release date has passed
+      const targetDate = new Date(schema.releaseDate);
+      const now = new Date();
+      targetDate.setHours(0, 0, 0, 0);
+      now.setHours(0, 0, 0, 0);
+
+      return now >= targetDate;
+    }
+
     // Populate dropdown with mantras from config
     function populateDropdown() {
       const dropdownMenu = document.querySelector('.dropdown-menu');
@@ -901,13 +940,16 @@
       // Clear existing options
       dropdownMenu.innerHTML = '';
 
-      // Create options for each mantra
+      // Create options for each mantra that is released
       schemas.forEach((schema, index) => {
-        const option = document.createElement('div');
-        option.className = `dropdown-option ${index === currentSchema ? 'selected' : ''}`;
-        option.textContent = schema.name;
-        option.dataset.value = index;
-        dropdownMenu.appendChild(option);
+        // Only add option if mantra is released
+        if (isMantraReleased(schema)) {
+          const option = document.createElement('div');
+          option.className = `dropdown-option ${index === currentSchema ? 'selected' : ''}`;
+          option.textContent = schema.name;
+          option.dataset.value = index;
+          dropdownMenu.appendChild(option);
+        }
       });
 
       // Set initial label
@@ -931,6 +973,8 @@
       startTime: 0,
       fadeDuration: 800 // milliseconds for smooth unified fade in
     };
+
+
 
     // Camera position adjustments based on orientation
     function getCameraPosition() {
@@ -961,6 +1005,8 @@
       if (schemas[currentSchema] && schemas[currentSchema].backgroundGradient) {
         applyBackgroundGradient(schemas[currentSchema].backgroundGradient);
       }
+
+
 
       // Populate dropdown with loaded mantras
       populateDropdown();
@@ -1079,6 +1125,8 @@
           // Apply default background and vignette
           applyBackgroundGradient(null);
         }
+
+
 
         // Update text ring and TAM for new schema
         createTextRing(currentSchema);
@@ -1383,7 +1431,7 @@
 
       // Get the TAM image path for the current schema
       const schema = schemas[schemaIndex || currentSchema];
-      const tamImagePath = schema.tamImage || 'images/tam-4.png';
+      const tamImagePath = 'images/tam-paths.svg';
       // Support both new (tamOutlineColor) and old (outlineColor) field names for backward compatibility
       const tamOutlineColor = schema.tamOutlineColor || schema.outlineColor || null;
       const tamColor = schema.tamColor || '#ffffff';

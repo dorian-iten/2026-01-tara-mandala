@@ -2,621 +2,1137 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mantra Admin Panel</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap"
-    rel="stylesheet">
-
-  <style>
-    :root {
-      --bg-main: #2d2a3e;
-      --bg-card: #3d3952;
-      --bg-input: #312e42;
-      --text-main: #e8e6f0;
-      --text-dim: #b0adc0;
-      --accent: #e8b86d;
-      --accent-hover: #f5ce8a;
-      --accent-dim: #c99d5a;
-      --purple: #8b7fc7;
-      --purple-light: #a699d8;
-      --success: #7ec699;
-      --error: #e88b8b;
-      --shadow: rgba(0, 0, 0, 0.2);
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(8px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'JetBrains Mono', 'Courier New', monospace;
-      background: linear-gradient(135deg, #2d2a3e 0%, #3a3650 100%);
-      min-height: 100vh;
-      padding: 0;
-      color: var(--text-main);
-    }
-
-    .container {
-      max-width: 1600px;
-      margin: 0 auto;
-      padding: 24px;
-    }
-
-    .header {
-      background: var(--bg-card);
-      padding: 24px 32px;
-      border-radius: 16px;
-      margin-bottom: 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 4px 12px var(--shadow);
-      animation: fadeIn 0.5s ease-out;
-    }
-
-    .header-info h1 {
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-weight: 600;
-      font-size: 28px;
-      color: var(--text-main);
-      margin-bottom: 4px;
-    }
-
-    .header-info p {
-      color: var(--text-dim);
-      font-size: 12px;
-    }
-
-    .header-actions {
-      display: flex;
-      gap: 10px;
-    }
-
-    .login-card {
-      background: var(--bg-card);
-      padding: 40px;
-      border-radius: 16px;
-      max-width: 420px;
-      margin: 12vh auto;
-      box-shadow: 0 8px 24px var(--shadow);
-      animation: fadeIn 0.6s ease-out;
-    }
-
-    .login-card h2 {
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-weight: 600;
-      font-size: 26px;
-      margin-bottom: 24px;
-      color: var(--text-main);
-    }
-
-    .form-group {
-      margin-bottom: 12px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 4px;
-      color: var(--text-dim);
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      font-weight: 500;
-    }
-
-    input[type="text"],
-    input[type="password"],
-    textarea {
-      width: 100%;
-      padding: 10px 14px;
-      background: var(--bg-input);
-      border: 1.5px solid rgba(139, 127, 199, 0.2);
-      border-radius: 8px;
-      color: var(--text-main);
-      font-size: 13px;
-      font-family: 'JetBrains Mono', monospace;
-      transition: all 0.25s ease;
-    }
-
-    input[type="number"] {
-      width: 100px;
-      padding: 8px 10px;
-      background: var(--bg-input);
-      border: 1.5px solid rgba(139, 127, 199, 0.2);
-      border-radius: 8px;
-      color: var(--text-main);
-      font-size: 13px;
-      font-family: 'JetBrains Mono', monospace;
-      transition: all 0.25s ease;
-    }
-
-    input:focus,
-    textarea:focus {
-      outline: none;
-      border-color: var(--purple);
-      background: rgba(139, 127, 199, 0.08);
-      box-shadow: 0 0 0 3px rgba(139, 127, 199, 0.15);
-    }
-
-    input[type="color"] {
-      width: 50px;
-      height: 32px;
-      border: 1.5px solid rgba(139, 127, 199, 0.2);
-      border-radius: 6px;
-      background: var(--bg-input);
-      cursor: pointer;
-      transition: border-color 0.25s;
-    }
-
-    input[type="color"]:hover {
-      border-color: var(--purple);
-    }
-
-    button {
-      background: var(--accent);
-      color: #2d2a3e;
-      border: none;
-      padding: 10px 24px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: 'JetBrains Mono', monospace;
-      transition: all 0.25s ease;
-    }
-
-    button:hover {
-      background: var(--accent-hover);
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(232, 184, 109, 0.3);
-    }
-
-    button:active {
-      transform: translateY(0);
-    }
-
-    button:disabled {
-      background: #4a4658;
-      cursor: not-allowed;
-      color: var(--text-dim);
-    }
-
-    .mantra-list {
-      display: grid;
-      gap: 24px;
-    }
-
-    .mantra-card {
-      background: var(--bg-card);
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px var(--shadow);
-      animation: fadeIn 0.5s ease-out backwards;
-      transition: transform 0.25s, box-shadow 0.25s;
-    }
-
-    .mantra-card:nth-child(1) {
-      animation-delay: 0.05s;
-    }
-
-    .mantra-card:nth-child(2) {
-      animation-delay: 0.1s;
-    }
-
-    .mantra-card:nth-child(3) {
-      animation-delay: 0.15s;
-    }
-
-    .mantra-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px var(--shadow);
-    }
-
-    .mantra-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 20px;
-      background: rgba(139, 127, 199, 0.1);
-      border-bottom: 1px solid rgba(139, 127, 199, 0.15);
-    }
-
-    .mantra-header h2 {
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-weight: 600;
-      font-size: 18px;
-      color: var(--text-main);
-      margin: 0;
-    }
-
-    .mantra-content {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .form-container {
-      display: grid;
-      grid-template-columns: 1.4fr 0.8fr 0.8fr;
-      gap: 20px;
-      padding: 20px;
-    }
-
-    .form-column {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .form-column.compact-col {
-      gap: 10px;
-    }
-
-    .compact-row {
-      display: flex;
-      gap: 12px;
-      align-items: flex-end;
-      margin-bottom: 8px;
-    }
-
-    .form-group.compact {
-      flex: 0 0 auto;
-    }
-
-    .form-group.compact label {
-      margin-bottom: 4px;
-      font-size: 9px;
-    }
-
-    .sidebar-section {
-      background: rgba(49, 46, 66, 0.3);
-      border-radius: 12px;
-      padding: 16px;
-    }
-
-    .preview-section {
-      background: #1a1823;
-      position: relative;
-      border-radius: 0;
-      width: 100%;
-    }
-
-    .preview-canvas {
-      width: 100%;
-      height: 100%;
-      min-height: 240px;
-      display: block;
-    }
-
-    .preview-label {
-      position: absolute;
-      top: 8px;
-      left: 8px;
-      background: var(--accent);
-      color: #2d2a3e;
-      padding: 4px 10px;
-      border-radius: 5px;
-      font-size: 8px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .form-section {
-      padding: 16px 20px;
-    }
-
-    .sidebar-section {
-      padding: 16px;
-      background: rgba(49, 46, 66, 0.5);
-      border-radius: 0 0 12px 0;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
-    .form-row-3 {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .section-title {
-      font-family: 'Crimson Pro', Georgia, serif;
-      font-weight: 600;
-      font-size: 12px;
-      color: var(--accent);
-      margin: 16px 0 10px 0;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-    }
-
-    .success-message,
-    .error-message {
-      padding: 14px 18px;
-      border-radius: 10px;
-      margin-bottom: 24px;
-      font-weight: 500;
-      font-size: 13px;
-      animation: fadeIn 0.3s ease-out;
-    }
-
-    .success-message {
-      background: rgba(126, 198, 153, 0.15);
-      color: var(--success);
-      border: 1px solid rgba(126, 198, 153, 0.3);
-    }
-
-    .error-message {
-      background: rgba(232, 139, 139, 0.15);
-      color: var(--error);
-      border: 1px solid rgba(232, 139, 139, 0.3);
-    }
-
-    .syllable-editor {
-      margin-bottom: 12px;
-    }
-
-    .syllable-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      padding: 10px;
-      background: var(--bg-input);
-      border: 1.5px dashed rgba(139, 127, 199, 0.25);
-      border-radius: 8px;
-      min-height: 52px;
-    }
-
-    .syllable-tag {
-      background: linear-gradient(135deg, var(--purple) 0%, var(--purple-light) 100%);
-      padding: 6px 12px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 600;
-      font-size: 13px;
-      transition: transform 0.2s;
-      animation: fadeIn 0.25s ease-out;
-    }
-
-    .syllable-tag:hover {
-      transform: translateY(-1px);
-    }
-
-    .syllable-tag span {
-      color: white;
-    }
-
-    .syllable-tag button {
-      background: rgba(232, 139, 139, 0.9);
-      padding: 2px 8px;
-      font-size: 11px;
-      border-radius: 4px;
-      color: white;
-    }
-
-    .syllable-tag button:hover {
-      background: var(--error);
-    }
-
-    .add-syllable {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-top: 8px;
-    }
-
-    .sanskrit-helpers {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-    }
-
-    .sanskrit-btn {
-      padding: 4px 8px;
-      background: rgba(139, 127, 199, 0.2);
-      border: 1px solid rgba(139, 127, 199, 0.3);
-      border-radius: 4px;
-      color: var(--text-main);
-      font-size: 12px;
-      cursor: pointer;
-      font-family: 'Crimson Pro', serif;
-      transition: all 0.2s;
-    }
-
-    .sanskrit-btn:hover {
-      background: var(--purple);
-      color: white;
-      border-color: var(--purple);
-    }
-
-    .input-row {
-      display: flex;
-      gap: 8px;
-    }
-
-    .add-syllable input {
-      flex: 1;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    .logout-btn {
-      background: transparent;
-      border: 1.5px solid rgba(232, 139, 139, 0.4);
-      color: var(--text-main);
-    }
-
-    .logout-btn:hover {
-      background: rgba(232, 139, 139, 0.15);
-      border-color: var(--error);
-      color: var(--error);
-    }
-
-    textarea {
-      min-height: 80px;
-      font-family: 'JetBrains Mono', monospace;
-      resize: vertical;
-      line-height: 1.4;
-      font-size: 11px;
-    }
-
-    .sidebar-section textarea {
-      min-height: 200px;
-      font-size: 10px;
-      line-height: 1.3;
-    }
-
-    small {
-      color: var(--text-dim);
-      font-size: 9px;
-      display: block;
-      margin-top: 3px;
-    }
-
-    ::-webkit-scrollbar {
-      width: 10px;
-      height: 10px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: var(--bg-main);
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: #4a4658;
-      border-radius: 5px;
-      border: 2px solid var(--bg-main);
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: var(--purple);
-    }
-
-    input::placeholder,
-    textarea::placeholder {
-      color: rgba(176, 173, 192, 0.5);
-    }
-
-    @media (max-width: 1200px) {
-      .form-container {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      /* Make the first column (content) span full width when in 2-column mode */
-      .form-column:first-child {
-        grid-column: 1 / -1;
-      }
-    }
-
-    @media (max-width: 800px) {
-      .form-container {
-        grid-template-columns: 1fr;
-      }
-
-      .form-column:first-child {
-        grid-column: auto;
-      }
-    }
-
-    .preview-section {
-      height: 280px;
-      border-radius: 0;
-    }
-
-    .sidebar-section {
-      border-radius: 0;
-    }
-
-    @media (max-width: 768px) {
-      .container {
-        padding: 16px;
-      }
-
-      .header {
-        flex-direction: column;
-        gap: 16px;
-        text-align: center;
-      }
-
-      .header-actions {
-        width: 100%;
-        flex-direction: column;
-      }
-
-      .header-actions button {
-        width: 100%;
-      }
-
-      .form-row,
-      .form-row-3 {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tara Mantra Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --burgundy: #8B1538;
+            --burgundy-dark: #6B0F2A;
+            --gold: #D4AF37;
+            --gold-light: #F4E4B0;
+            --cream: #FFF8E7;
+            --cream-dark: #F5E6C8;
+            --text: #2C1810;
+            --text-light: #6B4E3D;
+            --shadow: rgba(139, 21, 56, 0.12);
+            --border: rgba(139, 21, 56, 0.15);
+            --success: #28a745;
+            --error: #dc3545;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+            background: linear-gradient(135deg, #FFF8E7 0%, #F5E6C8 100%);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .app-header {
+            background: linear-gradient(90deg, var(--burgundy) 0%, var(--burgundy-dark) 100%);
+            color: var(--gold-light);
+            box-shadow: 0 4px 20px var(--shadow);
+            position: relative;
+            overflow: hidden;
+            height: 50px;
+            /* Fixed height for compactness */
+        }
+
+        .app-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--gold), transparent, var(--gold));
+            opacity: 0.6;
+        }
+
+        .header-row {
+            padding: 0 2rem;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+        }
+
+        .header-title {
+            display: flex;
+            flex-direction: row;
+            /* Side by side */
+            align-items: baseline;
+            gap: 1rem;
+        }
+
+        .header-title h1 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.2rem;
+            /* Smaller font */
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            margin: 0;
+        }
+
+        .app-subtitle {
+            font-family: 'Crimson Pro', serif;
+            font-size: 0.8rem;
+            opacity: 0.85;
+            font-weight: 400;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .header-status {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            font-size: 0.8rem;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-indicator {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--gold-light);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .status-indicator.active {
+            background: #7ec699;
+        }
+
+        .status-indicator.saving {
+            background: var(--gold);
+        }
+
+        .controls {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 0.5rem 2rem;
+            /* Reduced padding */
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            height: 60px;
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        #current-id {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--burgundy);
+            min-width: 80px;
+            text-align: center;
+            letter-spacing: 0.02em;
+        }
+
+        .action-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+
+
+
+
+        button {
+            font-family: 'Crimson Pro', serif;
+            padding: 0.4rem 1rem;
+            /* Smaller buttons */
+            background: var(--burgundy);
+            color: var(--gold-light);
+            border: 1px solid var(--burgundy-dark);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        button:hover {
+            background: var(--burgundy-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.secondary {
+            background: white;
+            color: var(--burgundy);
+            border: 2px solid var(--burgundy);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        button.secondary:hover {
+            background: var(--cream);
+            border-color: var(--burgundy-dark);
+        }
+
+        button.gold {
+            background: linear-gradient(135deg, var(--gold) 0%, #C5A028 100%);
+            color: var(--burgundy-dark);
+            border: none;
+            font-weight: 700;
+        }
+
+        button.gold:hover {
+            background: linear-gradient(135deg, #E5BF47 0%, var(--gold) 100%);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .container {
+            display: grid;
+            /* 1fr for images, auto for resizer, variable width for form */
+            grid-template-columns: 1fr auto var(--right-col-width, 450px);
+            gap: 0;
+            max-width: 100%;
+            margin: 0 auto;
+            min-height: calc(100vh - 110px);
+        }
+
+
+
+        .resizer {
+            background-color: var(--border);
+            cursor: col-resize;
+            height: 100%;
+            width: 4px;
+            transition: background-color 0.2s;
+            z-index: 10;
+        }
+
+        .resizer:hover,
+        .resizer.resizing {
+            background-color: var(--burgundy);
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .images-column {
+                border-right: none;
+                border-bottom: 2px solid var(--border);
+            }
+        }
+
+        .images-column {
+            padding: 1.5rem;
+            background: white;
+            border-right: 3px double var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            animation: slideInLeft 0.6s ease-out;
+            max-height: calc(100vh - 110px);
+            overflow-y: auto;
+        }
+
+        .images-column::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .images-column::-webkit-scrollbar-track {
+            background: var(--cream-dark);
+        }
+
+        .images-column::-webkit-scrollbar-thumb {
+            background: var(--burgundy);
+            border-radius: 5px;
+        }
+
+        .images-column::-webkit-scrollbar-thumb:hover {
+            background: var(--burgundy-dark);
+        }
+
+        /* New wrapper for side-by-side images */
+        .images-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .image-container {
+            background: var(--cream);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px var(--shadow);
+            transition: all 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            /* Match height in row */
+        }
+
+        .image-container:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px var(--shadow);
+        }
+
+        .image-container h3 {
+            font-family: 'Crimson Pro', serif;
+            padding: 0.5rem;
+            background: linear-gradient(135deg, var(--burgundy) 0%, var(--burgundy-dark) 100%);
+            color: var(--gold-light);
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            text-align: center;
+            border-bottom: 2px solid var(--gold);
+            flex-shrink: 0;
+        }
+
+        .image-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            padding: 0.5rem;
+            overflow: hidden;
+            flex: 1;
+            min-height: 200px;
+            /* Minimum height for images */
+        }
+
+        img {
+            max-width: 100%;
+            max-height: 300px;
+            /* Limit image height */
+            width: auto;
+            height: auto;
+            display: block;
+            object-fit: contain;
+        }
+
+        .preview-container {
+            background: var(--cream);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px var(--shadow);
+            position: relative;
+            min-height: 400px;
+            /* Taller preview */
+            flex: 1;
+            /* Take remaining space */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-container h3 {
+            font-family: 'Crimson Pro', serif;
+            padding: 0.5rem;
+            background: linear-gradient(135deg, var(--burgundy) 0%, var(--burgundy-dark) 100%);
+            color: var(--gold-light);
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            text-align: center;
+            border-bottom: 2px solid var(--gold);
+            flex-shrink: 0;
+        }
+
+        .preview-canvas {
+            width: 100%;
+            height: 100%;
+            flex: 1;
+            display: block;
+        }
+
+        .form-column {
+            padding: 1.5rem;
+            max-height: calc(100vh - 110px);
+            overflow-y: auto;
+            background: linear-gradient(180deg, #FFFBF0 0%, var(--cream) 100%);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .form-column::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .form-column::-webkit-scrollbar-track {
+            background: var(--cream-dark);
+        }
+
+        .form-column::-webkit-scrollbar-thumb {
+            background: var(--burgundy);
+            border-radius: 5px;
+        }
+
+        .form-column::-webkit-scrollbar-thumb:hover {
+            background: var(--burgundy-dark);
+        }
+
+        .parser-section {
+            margin-bottom: 1.5rem;
+            padding: 1.25rem;
+            background: white;
+            border: 2px solid var(--gold);
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(212, 175, 55, 0.15);
+        }
+
+        .parser-section label {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--burgundy);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .section-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--burgundy);
+            margin: 1.25rem 0 0.75rem 0;
+            padding-bottom: 0.4rem;
+            border-bottom: 2px solid var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .form-row .form-group {
+            margin-bottom: 0;
+        }
+
+        @media (max-width: 900px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--burgundy);
+            font-family: 'Crimson Pro', serif;
+            font-size: 0.95rem;
+            letter-spacing: 0.02em;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            background: white;
+            color: var(--text);
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--burgundy);
+            box-shadow: 0 0 0 3px rgba(139, 21, 56, 0.1);
+        }
+
+        input[type="text"]:read-only {
+            background: var(--cream-dark);
+            color: var(--text-light);
+        }
+
+        textarea {
+            resize: vertical;
+            font-family: inherit;
+            line-height: 1.6;
+        }
+
+        .color-input {
+            display: flex;
+            gap: 1rem;
+            align-items: stretch;
+        }
+
+        input[type="color"] {
+            width: 60px;
+            height: 44px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        input[type="color"]:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .color-input input[type="text"] {
+            flex: 1;
+        }
+
+        .syllable-editor {
+            margin-bottom: 1.25rem;
+        }
+
+        .syllable-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 1rem;
+            background: var(--cream);
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            min-height: 60px;
+        }
+
+        .syllable-tag {
+            background: linear-gradient(135deg, var(--burgundy) 0%, var(--burgundy-dark) 100%);
+            padding: 6px 12px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: transform 0.2s;
+            animation: fadeIn 0.25s ease-out;
+            color: var(--gold-light);
+            font-family: 'Crimson Pro', serif;
+        }
+
+        .syllable-tag:hover {
+            transform: translateY(-2px);
+        }
+
+        .syllable-tag button {
+            background: rgba(220, 53, 69, 0.9);
+            padding: 2px 8px;
+            font-size: 0.85rem;
+            border-radius: 4px;
+            color: white;
+            border: none;
+        }
+
+        .syllable-tag button:hover {
+            background: var(--error);
+        }
+
+        .add-syllable {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .add-syllable input {
+            flex: 1;
+        }
+
+        .sanskrit-helpers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .sanskrit-btn {
+            padding: 4px 10px;
+            background: rgba(139, 21, 56, 0.1);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--burgundy);
+            font-size: 0.95rem;
+            cursor: pointer;
+            font-family: 'Crimson Pro', serif;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .sanskrit-btn:hover {
+            background: var(--burgundy);
+            color: white;
+            border-color: var(--burgundy);
+            transform: translateY(-1px);
+        }
+
+        .gradient-editor textarea {
+            min-height: 500px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        small {
+            display: block;
+            margin-top: 0.25rem;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            font-style: italic;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 5rem;
+            right: 2rem;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+            min-width: 320px;
+            max-width: 400px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            pointer-events: auto;
+            animation: toastSlideIn 0.3s ease-out;
+            font-family: 'Crimson Pro', serif;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .toast.removing {
+            animation: toastSlideOut 0.3s ease-out forwards;
+        }
+
+        @keyframes toastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes toastSlideOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+        }
+
+        .toast-icon {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .toast.success .toast-icon {
+            background: var(--success);
+            color: white;
+        }
+
+        .toast.error .toast-icon {
+            background: var(--error);
+            color: white;
+        }
+
+        .toast.info .toast-icon {
+            background: var(--gold);
+            color: var(--burgundy-dark);
+        }
+
+        .toast-content {
+            flex: 1;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .toast-close {
+            flex-shrink: 0;
+            background: transparent;
+            border: none;
+            padding: 0.25rem;
+            cursor: pointer;
+            color: var(--text-light);
+            font-size: 1.25rem;
+            line-height: 1;
+            transition: color 0.2s;
+            box-shadow: none;
+            width: auto;
+            height: auto;
+        }
+
+        .toast-close:hover {
+            color: var(--text);
+            background: transparent;
+            transform: none;
+        }
+
+        /* Lightbox */
+        .lightbox-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            cursor: zoom-out;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .lightbox-overlay.active {
+            display: flex;
+        }
+
+        .lightbox-content {
+            max-width: 90vw;
+            max-height: 90vh;
+            position: relative;
+            animation: scaleIn 0.3s ease-out;
+        }
+
+        .lightbox-image {
+            max-width: 100%;
+            max-height: 90vh;
+            display: block;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            cursor: default;
+        }
+
+        .lightbox-close {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: white;
+            color: var(--burgundy);
+            border: none;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s;
+            z-index: 3001;
+        }
+
+        .lightbox-close:hover {
+            background: var(--burgundy);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .lightbox-caption {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--burgundy);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-family: 'Crimson Pro', serif;
+            font-weight: 600;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            z-index: 3001;
+        }
+
+        .image-container img {
+            cursor: zoom-in;
+        }
+    </style>
 </head>
 
 <body>
-  <div class="container">
-    <!-- Login Screen -->
-    <div id="loginScreen" class="login-card">
-      <h2>Admin Login</h2>
-      <div class="form-group">
-        <label for="passwordInput">Password</label>
-        <input type="password" id="passwordInput" placeholder="Enter admin password">
-      </div>
-      <button onclick="login()">Login</button>
-      <div id="loginError" class="error-message hidden"></div>
+    <div class="app-header">
+        <div class="header-row">
+            <div class="header-title">
+                <h1>Tara Mantra Admin</h1>
+                <div class="app-subtitle">21 Sacred Emanations Configuration</div>
+            </div>
+            <div class="header-status">
+                <div class="status-item">
+                    <div class="status-indicator" id="config-status"></div>
+                    <span id="config-status-text">Loading...</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-indicator" id="save-status"></div>
+                    <span id="save-status-text">Ready</span>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Admin Panel -->
-    <div id="adminPanel" class="hidden">
-      <div class="header">
-        <div class="header-info">
-          <h1>Mantra Configuration</h1>
-          <p>Sacred Text Management System</p>
+    <div class="controls">
+        <div class="nav-controls">
+            <button onclick="prevTara()" class="secondary">← Prev</button>
+            <div id="current-id">Tara 1</div>
+            <button onclick="nextTara()" class="secondary">Next →</button>
+            <div class="action-controls">
+                <a href="releaseDate.html" class="secondary" style="text-decoration: none; display: flex; align-items: center; height: 32px; padding: 0 1rem; font-family: 'Crimson Pro', serif; font-weight: 600; border: 2px solid var(--burgundy); border-radius: 4px; color: var(--burgundy);">Manage Schedule</a>
+                <button onclick="manualSave()">Update Memory</button>
+                <button class="secondary" onclick="saveToLocalFile()">Save to mantras.json</button>
+                <button class="secondary" onclick="downloadConfig()">Download JSON</button>
+            </div>
         </div>
-        <div class="header-actions">
-          <button onclick="saveAllChanges()">Save All Changes</button>
-          <button class="logout-btn" onclick="logout()">Logout</button>
-        </div>
-      </div>
-
-      <div id="messageArea"></div>
-
-      <div id="mantraList" class="mantra-list">
-        <!-- Mantra cards will be dynamically generated here -->
-      </div>
     </div>
-  </div>
 
-  <script type="importmap">
+    <!-- Toast notifications -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Lightbox -->
+    <div class="lightbox-overlay" id="lightbox-overlay" onclick="window.closeLightbox()">
+        <button class="lightbox-close" onclick="window.closeLightbox()">×</button>
+        <div class="lightbox-caption" id="lightbox-caption"></div>
+        <div class="lightbox-content" onclick="event.stopPropagation()">
+            <img class="lightbox-image" id="lightbox-image" src="" alt="">
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Left Column: Images + Preview -->
+        <div class="images-column">
+            <div class="images-row">
+                <div class="image-container">
+                    <h3>Mantra Image</h3>
+                    <div class="image-wrapper">
+                        <img id="img-a" src="" alt="Mantra Image">
+                    </div>
+                </div>
+                <div class="image-container">
+                    <h3>Information Image</h3>
+                    <div class="image-wrapper">
+                        <img id="img-b" src="" alt="Information Image">
+                    </div>
+                </div>
+            </div>
+            <div class="preview-container" id="preview-container">
+                <h3>3D Preview</h3>
+                <canvas id="preview-canvas" class="preview-canvas"></canvas>
+            </div>
+        </div>
+
+        <!-- Resizer Handle -->
+        <div class="resizer" id="dragMe"></div>
+
+        <!-- Middle Column: Form -->
+        <div class="form-column">
+            <div class="parser-section">
+                <label>Quick Parse</label>
+                <textarea id="paste-area" placeholder="Paste text block here to auto-fill fields below..."
+                    style="height: 80px; margin-bottom: 0.75rem;"></textarea>
+                <button onclick="parseText()" style="width: 100%;" class="gold">Parse & Fill Fields</button>
+            </div>
+
+            <form id="data-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="id">ID</label>
+                        <input type="text" id="id" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="name">Tara Name</label>
+                        <input type="text" id="name">
+                        <small>Display name for the configuration</small>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="release_date">Release Date</label>
+                        <input type="date" id="release_date">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="release_override">Override Release Date</label>
+                        <input type="checkbox" id="release_override" style="width: auto; margin-top: 0.5rem;">
+                        <small>Show immediately regardless of date</small>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="start_index">Start Index</label>
+                        <input type="number" id="start_index" min="0" placeholder="0">
+                        <small>Which syllable faces camera initially</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="audio_file">Audio File (optional)</label>
+                        <input type="text" id="audio_file" placeholder="audio/tara-1.mp3">
+                    </div>
+                </div>
+
+                <div class="section-title">Tibetan & English Names</div>
+
+                <div class="form-group">
+                    <label for="english_homage">English Homage</label>
+                    <input type="text" id="english_homage">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="english_tara_name">English Tara Name</label>
+                        <input type="text" id="english_tara_name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="english_tara_subtitle">English Tara Subtitle</label>
+                        <input type="text" id="english_tara_subtitle">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" style="height: 120px;"></textarea>
+                </div>
+
+                <div class="section-title">Mantra Syllables</div>
+
+                <div class="syllable-editor">
+                    <label>Syllables (click to remove)</label>
+                    <div class="syllable-list" id="syllable-list">
+                        <!-- Syllables will be added here dynamically -->
+                    </div>
+                    <div class="add-syllable">
+                        <input type="text" id="new-syllable" placeholder="Add new syllable (e.g., OṂ)">
+                        <button type="button" onclick="addSyllable()" class="secondary">Add</button>
+                    </div>
+                    <div class="sanskrit-helpers">
+                        <button type="button" class="sanskrit-btn" onclick="insertChar('Ā')">Ā</button>
+                        <button type="button" class="sanskrit-btn" onclick="insertChar('Ī')">Ī</button>
+                        <button type="button" class="sanskrit-btn" onclick="insertChar('Ū')">Ū</button>
+                        <button type="button" class="sanskrit-btn" onclick="insertChar('Ṛ')">Ṛ</button>
+                        <button type="button" class="sanskrit-btn" onclick="insertChar('Ḷ')">Ḷ</button>
+                        <button type="button" class="sanskrit-btn" onclick="insertChar('Ṅ')">Ṅ</button>
+                        <button type="button" class="sanskrit-btn" onclick="insertChar('Ñ')">Ñ</button>
+                        <button type="button" class="sanskrit-btn" onclick="insertChar('Ṭ')">Ṭ</button>
+                        <button type="button" class="sanskrit-btn" onclick="insertChar('Ḍ')">Ḍ</button>
+                        <button type="button" class="sanskrit-btn" onclick="insertChar('Ṇ')">Ṇ</button>
+                        <button type="button" class="sanskrit-btn" onclick="insertChar('Ś')">Ś</button>
+                        <button type="button" class="sanskrit-btn" onclick="insertChar('Ṣ')">Ṣ</button>
+                        <button type="button" class="sanskrit-btn" onclick="insertChar('Ḥ')">Ḥ</button>
+                        <button type="button" class="sanskrit-btn" onclick="insertChar('Ṃ')">Ṃ</button>
+                        <button type="button" class="sanskrit-btn" onclick="insertChar('OṂ')">OṂ</button>
+                    </div>
+                </div>
+
+                <div class="section-title">Colors & Styling</div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>TAM Color (Around Figure)</label>
+                        <div class="color-input">
+                            <input type="color" id="tam_color_picker" onchange="updateColor('tam_color', this.value)">
+                            <input type="text" id="tam_color" placeholder="#000000"
+                                onchange="updatePicker('tam_color_picker', this.value)">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>TAM Outline Color (optional)</label>
+                        <div class="color-input">
+                            <input type="color" id="tam_outline_color_picker"
+                                onchange="updateColor('tam_outline_color', this.value)">
+                            <input type="text" id="tam_outline_color" placeholder="#808080"
+                                onchange="updatePicker('tam_outline_color_picker', this.value)">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Syllable Fill Color</label>
+                        <div class="color-input">
+                            <input type="color" id="syllable_fill_picker"
+                                onchange="updateColor('syllable_fill', this.value)">
+                            <input type="text" id="syllable_fill" placeholder="#ffffff"
+                                onchange="updatePicker('syllable_fill_picker', this.value)">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Syllable Outline Color</label>
+                        <div class="color-input">
+                            <input type="color" id="syllable_outline_picker"
+                                onchange="updateColor('syllable_outline', this.value)">
+                            <input type="text" id="syllable_outline" placeholder="#000000"
+                                onchange="updatePicker('syllable_outline_picker', this.value)">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Syllable Outline Width</label>
+                    <input type="number" id="syllable_outline_width" step="0.01" min="0" max="1" placeholder="0.02">
+                    <small>Values between 0 and 1 (e.g., 0.02)</small>
+                </div>
+
+                <div class="section-title">Advanced Settings</div>
+
+                <!-- Moved Gradient Editor here -->
+                <div class="section-title">Background Gradient</div>
+                <div class="gradient-editor">
+                    <label>Gradient JSON Configuration</label>
+                    <textarea id="gradient-json"
+                        placeholder='{\n  "type": "radial",\n  "colors": [\n    {"color": "#ffe0e0", "position": 0},\n    {"color": "#cc0000", "position": 100}\n  ]\n}'></textarea>
+                    <small>Configure radial or linear gradients with color stops</small>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="importmap">
     {
       "imports": {
         "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
@@ -624,482 +1140,1001 @@
     }
   </script>
 
-  <script type="module">
-    import * as THREE from 'three';
+    <script type="module">
+        import * as THREE from 'three';
 
-    // Store preview scenes for each mantra
-    const previewScenes = [];
+        let previewScene = null;
 
-    // Helper function to create texture from canvas with outlined text
-    function createTextTexture(text, fillColor, outlineColor, outlineWidth, fontSize = 80) {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
+        // Load and create TAM texture from SVG
+        async function createTAMTexture(tamImagePath, tamColor, tamOutlineColor) {
+            try {
+                const response = await fetch(tamImagePath);
+                const svgText = await response.text();
 
-      canvas.width = 512;
-      canvas.height = 256;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+                // Parse SVG
+                const parser = new DOMParser();
+                const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+                const svgElement = svgDoc.documentElement;
 
-      ctx.font = `bold ${fontSize}px "Crimson Pro", serif`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
+                // Find the path element
+                const pathElement = svgElement.querySelector('path');
 
-      const centerX = canvas.width / 2;
-      const centerY = canvas.height / 2;
+                if (pathElement) {
+                    // Apply fill color
+                    pathElement.setAttribute('fill', tamColor);
 
-      // Draw outline
-      if (outlineWidth > 0) {
-        ctx.strokeStyle = outlineColor;
-        ctx.lineWidth = outlineWidth * 2;
-        ctx.lineJoin = 'round';
-        ctx.lineCap = 'round';
-        ctx.miterLimit = 2;
-        ctx.strokeText(text, centerX, centerY);
-      }
+                    // Apply stroke/outline if specified
+                    if (tamOutlineColor && tamOutlineColor !== '#000000') {
+                        pathElement.setAttribute('stroke', tamOutlineColor);
+                        pathElement.setAttribute('stroke-width', '4');
+                    } else {
+                        pathElement.removeAttribute('stroke');
+                    }
+                }
 
-      // Draw fill
-      ctx.fillStyle = fillColor;
-      ctx.fillText(text, centerX, centerY);
+                // Serialize modified SVG
+                const serializer = new XMLSerializer();
+                const modifiedSvgString = serializer.serializeToString(svgElement);
 
-      const texture = new THREE.CanvasTexture(canvas);
-      texture.minFilter = THREE.LinearFilter;
-      texture.magFilter = THREE.LinearFilter;
-      texture.needsUpdate = true;
+                // Create image from SVG
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    const svgBlob = new Blob([modifiedSvgString], { type: 'image/svg+xml;charset=utf-8' });
+                    const url = URL.createObjectURL(svgBlob);
 
-      return texture;
-    }
+                    img.onload = function () {
+                        // Create canvas with high resolution
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const scale = 2;
+                        canvas.width = img.width * scale;
+                        canvas.height = img.height * scale;
 
-    // Create a 3D preview scene for a mantra
-    function createPreviewScene(canvasId, mantra) {
-      const canvas = document.getElementById(canvasId);
-      if (!canvas) return null;
+                        // Draw SVG to canvas
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-      // Apply background gradient to preview container
-      const previewContainer = canvas.parentElement;
-      if (mantra.backgroundGradient && mantra.backgroundGradient.colors) {
-        const colors = mantra.backgroundGradient.colors.map(c => `${c.color} ${c.position}%`).join(', ');
-        const gradientType = mantra.backgroundGradient.type === 'linear' ? 'linear-gradient' : 'radial-gradient';
-        const gradientValue = gradientType === 'radial-gradient'
-          ? `radial-gradient(circle at center, ${colors})`
-          : `linear-gradient(${mantra.backgroundGradient.direction || 'to bottom'}, ${colors})`;
-        previewContainer.style.background = gradientValue;
-      }
+                        // Create texture
+                        const texture = new THREE.CanvasTexture(canvas);
+                        texture.minFilter = THREE.LinearMipmapLinearFilter;
+                        texture.needsUpdate = true;
 
-      const scene = new THREE.Scene();
-      // Make scene background transparent so gradient shows through
-      scene.background = null;
+                        const aspectRatio = img.width / img.height;
+                        URL.revokeObjectURL(url);
 
-      const camera = new THREE.PerspectiveCamera(60, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
-      camera.position.set(0, 0, 6);
+                        resolve({ texture, aspectRatio });
+                    };
 
-      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-      renderer.setClearColor(0x000000, 0); // Transparent background
-      renderer.setSize(canvas.clientWidth, canvas.clientHeight);
-      renderer.setPixelRatio(window.devicePixelRatio);
+                    img.onerror = () => {
+                        URL.revokeObjectURL(url);
+                        reject(new Error('Failed to load TAM image'));
+                    };
 
-      // Add lighting
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-      scene.add(ambientLight);
-
-      const pointLight = new THREE.PointLight(0xffffff, 0.8);
-      pointLight.position.set(5, 5, 5);
-      scene.add(pointLight);
-
-      // Center sphere
-      const sphereGeometry = new THREE.SphereGeometry(1.5, 32, 32);
-      const sphereMaterial = new THREE.MeshPhongMaterial({
-        color: 0xffffff,
-        emissive: 0xffffff,
-        emissiveIntensity: 0.2,
-        shininess: 100
-      });
-      const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-      scene.add(sphere);
-
-      // Create syllables
-      const syllables = [];
-      const syllableStyle = mantra.syllableStyle || {};
-      const fillColor = syllableStyle.fill || '#ffffff';
-      const outlineColor = syllableStyle.outlineColor || '#000000';
-      const outlineWidth = (syllableStyle.outlineWidth || 0) * 200;
-
-      // Show all syllables
-      const syllablesToShow = mantra.syllables;
-      const radius = 3.5;
-      const angleStep = (Math.PI * 2) / syllablesToShow.length;
-
-      syllablesToShow.forEach((syllable, index) => {
-        const angle = angleStep * index + Math.PI / 2;
-        const texture = createTextTexture(syllable, fillColor, outlineColor, outlineWidth);
-
-        const planeGeometry = new THREE.PlaneGeometry(1.5, 0.75);
-        const planeMaterial = new THREE.MeshBasicMaterial({
-          map: texture,
-          transparent: true,
-          alphaTest: 0.01,
-          side: THREE.DoubleSide
-        });
-
-        const mesh = new THREE.Mesh(planeGeometry, planeMaterial);
-        mesh.position.x = Math.cos(angle) * radius;
-        mesh.position.z = Math.sin(angle) * radius;
-        mesh.userData.angle = angle;
-
-        scene.add(mesh);
-        syllables.push(mesh);
-      });
-
-      // Animation loop
-      let rotationAngle = 0;
-      function animate() {
-        if (!document.body.contains(canvas)) return; // Stop if canvas removed
-
-        // Match main app rotation speed (0.3 degrees per frame ~= 0.0052 radians)
-        // Use negative to match camera rotation direction (clockwise when viewed from above)
-        rotationAngle -= 0.002;
-
-        syllables.forEach((mesh) => {
-          const angle = mesh.userData.angle + rotationAngle;
-          mesh.position.x = Math.cos(angle) * radius;
-          mesh.position.z = Math.sin(angle) * radius;
-          mesh.lookAt(camera.position);
-        });
-
-        sphere.rotation.y -= 0.002;
-
-        renderer.render(scene, camera);
-        requestAnimationFrame(animate);
-      }
-      animate();
-
-      return {
-        scene,
-        camera,
-        renderer,
-        syllables,
-        sphere,
-        updateColors: (newFillColor, newOutlineColor, newOutlineWidth) => {
-          syllables.forEach((mesh, index) => {
-            const syllable = syllablesToShow[index];
-            const texture = createTextTexture(syllable, newFillColor, newOutlineColor, newOutlineWidth * 200);
-            mesh.material.map = texture;
-            mesh.material.needsUpdate = true;
-          });
-        }
-      };
-    }
-
-    // Export functions to global scope
-    window.createPreviewScene = createPreviewScene;
-    window.previewScenes = previewScenes;
-  </script>
-
-  <script>
-    let config = null;
-    let adminPassword = null;
-
-    // Check if already logged in (session storage)
-    window.addEventListener('DOMContentLoaded', () => {
-      const savedPassword = sessionStorage.getItem('adminPassword');
-      if (savedPassword) {
-        adminPassword = savedPassword;
-        loadConfig();
-      }
-    });
-
-    async function login() {
-      const password = document.getElementById('passwordInput').value;
-      const errorDiv = document.getElementById('loginError');
-
-      if (!password) {
-        errorDiv.textContent = 'Please enter a password';
-        errorDiv.classList.remove('hidden');
-        return;
-      }
-
-      adminPassword = password;
-      sessionStorage.setItem('adminPassword', password);
-
-      // Try to load config (this will validate the password)
-      const success = await loadConfig();
-      if (!success) {
-        errorDiv.textContent = 'Invalid password';
-        errorDiv.classList.remove('hidden');
-        adminPassword = null;
-        sessionStorage.removeItem('adminPassword');
-      }
-    }
-
-    function logout() {
-      adminPassword = null;
-      sessionStorage.removeItem('adminPassword');
-      document.getElementById('loginScreen').classList.remove('hidden');
-      document.getElementById('adminPanel').classList.add('hidden');
-      document.getElementById('passwordInput').value = '';
-    }
-
-    async function loadConfig() {
-      try {
-        // First try to load from API
-        const response = await fetch('/api/config');
-
-        if (response.ok) {
-          config = await response.json();
-        } else {
-          // Fallback to loading mantras.json directly
-          const fallbackResponse = await fetch('/mantras.json');
-          config = await fallbackResponse.json();
+                    img.src = url;
+                });
+            } catch (err) {
+                console.error('Error loading TAM:', err);
+                return null;
+            }
         }
 
-        document.getElementById('loginScreen').classList.add('hidden');
-        document.getElementById('adminPanel').classList.remove('hidden');
-        renderMantraList();
-        return true;
-      } catch (error) {
-        console.error('Error loading config:', error);
-        showMessage('Error loading configuration: ' + error.message, 'error');
-        return false;
-      }
-    }
+        // Helper function to create texture from canvas with outlined text
+        function createTextTexture(text, fillColor, outlineColor, outlineWidth, fontSize = 80) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
 
-    function renderMantraList() {
-      const container = document.getElementById('mantraList');
-      container.innerHTML = '';
+            canvas.width = 512;
+            canvas.height = 256;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      config.mantras.forEach((mantra, index) => {
-        const card = document.createElement('div');
-        card.className = 'mantra-card';
-        card.innerHTML = `
-          <div class="mantra-header">
-            <h2>${mantra.name}</h2>
-          </div>
+            ctx.font = `bold ${fontSize}px "Crimson Pro", serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
 
-          <div class="mantra-content">
-            <!-- Top: Preview Section -->
-            <div class="preview-section">
-              <canvas class="preview-canvas" id="preview-${index}"></canvas>
-              <div class="preview-label">Preview</div>
-            </div>
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
 
-            <!-- Bottom: 2-Column Form -->
-            <div class="form-container">
-              <!-- Left Column: Content -->
-              <div class="form-column">
-                <div class="section-title" style="margin-top: 0;">Content</div>
+            // Draw outline
+            if (outlineWidth > 0) {
+                ctx.strokeStyle = outlineColor;
+                ctx.lineWidth = outlineWidth * 2;
+                ctx.lineJoin = 'round';
+                ctx.lineCap = 'round';
+                ctx.miterLimit = 2;
+                ctx.strokeText(text, centerX, centerY);
+            }
+
+            // Draw fill
+            ctx.fillStyle = fillColor;
+            ctx.fillText(text, centerX, centerY);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.minFilter = THREE.LinearFilter;
+            texture.magFilter = THREE.LinearFilter;
+            texture.needsUpdate = true;
+
+            return texture;
+        }
+
+        // Create a 3D preview scene
+        async function createPreviewScene(config) {
+            const canvas = document.getElementById('preview-canvas');
+            if (!canvas) return null;
+
+            // Apply background gradient to preview container
+            const previewContainer = document.getElementById('preview-container');
+            if (config.backgroundGradient && config.backgroundGradient.colors) {
+                const colors = config.backgroundGradient.colors.map(c => `${c.color} ${c.position}%`).join(', ');
+                const gradientType = config.backgroundGradient.type === 'linear' ? 'linear-gradient' : 'radial-gradient';
+                const gradientValue = gradientType === 'radial-gradient'
+                    ? `radial-gradient(circle at center, ${colors})`
+                    : `linear-gradient(${config.backgroundGradient.direction || 'to bottom'}, ${colors})`;
+                previewContainer.style.background = gradientValue;
+            }
+
+            // Clean up existing scene
+            if (previewScene) {
+                if (previewScene.renderer) {
+                    previewScene.renderer.dispose();
+                }
+                previewScene.syllables?.forEach(mesh => {
+                    if (mesh.geometry) mesh.geometry.dispose();
+                    if (mesh.material) {
+                        if (mesh.material.map) mesh.material.map.dispose();
+                        mesh.material.dispose();
+                    }
+                });
+                if (previewScene.tamPlane) {
+                    if (previewScene.tamPlane.geometry) previewScene.tamPlane.geometry.dispose();
+                    if (previewScene.tamPlane.material) {
+                        if (previewScene.tamPlane.material.map) previewScene.tamPlane.material.map.dispose();
+                        previewScene.tamPlane.material.dispose();
+                    }
+                }
+            }
+
+            const scene = new THREE.Scene();
+            scene.background = null;
+
+            const camera = new THREE.PerspectiveCamera(60, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
+            camera.position.set(0, 0, 6);
+
+            const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+            renderer.setClearColor(0x000000, 0);
+            renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+
+            // Add lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+
+            const pointLight = new THREE.PointLight(0xffffff, 0.8);
+            pointLight.position.set(5, 5, 5);
+            scene.add(pointLight);
+
+            // Center sphere (white)
+            const sphereGeometry = new THREE.SphereGeometry(1.5, 32, 32);
+            const sphereMaterial = new THREE.MeshBasicMaterial({
+                color: 0xffffff,
+                transparent: false,
+                opacity: 1.0,
+                depthWrite: false,
+                depthTest: true,
+                fog: false
+            });
+            const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+            sphere.renderOrder = -1;
+            scene.add(sphere);
+
+            // Add TAM character if available
+            let tamPlane = null;
+            const tamImagePath = config.tamImage || 'images/tam-paths.svg';
+            const tamColor = config.tamColor || '#ffffff';
+            const tamOutlineColor = config.tamOutlineColor || null;
+
+            if (tamImagePath) {
+                try {
+                    const tamData = await createTAMTexture(tamImagePath, tamColor, tamOutlineColor);
+                    if (tamData) {
+                        const { texture, aspectRatio } = tamData;
+
+                        // Create plane with correct aspect ratio
+                        const height = 2.7; // Slightly smaller for preview
+                        const width = height * aspectRatio;
+
+                        const planeGeometry = new THREE.PlaneGeometry(width, height);
+                        const planeMaterial = new THREE.MeshBasicMaterial({
+                            map: texture,
+                            transparent: true,
+                            opacity: 1.0,
+                            side: THREE.DoubleSide,
+                            depthTest: true,
+                            depthWrite: true,
+                            fog: false
+                        });
+
+                        tamPlane = new THREE.Mesh(planeGeometry, planeMaterial);
+                        tamPlane.position.set(0, 0, 0.01);
+                        tamPlane.renderOrder = 0;
+                        scene.add(tamPlane);
+                    }
+                } catch (err) {
+                    console.error('Error adding TAM to preview:', err);
+                }
+            }
+
+            // Create syllables
+            const syllables = [];
+            const syllableStyle = config.syllableStyle || {};
+            const fillColor = syllableStyle.fill || '#ffffff';
+            const outlineColor = syllableStyle.outlineColor || '#000000';
+            const outlineWidth = (syllableStyle.outlineWidth || 0) * 200;
+
+            const syllablesToShow = config.syllables || [];
+            if (syllablesToShow.length > 0) {
+                const radius = 3.5;
+                const angleStep = (Math.PI * 2) / syllablesToShow.length;
+
+                syllablesToShow.forEach((syllable, index) => {
+                    const angle = angleStep * index + Math.PI / 2;
+                    const texture = createTextTexture(syllable, fillColor, outlineColor, outlineWidth);
+
+                    const planeGeometry = new THREE.PlaneGeometry(1.5, 0.75);
+                    const planeMaterial = new THREE.MeshBasicMaterial({
+                        map: texture,
+                        transparent: true,
+                        alphaTest: 0.01,
+                        side: THREE.DoubleSide
+                    });
+
+                    const mesh = new THREE.Mesh(planeGeometry, planeMaterial);
+                    mesh.position.x = Math.cos(angle) * radius;
+                    mesh.position.z = Math.sin(angle) * radius;
+                    mesh.userData.angle = angle;
+
+                    scene.add(mesh);
+                    syllables.push(mesh);
+                });
+            }
+
+            // Animation loop
+            let rotationAngle = 0;
+            let animationId = null;
+
+            function animate() {
+                if (!document.body.contains(canvas)) {
+                    cancelAnimationFrame(animationId);
+                    return;
+                }
+
+                rotationAngle -= 0.002;
+
+                syllables.forEach((mesh) => {
+                    const angle = mesh.userData.angle + rotationAngle;
+                    const radius = 3.5;
+                    mesh.position.x = Math.cos(angle) * radius;
+                    mesh.position.z = Math.sin(angle) * radius;
+                    mesh.lookAt(camera.position);
+                });
+
+                sphere.rotation.y -= 0.002;
+
+                renderer.render(scene, camera);
+                animationId = requestAnimationFrame(animate);
+            }
+            animate();
+
+            previewScene = {
+                scene,
+                camera,
+                renderer,
+                syllables,
+                sphere,
+                tamPlane,
+                animationId,
+                updateColors: (newFillColor, newOutlineColor, newOutlineWidth) => {
+                    const syllablesToShow = config.syllables || [];
+                    syllables.forEach((mesh, index) => {
+                        const syllable = syllablesToShow[index];
+                        if (syllable) {
+                            const texture = createTextTexture(syllable, newFillColor, newOutlineColor, newOutlineWidth * 200);
+                            if (mesh.material.map) mesh.material.map.dispose();
+                            mesh.material.map = texture;
+                            mesh.material.needsUpdate = true;
+                        }
+                    });
+                },
+                updateTAM: async (newTamImage, newTamColor, newTamOutlineColor) => {
+                    // Remove existing TAM
+                    if (tamPlane) {
+                        scene.remove(tamPlane);
+                        if (tamPlane.geometry) tamPlane.geometry.dispose();
+                        if (tamPlane.material) {
+                            if (tamPlane.material.map) tamPlane.material.map.dispose();
+                            tamPlane.material.dispose();
+                        }
+                        tamPlane = null;
+                    }
+
+                    // Add new TAM
+                    if (newTamImage) {
+                        try {
+                            const tamData = await createTAMTexture(newTamImage, newTamColor, newTamOutlineColor);
+                            if (tamData) {
+                                const { texture, aspectRatio } = tamData;
+                                const height = 2.7;
+                                const width = height * aspectRatio;
+
+                                const planeGeometry = new THREE.PlaneGeometry(width, height);
+                                const planeMaterial = new THREE.MeshBasicMaterial({
+                                    map: texture,
+                                    transparent: true,
+                                    opacity: 1.0,
+                                    side: THREE.DoubleSide,
+                                    depthTest: true,
+                                    depthWrite: true,
+                                    fog: false
+                                });
+
+                                tamPlane = new THREE.Mesh(planeGeometry, planeMaterial);
+                                tamPlane.position.set(0, 0, 0.01);
+                                tamPlane.renderOrder = 0;
+                                scene.add(tamPlane);
+                                previewScene.tamPlane = tamPlane;
+                            }
+                        } catch (err) {
+                            console.error('Error updating TAM:', err);
+                        }
+                    }
+                }
+            };
+
+            return previewScene;
+        }
+
+        // Export to global scope
+        window.createPreviewScene = createPreviewScene;
+        window.previewScene = previewScene;
+    </script>
+
+    <script>
+        let allTaraData = [];
+
+        let currentId = 1;
+        const maxId = 21;
+        let autoSaveTimeout = null;
+
+        // Resizable Column Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const resizer = document.getElementById('dragMe');
+            const container = document.querySelector('.container');
+
+            // Load saved width
+            const savedWidth = localStorage.getItem('admin_right_col_width');
+            if (savedWidth) {
+                container.style.setProperty('--right-col-width', savedWidth);
+            }
+
+            let x = 0;
+            let w = 0;
+
+            const mouseDownHandler = function (e) {
+                // Get the current mouse position
+                x = e.clientX;
+
+                // Calculate the current width of the right column
+                const rightCol = document.querySelector('.form-column');
+                const styles = window.getComputedStyle(rightCol);
+                w = parseInt(styles.width, 10);
+
+                // Attach the listeners to `document`
+                document.addEventListener('mousemove', mouseMoveHandler);
+                document.addEventListener('mouseup', mouseUpHandler);
+                resizer.classList.add('resizing');
+                document.body.style.cursor = 'col-resize';
+
+                // Prevent selection
+                document.body.style.userSelect = 'none';
+            };
+
+            const mouseMoveHandler = function (e) {
+                // How far the mouse has been moved
+                const dx = x - e.clientX;
+                const newWidth = w + dx;
+
+                // Minimum and maximum width constraints
+                if (newWidth > 300 && newWidth < 800) {
+                    container.style.setProperty('--right-col-width', `${newWidth}px`);
+                }
+            };
+
+            const mouseUpHandler = function () {
+                document.removeEventListener('mousemove', mouseMoveHandler);
+                document.removeEventListener('mouseup', mouseUpHandler);
+                resizer.classList.remove('resizing');
+                document.body.style.removeProperty('cursor');
+                document.body.style.removeProperty('user-select');
+
+                // Save to localStorage
+                const rightCol = document.querySelector('.form-column');
+                const styles = window.getComputedStyle(rightCol);
+                localStorage.setItem('admin_right_col_width', styles.width);
+            };
+
+            if (resizer) {
+                resizer.addEventListener('mousedown', mouseDownHandler);
+            }
+        });
+
+        // Load configuration on startup
+        async function loadConfiguration() {
+            try {
+                updateStatusIndicator('config-status', 'saving', 'Loading...');
+
+                // Load mantras.json directly
+                const response = await fetch(`mantras.json?t=${Date.now()}`, {
+                    cache: 'no-store'
+                });
                 
-                <div class="form-group">
-                  <label>Mantra Name</label>
-                  <input type="text" value="${mantra.name}"
-                         onchange="updateMantra(${index}, 'name', this.value)">
-                </div>
+                if (response.ok) {
+                    const config = await response.json();
+                    if (config.mantras && Array.isArray(config.mantras)) {
+                        allTaraData = config.mantras;
+                    } else if (config.mantras) {
+                         // Handle case where it might be wrapped differently, but here we expect {mantras: [...]}
+                         allTaraData = config.mantras;
+                    } else if (Array.isArray(config)) {
+                         // Just in case it's a raw array
+                         allTaraData = config;
+                    }
 
-                <div class="syllable-editor">
-                  <label>Syllables</label>
-                  <div class="syllable-list" id="syllables-${index}">
-                    ${mantra.syllables.map((syl, sylIndex) => `
-                      <div class="syllable-tag">
-                        <span>${syl}</span>
-                        <button onclick="removeSyllable(${index}, ${sylIndex})">×</button>
-                      </div>
-                    `).join('')}
-                  </div>
-                  <div class="add-syllable">
-                    <div class="sanskrit-helpers">
-                      ${['Ā', 'Ī', 'Ū', 'Ṛ', 'Ḷ', 'Ṅ', 'Ñ', 'Ṭ', 'Ḍ', 'Ṇ', 'Ś', 'Ṣ', 'Ḥ', 'Ṃ'].map(char =>
-          `<button class="sanskrit-btn" onclick="insertSanskritChar(${index}, '${char}')">${char}</button>`
-        ).join('')}
-                    </div>
-                    <div class="input-row">
-                      <input type="text" id="newSyllable-${index}" placeholder="Add syllable">
-                      <button onclick="addSyllable(${index})">Add</button>
-                    </div>
-                  </div>
-                </div>
+                    updateStatusIndicator('config-status', 'active', 'JSON Loaded');
+                } else {
+                    throw new Error('Failed to load mantras.json');
+                }
 
-                <div class="form-row">
-                  <div class="form-group">
-                    <label>TAM Image</label>
-                    <input type="text" value="${mantra.tamImage}"
-                           onchange="updateMantra(${index}, 'tamImage', this.value)">
-                  </div>
-                  <div class="form-group">
-                    <label>Audio File (optional)</label>
-                    <input type="text" value="${mantra.audioFile || ''}"
-                           placeholder="Leave empty if no audio"
-                           onchange="updateMantra(${index}, 'audioFile', this.value || null)">
-                  </div>
-                </div>
-              </div>
+                // Ensure we have 21 entries
+                while (allTaraData.length < 21) {
+                    allTaraData.push(createEmptyTara(allTaraData.length + 1));
+                }
 
-              <!-- Middle Column: Styling & Settings -->
-              <div class="form-column sidebar-section compact-col">
-                <div class="section-title" style="margin-top: 0; margin-bottom: 10px;">TAM Colors & Settings</div>
-                
-                <div class="compact-row">
-                  <div class="form-group compact">
-                    <label>Fill</label>
-                    <input type="color" value="${mantra.tamColor || '#ffffff'}"
-                           onchange="updateMantra(${index}, 'tamColor', this.value)">
-                  </div>
-                  <div class="form-group compact">
-                    <label>Outline</label>
-                    <input type="color" value="${mantra.tamOutlineColor || '#000000'}"
-                           onchange="updateMantra(${index}, 'tamOutlineColor', this.value)">
-                  </div>
-                  <div class="form-group compact">
-                    <label>Index</label>
-                    <input type="number" min="0" value="${mantra.startIndex || 0}" style="width: 60px;"
-                           onchange="updateMantra(${index}, 'startIndex', parseInt(this.value))">
-                  </div>
-                </div>
+                updateDisplay();
+            } catch (err) {
+                console.error('Error loading configuration:', err);
+                updateStatusIndicator('config-status', '', 'Load Error');
+                showToast('Failed to load configuration: ' + err.message, 'error');
 
-                <div class="section-title" style="margin-top: 8px; margin-bottom: 10px;">Syllable Colors</div>
-                <div class="compact-row">
-                  <div class="form-group compact">
-                    <label>Fill</label>
-                    <input type="color" value="${mantra.syllableStyle?.fill || '#ffffff'}"
-                           onchange="updateSyllableStyleAndPreview(${index}, 'fill', this.value)">
-                  </div>
-                  <div class="form-group compact">
-                    <label>Outline</label>
-                    <input type="color" value="${mantra.syllableStyle?.outlineColor || '#000000'}"
-                           onchange="updateSyllableStyleAndPreview(${index}, 'outlineColor', this.value)">
-                  </div>
-                  <div class="form-group compact">
-                    <label>Width</label>
-                    <input type="number" step="0.01" min="0" max="1" style="width: 60px;"
-                           value="${mantra.syllableStyle?.outlineWidth || 0.02}"
-                           onchange="updateSyllableStyleAndPreview(${index}, 'outlineWidth', parseFloat(this.value))">
-                  </div>
-                </div>
-              </div>
-
-              <!-- Right Column: JSON -->
-              <div class="form-column sidebar-section">
-                <div class="section-title" style="margin-top: 0;">Background</div>
-                <div class="form-group" style="flex: 1; display: flex; flex-direction: column;">
-                  <textarea style="flex: 1; min-height: 150px;" onchange="updateMantraGradient(${index}, this.value)">${JSON.stringify(mantra.backgroundGradient, null, 2)}</textarea>
-                </div>
-              </div>
-            </div>
-          </div>
-        `;
-        container.appendChild(card);
-      });
-
-      // Initialize 3D previews after DOM is ready
-      setTimeout(() => {
-        config.mantras.forEach((mantra, index) => {
-          const previewScene = window.createPreviewScene(`preview-${index}`, mantra);
-          window.previewScenes[index] = previewScene;
-        });
-      }, 100);
-    }
-
-    function updateMantra(index, field, value) {
-      config.mantras[index][field] = value;
-    }
-
-    function updateSyllableStyle(index, field, value) {
-      if (!config.mantras[index].syllableStyle) {
-        config.mantras[index].syllableStyle = {};
-      }
-      config.mantras[index].syllableStyle[field] = value;
-    }
-
-    function updateSyllableStyleAndPreview(index, field, value) {
-      // Update the config
-      updateSyllableStyle(index, field, value);
-
-      // Update the preview if it exists
-      if (window.previewScenes[index]) {
-        const mantra = config.mantras[index];
-        const style = mantra.syllableStyle || {};
-        window.previewScenes[index].updateColors(
-          style.fill || '#ffffff',
-          style.outlineColor || '#000000',
-          style.outlineWidth || 0.02
-        );
-      }
-    }
-
-    function updateMantraGradient(index, jsonString) {
-      try {
-        const gradient = JSON.parse(jsonString);
-        config.mantras[index].backgroundGradient = gradient;
-      } catch (error) {
-        showMessage('Invalid gradient JSON: ' + error.message, 'error');
-      }
-    }
-
-    function addSyllable(index) {
-      const input = document.getElementById(`newSyllable-${index}`);
-      const syllable = input.value.trim().toUpperCase();
-      if (syllable) {
-        config.mantras[index].syllables.push(syllable);
-        input.value = '';
-        renderMantraList();
-      }
-    }
-
-    function removeSyllable(mantraIndex, syllableIndex) {
-      config.mantras[mantraIndex].syllables.splice(syllableIndex, 1);
-      renderMantraList();
-    }
-
-    function insertSanskritChar(index, char) {
-      const input = document.getElementById(`newSyllable-${index}`);
-      input.value += char;
-      input.focus();
-    }
-
-    async function saveAllChanges() {
-      if (!adminPassword) {
-        showMessage('Please login first', 'error');
-        return;
-      }
-
-      try {
-        const response = await fetch('/api/config', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            password: adminPassword,
-            config: config
-          })
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-          showMessage('Configuration saved successfully! Changes will be visible after page reload.', 'success');
-        } else {
-          showMessage('Error: ' + (result.error || 'Failed to save configuration'), 'error');
-          if (response.status === 401) {
-            logout();
-          }
+                // Initialize with empty data
+                for (let i = 1; i <= 21; i++) {
+                    allTaraData.push(createEmptyTara(i));
+                }
+                updateDisplay();
+            }
         }
-      } catch (error) {
-        console.error('Error saving config:', error);
-        showMessage('Error saving configuration: ' + error.message, 'error');
-      }
-    }
 
-    function showMessage(message, type) {
-      const messageArea = document.getElementById('messageArea');
-      const messageDiv = document.createElement('div');
-      messageDiv.className = type === 'success' ? 'success-message' : 'error-message';
-      messageDiv.textContent = message;
-      messageArea.innerHTML = '';
-      messageArea.appendChild(messageDiv);
 
-      // Auto-hide after 5 seconds
-      setTimeout(() => {
-        messageDiv.remove();
-      }, 5000);
-    }
-  </script>
+
+        function createEmptyTara(id) {
+            return {
+                id: id.toString(),
+                name: `${id}. Tara ${id}`,
+                syllables: [],
+                tamColor: "#ffffff",
+                tamOutlineColor: null,
+                syllableStyle: {
+                    fill: "#ffffff",
+                    outlineColor: "#000000",
+                    outlineWidth: 0.02
+                },
+                backgroundGradient: {
+                    type: "radial",
+                    colors: [
+                        { color: "#ffe0e0", position: 0 },
+                        { color: "#cc0000", position: 100 }
+                    ]
+                },
+                startIndex: 0,
+                english_homage: "",
+                english_tara_name: "",
+                english_tara_subtitle: "",
+                description: "",
+                releaseDate: "",
+                releaseDateOverride: false,
+                audioFile: null
+            };
+        }
+
+        function updateStatusIndicator(elementId, state, text) {
+            const indicator = document.getElementById(elementId);
+            const textElement = document.getElementById(elementId + '-text');
+
+            if (indicator) {
+                indicator.className = 'status-indicator';
+                if (state === 'active') {
+                    indicator.classList.add('active');
+                } else if (state === 'saving') {
+                    indicator.classList.add('saving');
+                }
+            }
+
+            if (textElement && text) {
+                textElement.textContent = text;
+            }
+        }
+
+        function openLightbox(imageSrc, caption) {
+            const lightbox = document.getElementById('lightbox-overlay');
+            const lightboxImage = document.getElementById('lightbox-image');
+            const lightboxCaption = document.getElementById('lightbox-caption');
+
+            lightboxImage.src = imageSrc;
+            lightboxCaption.textContent = caption;
+            lightbox.classList.add('active');
+
+            // Prevent body scroll when lightbox is open
+            document.body.style.overflow = 'hidden';
+        }
+
+        window.closeLightbox = function () {
+            const lightbox = document.getElementById('lightbox-overlay');
+            lightbox.classList.remove('active');
+
+            // Restore body scroll
+            document.body.style.overflow = '';
+        }
+
+        function updateDisplay() {
+            const tara = allTaraData[currentId - 1] || createEmptyTara(currentId);
+
+            document.getElementById('current-id').textContent = `Tara ${currentId}`;
+
+            const imgA = document.getElementById('img-a');
+            const imgB = document.getElementById('img-b');
+
+            imgA.src = `images/Tara/${currentId}a.jpeg`;
+            imgB.src = `images/Tara/${currentId}b.jpeg`;
+
+            // Add click handlers for lightbox
+            imgA.onclick = () => openLightbox(imgA.src, `Tara ${currentId} - Mantra Image`);
+            imgB.onclick = () => openLightbox(imgB.src, `Tara ${currentId} - Information Image`);
+
+            // Update form fields
+            document.getElementById('id').value = tara.id || currentId;
+            document.getElementById('name').value = tara.name || '';
+            document.getElementById('english_homage').value = tara.english_homage || '';
+            document.getElementById('english_tara_name').value = tara.english_tara_name || '';
+            document.getElementById('english_tara_subtitle').value = tara.english_tara_subtitle || '';
+            document.getElementById('description').value = tara.description || '';
+            document.getElementById('release_date').value = tara.releaseDate || '';
+            document.getElementById('release_override').checked = tara.releaseDateOverride || false;
+
+            // Update syllables
+            updateSyllableDisplay(tara.syllables || []);
+
+            // Update colors
+            updateColorField('tam_color', tara.tamColor || '#ffffff');
+            updateColorField('tam_outline_color', tara.tamOutlineColor || '');
+            updateColorField('syllable_fill', tara.syllableStyle?.fill || '#ffffff');
+            updateColorField('syllable_outline', tara.syllableStyle?.outlineColor || '#000000');
+
+            document.getElementById('syllable_outline_width').value = tara.syllableStyle?.outlineWidth || 0.02;
+            document.getElementById('audio_file').value = tara.audioFile || '';
+            document.getElementById('start_index').value = tara.startIndex || 0;
+
+            // Update gradient JSON
+            if (tara.backgroundGradient) {
+                document.getElementById('gradient-json').value = JSON.stringify(tara.backgroundGradient, null, 2);
+            }
+
+            // Update 3D preview
+            updatePreview(tara);
+        }
+
+        function updateColorField(fieldName, value) {
+            const input = document.getElementById(fieldName);
+            const picker = document.getElementById(fieldName + '_picker');
+
+            if (input) input.value = value || '';
+            if (picker && value) {
+                try {
+                    picker.value = value;
+                } catch (e) { }
+            }
+        }
+
+        function updateSyllableDisplay(syllables) {
+            const container = document.getElementById('syllable-list');
+            container.innerHTML = '';
+
+            syllables.forEach((syllable, index) => {
+                const tag = document.createElement('div');
+                tag.className = 'syllable-tag';
+                tag.innerHTML = `
+                    <span>${syllable}</span>
+                    <button onclick="removeSyllable(${index})">×</button>
+                `;
+                container.appendChild(tag);
+            });
+        }
+
+        function updatePreview(tara) {
+            window.createPreviewScene(tara);
+        }
+
+        function updateColor(textId, value) {
+            document.getElementById(textId).value = value;
+            debouncedSave();
+
+            // Update TAM colors if they changed
+            if (textId === 'tam_color' || textId === 'tam_outline_color') {
+                updatePreviewTAM();
+            } else {
+                updatePreviewColors();
+            }
+        }
+
+        function updatePicker(pickerId, value) {
+            try {
+                document.getElementById(pickerId).value = value;
+            } catch (e) { }
+            debouncedSave();
+
+            // Update TAM colors if they changed
+            if (pickerId === 'tam_color_picker' || pickerId === 'tam_outline_color_picker') {
+                updatePreviewTAM();
+            } else {
+                updatePreviewColors();
+            }
+        }
+
+        function updatePreviewColors() {
+            if (window.previewScene && window.previewScene.updateColors) {
+                const fillColor = document.getElementById('syllable_fill').value;
+                const outlineColor = document.getElementById('syllable_outline').value;
+                const outlineWidth = parseFloat(document.getElementById('syllable_outline_width').value) || 0.02;
+                window.previewScene.updateColors(fillColor, outlineColor, outlineWidth);
+            }
+        }
+
+        async function updatePreviewTAM() {
+            if (window.previewScene && window.previewScene.updateTAM) {
+                const tamImage = 'images/tam-paths.svg'; // Always use the same SVG base
+                const tamColor = document.getElementById('tam_color').value;
+                const tamOutlineColor = document.getElementById('tam_outline_color').value || null;
+                await window.previewScene.updateTAM(tamImage, tamColor, tamOutlineColor);
+            }
+        }
+
+        function addSyllable() {
+            const input = document.getElementById('new-syllable');
+            const syllable = input.value.trim();
+
+            if (syllable) {
+                const tara = allTaraData[currentId - 1];
+                if (!tara.syllables) tara.syllables = [];
+                tara.syllables.push(syllable);
+                updateSyllableDisplay(tara.syllables);
+                input.value = '';
+                debouncedSave();
+                updatePreview(tara);
+            }
+        }
+
+        function removeSyllable(index) {
+            const tara = allTaraData[currentId - 1];
+            if (tara.syllables) {
+                tara.syllables.splice(index, 1);
+                updateSyllableDisplay(tara.syllables);
+                debouncedSave();
+                updatePreview(tara);
+            }
+        }
+
+        function insertChar(char) {
+            const input = document.getElementById('new-syllable');
+            input.value += char;
+            input.focus();
+        }
+
+        function parseText() {
+            const text = document.getElementById('paste-area').value;
+            const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+
+            if (lines.length < 3) {
+                showToast('Not enough text to parse', 'error');
+                return;
+            }
+
+            let parsed = false;
+
+            const homageLineIndex = lines.findIndex(l => l.toUpperCase().includes('HOMAGE'));
+            if (homageLineIndex !== -1) {
+                document.getElementById('english_homage').value = lines[homageLineIndex];
+                parsed = true;
+
+                if (lines[homageLineIndex + 1]) {
+                    document.getElementById('english_tara_subtitle').value = lines[homageLineIndex + 1];
+                }
+
+                const match = lines[homageLineIndex].match(/HOMAGE TO (.*?)( \(|$)/i);
+                if (match) {
+                    document.getElementById('english_tara_name').value = match[1];
+                }
+            }
+
+            const mantraLineIndex = lines.findIndex(l => l.toUpperCase().startsWith('OM '));
+            if (mantraLineIndex !== -1) {
+                let mantra = lines[mantraLineIndex];
+                if (lines[mantraLineIndex + 1] && (lines[mantraLineIndex + 1].includes('SVAHA') || lines[mantraLineIndex + 1].length < 20)) {
+                    mantra += ' ' + lines[mantraLineIndex + 1];
+                }
+
+                // Parse syllables
+                const syllables = mantra.split(/\s+/).filter(s => s);
+                const tara = allTaraData[currentId - 1];
+                tara.syllables = syllables;
+                updateSyllableDisplay(syllables);
+                parsed = true;
+            }
+
+            if (mantraLineIndex !== -1) {
+                let descStartIndex = mantraLineIndex + 1;
+                if (lines[mantraLineIndex + 1] && (lines[mantraLineIndex + 1].includes('SVAHA') || lines[mantraLineIndex + 1].length < 20)) {
+                    descStartIndex++;
+                }
+
+                const description = lines.slice(descStartIndex).join('\n');
+                document.getElementById('description').value = description;
+            }
+
+            if (parsed) {
+                debouncedSave();
+                updatePreview(allTaraData[currentId - 1]);
+                showToast('Fields auto-filled from text', 'success');
+            } else {
+                showToast('Could not parse text - check format', 'error');
+            }
+        }
+
+        function saveCurrentTara() {
+            const tara = allTaraData[currentId - 1];
+
+            // Collect form data
+            tara.id = document.getElementById('id').value;
+            tara.name = document.getElementById('name').value;
+            tara.english_homage = document.getElementById('english_homage').value;
+            tara.english_tara_name = document.getElementById('english_tara_name').value;
+            tara.english_tara_subtitle = document.getElementById('english_tara_subtitle').value;
+            tara.description = document.getElementById('description').value;
+            tara.releaseDate = document.getElementById('release_date').value;
+            tara.releaseDateOverride = document.getElementById('release_override').checked;
+
+            tara.tamColor = document.getElementById('tam_color').value;
+            tara.tamOutlineColor = document.getElementById('tam_outline_color').value || null;
+            tara.audioFile = document.getElementById('audio_file').value || null;
+            tara.startIndex = parseInt(document.getElementById('start_index').value) || 0;
+
+            tara.syllableStyle = {
+                fill: document.getElementById('syllable_fill').value,
+                outlineColor: document.getElementById('syllable_outline').value,
+                outlineWidth: parseFloat(document.getElementById('syllable_outline_width').value) || 0.02
+            };
+
+            // Parse gradient JSON
+            try {
+                const gradientText = document.getElementById('gradient-json').value;
+                if (gradientText.trim()) {
+                    tara.backgroundGradient = JSON.parse(gradientText);
+                }
+            } catch (e) {
+                showToast('Invalid gradient JSON', 'error');
+                return;
+            }
+
+            // Silent save for auto-save (only errors shown)
+        }
+
+        function manualSave() {
+            saveCurrentTara(); // Save to memory
+            showToast('Current Tara updated in memory', 'success');
+        }
+
+        function downloadConfig() {
+            saveCurrentTara(); // Ensure current changes are captured
+
+            try {
+                const config = {
+                    mantras: allTaraData
+                };
+
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config, null, 2));
+                const downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href", dataStr);
+                downloadAnchorNode.setAttribute("download", "mantras.json");
+                document.body.appendChild(downloadAnchorNode); // required for firefox
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+
+                updateStatusIndicator('save-status', 'active', 'Downloaded ✓');
+                showToast('Configuration downloaded', 'success');
+                setTimeout(() => {
+                    updateStatusIndicator('save-status', '', 'Ready');
+                }, 3000);
+            } catch (err) {
+                console.error('Error downloading:', err);
+                showToast('Failed to download: ' + err.message, 'error');
+            }
+        }
+
+        async function saveToLocalFile() {
+            saveCurrentTara();
+
+            const config = {
+                mantras: allTaraData
+            };
+
+            if (!window.showSaveFilePicker && !window.showOpenFilePicker) {
+                showToast('Saving directly requires a Chromium-based browser on desktop. Falling back to download.', 'info');
+                downloadConfig();
+                return;
+            }
+
+            try {
+                let handle;
+                if (window.showSaveFilePicker) {
+                    handle = await window.showSaveFilePicker({
+                        suggestedName: 'mantras.json',
+                        types: [
+                            {
+                                description: 'JSON Files',
+                                accept: { 'application/json': ['.json'] }
+                            }
+                        ]
+                    });
+                } else {
+                    [handle] = await window.showOpenFilePicker({
+                        types: [
+                            {
+                                description: 'JSON Files',
+                                accept: { 'application/json': ['.json'] }
+                            }
+                        ],
+                        excludeAcceptAllOption: true,
+                        multiple: false
+                    });
+                }
+
+                const writable = await handle.createWritable();
+                await writable.write(JSON.stringify(config, null, 2));
+                await writable.close();
+
+                updateStatusIndicator('save-status', 'active', 'Saved ✓');
+                showToast('Saved to mantras.json', 'success');
+                setTimeout(() => {
+                    updateStatusIndicator('save-status', '', 'Ready');
+                }, 3000);
+            } catch (err) {
+                if (err.name === 'AbortError') {
+                    showToast('Save cancelled', 'info');
+                    return;
+                }
+                console.error('Error saving to local file:', err);
+                showToast('Failed to save: ' + err.message, 'error');
+            }
+        }
+
+        function debouncedSave() {
+            if (autoSaveTimeout) {
+                clearTimeout(autoSaveTimeout);
+            }
+            autoSaveTimeout = setTimeout(() => {
+                saveCurrentTara();
+            }, 2000);
+        }
+
+        function prevTara() {
+            saveCurrentTara();
+            if (currentId > 1) {
+                currentId--;
+                updateDisplay();
+            }
+        }
+
+        function nextTara() {
+            saveCurrentTara();
+            if (currentId < maxId) {
+                currentId++;
+                updateDisplay();
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+
+            // Icon based on type
+            let icon = 'ℹ';
+            if (type === 'success') icon = '✓';
+            if (type === 'error') icon = '✕';
+
+            toast.innerHTML = `
+                <div class="toast-icon">${icon}</div>
+                <div class="toast-content">${message}</div>
+                <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+            `;
+
+            container.appendChild(toast);
+
+            // Auto-remove after 4 seconds
+            setTimeout(() => {
+                toast.classList.add('removing');
+                setTimeout(() => {
+                    if (toast.parentElement) {
+                        toast.remove();
+                    }
+                }, 300);
+            }, 4000);
+        }
+
+        // Auto-save on input
+        document.getElementById('data-form').addEventListener('input', debouncedSave);
+        document.getElementById('gradient-json').addEventListener('input', () => {
+            debouncedSave();
+            // Try to update preview with new gradient
+            const tara = allTaraData[currentId - 1];
+            try {
+                const gradientText = document.getElementById('gradient-json').value;
+                if (gradientText.trim()) {
+                    tara.backgroundGradient = JSON.parse(gradientText);
+                    updatePreview(tara);
+                }
+            } catch (e) {
+                // Invalid JSON, ignore
+            }
+        });
+
+        // TAM image is now hardcoded to images/tam-paths.svg
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            // Close lightbox with Escape
+            if (e.key === 'Escape') {
+                const lightbox = document.getElementById('lightbox-overlay');
+                if (lightbox.classList.contains('active')) {
+                    window.closeLightbox();
+                    return;
+                }
+            }
+
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+            if (e.key === 'ArrowLeft') {
+                prevTara();
+            } else if (e.key === 'ArrowRight') {
+                nextTara();
+            }
+        });
+
+        // Allow Enter key to add syllable
+        document.getElementById('new-syllable').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addSyllable();
+            }
+        });
+
+
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Removed password logic
+        });
+
+        loadConfiguration();
+    </script>
 </body>
 
 </html>

@@ -1,7 +1,12 @@
 {
   "mantras": [
     {
+      "id": "1",
       "name": "1. Tara Turavira",
+      "english_homage": "HOMAGE TO DRÖLMA NYURMA PAMO",
+      "english_tara_name": "DRÖLMA NYURMA PAMO",
+      "english_tara_subtitle": "(TĀRĀ TURAVĪRĀ)",
+      "description": "FIRST TARA Drölma Nyurma Pamo is semi-wrathful and red in color.\nShe liberates beings by swiftly removing their suffering and obstacles.\nShe increases their Bodhicitta, awakened heart.\nUpon her lotus flower is a white conch shell that curls clockwise.\nThe sound of the conch shell symbolizes the healing sound of Dharma.\nIts resonance brings love, joy, and compassion to all beings.",
       "syllables": [
         "OṂ",
         "TĀ",
@@ -18,12 +23,11 @@
         "SVĀ",
         "HĀ"
       ],
-      "tamImage": "images/tam-paths.svg",
-      "tamColor": "#d32f2f",
+      "tamColor": "#db0000",
       "tamOutlineColor": null,
       "syllableStyle": {
         "fill": "#ffffff",
-        "outlineColor": "#d32f2f",
+        "outlineColor": "#db0000",
         "outlineWidth": 0.02
       },
       "backgroundGradient": {
@@ -34,31 +38,23 @@
             "position": 0
           },
           {
-            "color": "#ffb3b3",
-            "position": 20
-          },
-          {
-            "color": "#ff8080",
-            "position": 40
-          },
-          {
-            "color": "#ff4d4d",
-            "position": 60
-          },
-          {
-            "color": "#ff1a1a",
-            "position": 80
-          },
-          {
-            "color": "#cc0000",
+            "color": "#db0000",
             "position": 100
           }
         ]
       },
-      "startIndex": 0
+      "startIndex": 0,
+      "releaseDate": "2025-11-16",
+      "releaseDateOverride": false,
+      "audioFile": null
     },
     {
+      "id": "2",
       "name": "2. Tara Vajra Sarasvati",
+      "english_homage": "HOMAGE TO DRÖLMA LOTER YANG CHENMA (TĀRĀ SARASVATĪ)",
+      "english_tara_name": "DRÖLMA LOTER YANG CHENMA",
+      "english_tara_subtitle": "Tara the Melodious One, the Treasure of Intelligence",
+      "description": "SECOND TARA Drölma Loter Yang Chenma is peaceful and white in color.\nShe unlocks the treasures of music, art, wisdom, and knowledge. Upon her lotus flower is a mirror marked with the syllable HRĪṂ.\nThe mirror and HRĪṂ radiate light in all directions, dispelling confusion and increasing clear wisdom, understanding, and intelligence.",
       "syllables": [
         "OṂ",
         "TĀ",
@@ -75,7 +71,6 @@
         "SVĀ",
         "HĀ"
       ],
-      "tamImage": "images/tam-paths.svg",
       "tamColor": "#ffffff",
       "tamOutlineColor": "#808080",
       "syllableStyle": {
@@ -124,7 +119,961 @@
           }
         ]
       },
-      "startIndex": 0
+      "startIndex": 0,
+      "releaseDate": "2025-11-23",
+      "releaseDateOverride": false,
+      "audioFile": null
+    },
+    {
+      "id": "3",
+      "name": "3. Tara Vasudhara",
+      "english_homage": "HOMAGE TO DRÖLMA SERMO SÖNAM TOBKYE (TĀRĀ VASUDHĀRĀ / PUṆYOTTAMADĀ)",
+      "english_tara_name": "DRÖLMA SERMO SÖNAM TOBKYE",
+      "english_tara_subtitle": "Tara the Golden One Who Bestows Merit",
+      "description": "THIRD TARA Drölma Sermo Sönam Tobye is peaceful and golden yellow in color.\nShe bestows both material and spiritual wealth and liberates beings through the Transcendent Actions:\nGenerosity, Discipline, Patience, Diligence, Meditative Stability, and Wisdom.\nUpon her lotus flower is a wish-fulfilling jewel that increases merit and prosperity, empowering the accomplishment of Bodhisattva activites.",
+      "syllables": [
+        "OṂ",
+        "TĀ",
+        "RE",
+        "TU",
+        "TTĀ",
+        "RE",
+        "TU",
+        "RE",
+        "MA",
+        "HĀ",
+        "PU",
+        "ṆYE",
+        "SVĀ",
+        "HĀ"
+      ],
+      "tamColor": "#ffc800",
+      "tamOutlineColor": null,
+      "syllableStyle": {
+        "fill": "#ffffff",
+        "outlineColor": "#000000",
+        "outlineWidth": 0.02
+      },
+      "backgroundGradient": {
+        "type": "radial",
+        "colors": [
+          {
+            "color": "#fff8e0",
+            "position": 0
+          },
+          {
+            "color": "#db0000",
+            "position": 100
+          }
+        ]
+      },
+      "startIndex": 0,
+      "releaseDate": "2025-12-01",
+      "releaseDateOverride": false,
+      "audioFile": null
+    },
+    {
+      "id": "4",
+      "name": "4. Tara Usnisa Vijaya",
+      "english_homage": "HOMAGE TO DRÖLMA TSUGTOR NAMGYALMA (TĀRĀ UṢṆĪṢA VIJAYĀ)",
+      "english_tara_name": "DRÖLMA TSUGTOR NAMGYALMA",
+      "english_tara_subtitle": "Tara, Victorious Queen of Crowning Light",
+      "description": "FOURTH TARA Drölma Tsugtor Namgyalma is peaceful and golden yellow in color like Prajnaparamita.\nShe bestows long life and protects beings from taking rebirth in unfavorable circumstances.\nUpon her lotus flower is a vase of immortality overflowing with healing nectar.\nThis nectar coordinates the energies of the elements and revitalizes the life force.",
+      "syllables": [
+        "OṂ",
+        "TĀ",
+        "RE",
+        "TU",
+        "TTĀ",
+        "RE",
+        "TU",
+        "RE",
+        "Ā",
+        "YUR",
+        "DĀ",
+        "DE",
+        "BHRŪṂ",
+        "SVĀ",
+        "HĀ"
+      ],
+      "tamColor": "#ffc800",
+      "tamOutlineColor": null,
+      "syllableStyle": {
+        "fill": "#ffffff",
+        "outlineColor": "#000000",
+        "outlineWidth": 0.02
+      },
+      "backgroundGradient": {
+        "type": "radial",
+        "colors": [
+          {
+            "color": "#fff8e0",
+            "position": 0
+          },
+          {
+            "color": "#db0000",
+            "position": 100
+          }
+        ]
+      },
+      "startIndex": 0,
+      "releaseDate": "",
+      "releaseDateOverride": false
+    },
+    {
+      "id": "5",
+      "name": "5. Tara Kurukulla",
+      "english_homage": "HOMAGE TO DRÖLMA WANGDÜ RIGJÉ LHAMO",
+      "english_tara_name": "DRÖLMA WANGDÜ RIGJÉ LHAMO",
+      "english_tara_subtitle": "(TĀRĀ KURUKULLĀ)",
+      "description": "FIFTH TARA Drölma Wangdü Rigjé Lhamo is\nsemi-wrathful and red in color.\nShe accomplishes the four actions:\npacifying, enriching, magnetizing, and subduing.\nShe magnetizes the essence of everything that is beneficial.\nUpon her lotus flower is a multi-colored bow and arrow poised to shoot red wisdom light in all directions.\nThis light destroys the pride of all the arrogant ones.",
+      "syllables": [
+        "OṂ",
+        "TĀ",
+        "RE",
+        "TU",
+        "TTĀ",
+        "RE",
+        "TU",
+        "RE",
+        "KU",
+        "RU",
+        "KU",
+        "LLE",
+        "NṚ",
+        "JA",
+        "SVĀ",
+        "HĀ"
+      ],
+      "tamColor": "#c70000",
+      "tamOutlineColor": null,
+      "syllableStyle": {
+        "fill": "#ffffff",
+        "outlineColor": "#000000",
+        "outlineWidth": 0.02
+      },
+      "backgroundGradient": {
+        "type": "radial",
+        "colors": [
+          {
+            "color": "#ffe0e0",
+            "position": 0
+          },
+          {
+            "color": "#db0000",
+            "position": 100
+          }
+        ]
+      },
+      "startIndex": 0,
+      "releaseDate": "",
+      "releaseDateOverride": false
+    },
+    {
+      "id": "6",
+      "name": "6. Tara Mahabhairava",
+      "english_homage": "HOMAGE TO DRÖLMA JIGJE CHENMO (TĀRĀ MAHĀBHAIRAVĀ)",
+      "english_tara_name": "DRÖLMA JIGJE CHENMO",
+      "english_tara_subtitle": "The Great, Awe-Inspiring Tara",
+      "description": "SIXTH TARA Drölma Jigje Chenmo is wrathful and dark red in color.\nShe subdues all internal and external negative provocations.\nUpon her lotus flower is an indestructible black phurba, ritual dagger.\nWisdom flames emanate from the dagger, subduing negativity.\nThe flames remove obscurations such as confusion, insanity, and memory loss.",
+      "syllables": [
+        "OṂ",
+        "TĀ",
+        "RE",
+        "TU",
+        "TTĀ",
+        "RE",
+        "TU",
+        "RE",
+        "SAR",
+        "VA",
+        "VI",
+        "GHNĀN",
+        "BAṂ",
+        "HŪṂ",
+        "PHAṬ",
+        "SVĀ",
+        "HĀ"
+      ],
+      "tamColor": "#6b0025",
+      "tamOutlineColor": null,
+      "syllableStyle": {
+        "fill": "#ffffff",
+        "outlineColor": "#000000",
+        "outlineWidth": 0.02
+      },
+      "backgroundGradient": {
+        "type": "radial",
+        "colors": [
+          {
+            "color": "#ffe0e0",
+            "position": 0
+          },
+          {
+            "color": "#db0000",
+            "position": 100
+          }
+        ]
+      },
+      "startIndex": 0,
+      "releaseDate": "",
+      "releaseDateOverride": false
+    },
+    {
+      "id": "7",
+      "name": "7. Tara Aparadhrya",
+      "english_homage": "HOMAGE TO DRÖLMA ZHEN GYI MITUBMA (TĀRĀ APARĀDHRYĀ)",
+      "english_tara_name": "DRÖLMA ZHEN GYI MITUBMA",
+      "english_tara_subtitle": "Unassailable Tara",
+      "description": "SEVENTH TARA Drölma Zhen Gyi Mitubma is wrathful and blue-black in color.\nShe is true love and compassion manifesting as limitless, unbridled protective power.\nUpon her lotus flower is a sword blazing with wisdom flames.\nHer wisdom flames protect us from lightning, hurricanes, and storms.\nThe flames destroy all weapons of mass destruction and eliminate natural disasters.",
+      "syllables": [
+        "OṂ",
+        "TĀ",
+        "RE",
+        "TU",
+        "TTĀ",
+        "RE",
+        "TU",
+        "RE",
+        "VA",
+        "JRA",
+        "TA",
+        "KA",
+        "HA",
+        "NA",
+        "LI",
+        "CA",
+        "PHAṬ",
+        "SVĀ",
+        "HĀ"
+      ],
+      "tamColor": "#080075",
+      "tamOutlineColor": null,
+      "syllableStyle": {
+        "fill": "#ffffff",
+        "outlineColor": "#000000",
+        "outlineWidth": 0.02
+      },
+      "backgroundGradient": {
+        "type": "radial",
+        "colors": [
+          {
+            "color": "#e0f0ff",
+            "position": 0
+          },
+          {
+            "color": "#db0000",
+            "position": 100
+          }
+        ]
+      },
+      "startIndex": 0,
+      "releaseDate": "",
+      "releaseDateOverride": false
+    },
+    {
+      "id": "8",
+      "name": "8. Tara Aparajita",
+      "english_homage": "HOMAGE TO DRÖLMA ZHEN MIGYALWA'I PAMO (TĀRĀ APARĀJITĀ)",
+      "english_tara_name": "DRÖLMA ZHEN MIGYALWA'I PAMO",
+      "english_tara_subtitle": "Tara, Invincible Heroine",
+      "description": "EIGHTH TARA Drölma Zhen Migyalwa'i Pamo is wrathful and dark red in color.\nHer compassion is as swift as lightning, and her mantra protects us from aggression, conflict, and harm.\nUpon her lotus flower is a vajra blazing with wisdom flames.\nThe wisdom flames burn and scatter all fears.\nThese flames stop arguments, lawsuits, injustice, and war.",
+      "syllables": [
+        "OṂ",
+        "TĀ",
+        "RE",
+        "TU",
+        "TTĀ",
+        "RE",
+        "TU",
+        "RE",
+        "DA",
+        "HA",
+        "PA",
+        "CA",
+        "HŪṂ",
+        "PHAṬ",
+        "SVĀ",
+        "HĀ"
+      ],
+      "tamColor": "#6b0025",
+      "tamOutlineColor": null,
+      "syllableStyle": {
+        "fill": "#ffffff",
+        "outlineColor": "#000000",
+        "outlineWidth": 0.02
+      },
+      "backgroundGradient": {
+        "type": "radial",
+        "colors": [
+          {
+            "color": "#ffe0e0",
+            "position": 0
+          },
+          {
+            "color": "#db0000",
+            "position": 100
+          }
+        ]
+      },
+      "startIndex": 0,
+      "releaseDate": "",
+      "releaseDateOverride": false
+    },
+    {
+      "id": "9",
+      "name": "9. Tara Khadiravani",
+      "english_homage": "HOMAGE TO DRÖLMA SENGDENG NAG (TĀRĀ KHADIRAVANĪ)",
+      "english_tara_name": "DRÖLMA SENGDENG NAG",
+      "english_tara_subtitle": "Tara of the Acacia Forest",
+      "description": "NINTH TARA Drölma Sengdeng Nag is peaceful and emerald green in color.\nShe protects beings from both outer and inner dangers.\nUpon her lotus flower is an eight-spoked Dharma Wheel blazing with emerald light.\nThis light is her love, compassion, and wisdom.\nHer light radiates in all directions, protecting all beings from fear.",
+      "syllables": [
+        "OṂ",
+        "TĀ",
+        "RE",
+        "TU",
+        "TTĀ",
+        "RE",
+        "TU",
+        "RE",
+        "DĀ",
+        "NA",
+        "TRA",
+        "YA",
+        "SVĀ",
+        "HĀ"
+      ],
+      "tamColor": "#003d26",
+      "tamOutlineColor": null,
+      "syllableStyle": {
+        "fill": "#ffffff",
+        "outlineColor": "#000000",
+        "outlineWidth": 0.02
+      },
+      "backgroundGradient": {
+        "type": "radial",
+        "colors": [
+          {
+            "color": "#e0ffe0",
+            "position": 0
+          },
+          {
+            "color": "#db0000",
+            "position": 100
+          }
+        ]
+      },
+      "startIndex": 0,
+      "releaseDate": "",
+      "releaseDateOverride": false
+    },
+    {
+      "id": "10",
+      "name": "10. Tara Trailokyavijaya",
+      "english_homage": "HOMAGE TO DRÖLMA JIGTEN SUMLE GYALMA (TĀRĀ TRAILOKYAVIJAYĀ)",
+      "english_tara_name": "DRÖLMA JIGTEN SUMLE GYALMA",
+      "english_tara_subtitle": "Tara Who is Victorious Over the Three Worlds",
+      "description": "TENTH TARA Drölma Jigten Sumle Gyalma is peaceful and red in color.\nIf sentient beings encounter obstacles, she helps them to attain victory.\nShe joyfully protects beings from distractions to spiritual practice.\nUpon her lotus flower is a victory banner, which sends forth red wisdom light, subduing all outer and inner obstacles.",
+      "syllables": [
+        "OṂ",
+        "TĀ",
+        "RE",
+        "TU",
+        "TTĀ",
+        "RE",
+        "TU",
+        "RE",
+        "LO",
+        "KA",
+        "PĀ",
+        "ŚAṂ",
+        "KU",
+        "RU",
+        "SVĀ",
+        "HĀ"
+      ],
+      "tamColor": "#cc0047",
+      "tamOutlineColor": null,
+      "syllableStyle": {
+        "fill": "#ffffff",
+        "outlineColor": "#000000",
+        "outlineWidth": 0.02
+      },
+      "backgroundGradient": {
+        "type": "radial",
+        "colors": [
+          {
+            "color": "#ffe0e0",
+            "position": 0
+          },
+          {
+            "color": "#db0000",
+            "position": 100
+          }
+        ]
+      },
+      "startIndex": 0,
+      "releaseDate": "",
+      "releaseDateOverride": false
+    },
+    {
+      "id": "11",
+      "name": "11. Tara Vasuda",
+      "english_homage": "HOMAGE TO DRÖLMA NORTERMA (TĀRĀ VASUDĀ)",
+      "english_tara_name": "DRÖLMA NORTERMA",
+      "english_tara_subtitle": "Tara the Wealth-Granting Goddess",
+      "description": "ELEVENTH TARA Drölma Norterma is semi-wrathful and golden red in color.\nShe bestows wealth and liberates beings from all forms of poverty and misery.\nUpon her lotus flower is a treasure vase filled with jewels.\nWisdom light streams from her body and the treasure vase, granting all wishes and bestowing the gift of prosperity.",
+      "syllables": [
+        "OṂ",
+        "TĀ",
+        "RE",
+        "TU",
+        "TTĀ",
+        "RE",
+        "TU",
+        "RE",
+        "MA",
+        "MA",
+        "VA",
+        "SU",
+        "PU",
+        "ṢṬIṂ",
+        "KU",
+        "RU",
+        "SVĀ",
+        "HĀ"
+      ],
+      "tamColor": "#db4200",
+      "tamOutlineColor": null,
+      "syllableStyle": {
+        "fill": "#ffffff",
+        "outlineColor": "#000000",
+        "outlineWidth": 0.02
+      },
+      "backgroundGradient": {
+        "type": "radial",
+        "colors": [
+          {
+            "color": "#fff8e0",
+            "position": 0
+          },
+          {
+            "color": "#db0000",
+            "position": 100
+          }
+        ]
+      },
+      "startIndex": 0,
+      "releaseDate": "",
+      "releaseDateOverride": false
+    },
+    {
+      "id": "12",
+      "name": "12. Tara Mangalartha",
+      "english_homage": "HOMAGE TO DRÖLMA TASHI DÖNJEMA (TĀRĀ MAṄGALĀRTHĀ)",
+      "english_tara_name": "DRÖLMA TASHI DÖNJEMA",
+      "english_tara_subtitle": "Tara Who Brings About Auspiciousness",
+      "description": "TWELFTH TARA Drölma Tashi Dönjema is peaceful and golden yellow in color.\nShe brings timely seasons and healthy children.\nShe extinguishes fires, stops floods, and brings the elements into balance.\nUpon her lotus flower is an auspicious infinity knot.\nA stream of cooling energy of love and wisdom comes from her body and infinity knot, removing all negative circumstances.",
+      "syllables": [
+        "OṂ",
+        "TĀ",
+        "RE",
+        "TU",
+        "TTĀ",
+        "RE",
+        "TU",
+        "RE",
+        "MA",
+        "ṄGA",
+        "LAṂ",
+        "ŚRĪ",
+        "MA",
+        "HĀ",
+        "PĀ",
+        "ṆI",
+        "SVĀ",
+        "HĀ"
+      ],
+      "tamColor": "#cc7700",
+      "tamOutlineColor": null,
+      "syllableStyle": {
+        "fill": "#ffffff",
+        "outlineColor": "#000000",
+        "outlineWidth": 0.02
+      },
+      "backgroundGradient": {
+        "type": "radial",
+        "colors": [
+          {
+            "color": "#fff8e0",
+            "position": 0
+          },
+          {
+            "color": "#db0000",
+            "position": 100
+          }
+        ]
+      },
+      "startIndex": 0,
+      "releaseDate": "",
+      "releaseDateOverride": false
+    },
+    {
+      "id": "13",
+      "name": "13. Tara Ripucakravinasini",
+      "english_homage": "HOMAGE TO DRÖLMA YÜLLE GYALJEMA",
+      "english_tara_name": "DRÖLMA YÜLLE GYALJEMA",
+      "english_tara_subtitle": "(TĀRĀ RIPUCAKRAVINĀŚINĪ)",
+      "description": "THIRTEENTH TARA Drölma Yülle Gyaljema is wrathful and dark red in color.\nShe protects all beings from war and violence, preventing destruction caused by anger and aggression.\nUpon her lotus flower stands a vajra with open prongs.\nSparks of wisdom light emanate from her body and the vajra, annihilating all enemies and bringing the return of joy.\nShe surrounds beings with a protective tent of indestructible vajras.",
+      "syllables": [
+        "OṂ",
+        "TĀ",
+        "RE",
+        "TU",
+        "TTĀ",
+        "RE",
+        "TU",
+        "RE",
+        "VA",
+        "JRA",
+        "JVĀ",
+        "LA",
+        "PHAṬ",
+        "PHAṬ",
+        "RA",
+        "KṢA",
+        "RA",
+        "KṢA",
+        "SVĀ",
+        "HĀ"
+      ],
+      "tamColor": "#750000",
+      "tamOutlineColor": null,
+      "syllableStyle": {
+        "fill": "#ffffff",
+        "outlineColor": "#000000",
+        "outlineWidth": 0.02
+      },
+      "backgroundGradient": {
+        "type": "radial",
+        "colors": [
+          {
+            "color": "#ffe0e0",
+            "position": 0
+          },
+          {
+            "color": "#db0000",
+            "position": 100
+          }
+        ]
+      },
+      "startIndex": 0,
+      "releaseDate": "",
+      "releaseDateOverride": false
+    },
+    {
+      "id": "14",
+      "name": "14. Tara Bhrkuti",
+      "english_homage": "HOMAGE TO DRÖLMA TRONYER CHENMA (TĀRĀ BHṚKUṬĪ)",
+      "english_tara_name": "DRÖLMA TRONYER CHENMA",
+      "english_tara_subtitle": "Tara Who Frowns Fiercly",
+      "description": "FOURTEENTH TARA Drölma Tronyer Chenma is extremely wrathful and is blue-black in color, like dense rain clouds.\nShe transforms and liberates all obstacles into the true nature of reality.\nUpon her lotus flower is a pestle.\nWisdom light and flaming vajras radiate from her body and the pestle.\nThis light destroys all provocations, negativity, and subtle obstacles,\nbringing peace and courage to all beings.",
+      "syllables": [
+        "OṂ",
+        "TĀ",
+        "RE",
+        "TU",
+        "TTĀ",
+        "RE",
+        "TU",
+        "RE",
+        "HŪṂ",
+        "HŪṂ",
+        "HAṂ",
+        "SAṂ",
+        "TRI",
+        "GHNAN",
+        "PHAṬ",
+        "SVĀ",
+        "HĀ"
+      ],
+      "tamColor": "#080075",
+      "tamOutlineColor": null,
+      "syllableStyle": {
+        "fill": "#ffffff",
+        "outlineColor": "#000000",
+        "outlineWidth": 0.02
+      },
+      "backgroundGradient": {
+        "type": "radial",
+        "colors": [
+          {
+            "color": "#e0f0ff",
+            "position": 0
+          },
+          {
+            "color": "#db0000",
+            "position": 100
+          }
+        ]
+      },
+      "startIndex": 0,
+      "releaseDate": "",
+      "releaseDateOverride": false
+    },
+    {
+      "id": "15",
+      "name": "15. Tara Prasanti",
+      "english_homage": "HOMAGE TO DRÖLMA RABZHIMA (TĀRĀ PRAŚĀNTĪ)",
+      "english_tara_name": "DRÖLMA RABZHIMA",
+      "english_tara_subtitle": "Tara The Supremely Peaceful Goddess",
+      "description": "FIFTEENTH TARA Drölma Rabzhima is peaceful and white like the autumn full moon.\nShe has the power to purify our greatest misdeeds and obscurations.\nUpon her lotus flower is an anointing vase filled with purifying nectar.\nLight and purifying nectar emanate from her body and the vase, washing away all negative actions\nand bringing bliss and happiness to all beings.",
+      "syllables": [
+        "OṂ",
+        "TĀ",
+        "RE",
+        "TU",
+        "TTĀ",
+        "RE",
+        "TU",
+        "RE",
+        "SAR",
+        "VA",
+        "PĀ",
+        "PAṂ",
+        "GA",
+        "TE",
+        "GA",
+        "TE",
+        "SVĀ",
+        "HĀ"
+      ],
+      "tamColor": "#f8f8f7",
+      "tamOutlineColor": null,
+      "syllableStyle": {
+        "fill": "#ffffff",
+        "outlineColor": "#000000",
+        "outlineWidth": 0.02
+      },
+      "backgroundGradient": {
+        "type": "radial",
+        "colors": [
+          {
+            "color": "#f0e0ff",
+            "position": 0
+          },
+          {
+            "color": "#db0000",
+            "position": 100
+          }
+        ]
+      },
+      "startIndex": 0,
+      "releaseDate": "",
+      "releaseDateOverride": false
+    },
+    {
+      "id": "16",
+      "name": "16. Tara Vidyamantrabalaprasamani",
+      "english_homage": "HOMAGE TO DRÖLMA RIGNGAG TOBZHOM (TĀRĀ VIDYĀMANTRABALAPRAŚAMANĪ)",
+      "english_tara_name": "DRÖLMA RIGNGAG TOBZHOM",
+      "english_tara_subtitle": "Tara Who Destroys the Power of Evil Spells",
+      "description": "SIXTEENTH TARA Drölma Rignag Tobzhoma is peaceful and red in color.\nShe joyfully pacifies all curses and spells from both human and non-human beings.\nUpon her lotus flower is a double vajra.\nWisdom light radiates from her body and the double vajra.\nThis light destroys all bad intentions, bringing peace, love, and\ncompassion into the hearts of all beings.",
+      "syllables": [
+        "OṂ",
+        "TĀ",
+        "RE",
+        "TU",
+        "TTĀ",
+        "RE",
+        "TU",
+        "RE",
+        "TRĀṂ",
+        "DU",
+        "TṚ",
+        "ṆA",
+        "TRĀṂ",
+        "DU",
+        "PHAṬ",
+        "SVĀ",
+        "HĀ"
+      ],
+      "tamColor": "#cc0047",
+      "tamOutlineColor": null,
+      "syllableStyle": {
+        "fill": "#ffffff",
+        "outlineColor": "#000000",
+        "outlineWidth": 0.02
+      },
+      "backgroundGradient": {
+        "type": "radial",
+        "colors": [
+          {
+            "color": "#ffe0e0",
+            "position": 0
+          },
+          {
+            "color": "#db0000",
+            "position": 100
+          }
+        ]
+      },
+      "startIndex": 0,
+      "releaseDate": "",
+      "releaseDateOverride": false
+    },
+    {
+      "id": "17",
+      "name": "17. Tara Aprameyakramani",
+      "english_homage": "HOMAGE TO DRÖLMA PAGME NÖNMA (TĀRĀ APRAMEYĀKRAMAṆĪ)",
+      "english_tara_name": "DRÖLMA PAGME NÖNMA",
+      "english_tara_subtitle": "Tara Who Stops Immeasurable Invading Forces",
+      "description": "SEVENTEENTH TARA Drölma Pagme Nönma is peaceful and golden red in color like a beautiful sunrise.\nHer power eradicates all forms of violence and cruelty, thus she is known as the \"Tãra of Nonviolence.\" Upon her Utpala flower is a golden stüpa.\nRays of wisdom light in the form of countless HŪṂ syllables\nradiate from her body and the golden stupa, pacifying violence and bringing peace to all beings.",
+      "syllables": [
+        "OṂ",
+        "TĀ",
+        "RE",
+        "TU",
+        "TTĀ",
+        "RE",
+        "TU",
+        "RE",
+        "HŪṂ",
+        "HŪṂ",
+        "BAṂ",
+        "HO",
+        "SVĀ",
+        "HĀ"
+      ],
+      "tamColor": "#ff2424",
+      "tamOutlineColor": null,
+      "syllableStyle": {
+        "fill": "#ffffff",
+        "outlineColor": "#000000",
+        "outlineWidth": 0.02
+      },
+      "backgroundGradient": {
+        "type": "radial",
+        "colors": [
+          {
+            "color": "#ffe0e0",
+            "position": 0
+          },
+          {
+            "color": "#db0000",
+            "position": 100
+          }
+        ]
+      },
+      "startIndex": 0,
+      "releaseDate": "",
+      "releaseDateOverride": false
+    },
+    {
+      "id": "18",
+      "name": "18. Tara Mahamayuri",
+      "english_homage": "HOMAGE TO DRÖLMA MAJA CHENMO (TĀRĀ MAHĀMAYŪRĪ)",
+      "english_tara_name": "DRÖLMA MAJA CHENMO",
+      "english_tara_subtitle": "Tara the Great Peacock Goddess",
+      "description": "EIGHTEENTH TARA Drölma Maja Chenmo is peaceful and white in color.\nShe protects the world and all beings from poison and pollution.\nShe is especially renowned for protecting children.\nUpon her lotus flower is a full moon marked with a rabbit.\nBeams of white light emanate from her body and the moon, completely removing all poisons and pollutants from the environment and sentient beings.",
+      "syllables": [
+        "OṂ",
+        "TĀ",
+        "RE",
+        "TU",
+        "TTĀ",
+        "RE",
+        "TU",
+        "RE",
+        "SAR",
+        "VA",
+        "VI",
+        "ṢA",
+        "TĀ",
+        "RA",
+        "PHAṬ",
+        "SVĀ",
+        "HĀ"
+      ],
+      "tamColor": "#ffffff",
+      "tamOutlineColor": null,
+      "syllableStyle": {
+        "fill": "#ffffff",
+        "outlineColor": "#000000",
+        "outlineWidth": 0.02
+      },
+      "backgroundGradient": {
+        "type": "radial",
+        "colors": [
+          {
+            "color": "#f0e0ff",
+            "position": 0
+          },
+          {
+            "color": "#db0000",
+            "position": 100
+          }
+        ]
+      },
+      "startIndex": 0,
+      "releaseDate": "",
+      "releaseDateOverride": false
+    },
+    {
+      "id": "19",
+      "name": "19. Tara Sitatapatra",
+      "english_homage": "HOMAGE TO DRÖLMA MIPHAM GYALMO DUGKARMO (TĀRĀ SITATAPATRĀ)",
+      "english_tara_name": "DRÖLMA MIPHAM GYALMO DUGKARMO",
+      "english_tara_subtitle": "Tara, Invincible Queen of the White Parasol",
+      "description": "NINETEENTH TARA Drölma Dugkarmo is peaceful and white in color.\nShe protects beings from nightmares, bad omens, and misfortune.\nShe also protects the Dharma and those who teach it from disputes and disharmony.\nUpon her lotus flower is a white parasol.\nSparks of light and vajras emanate from her body and the white parasol, destroying all obstacles and future dangers, bringing calm and peace to all.",
+      "syllables": [
+        "OṂ",
+        "TĀ",
+        "RE",
+        "TU",
+        "TTĀ",
+        "RE",
+        "TU",
+        "RE",
+        "HŪṂ",
+        "HŪṂ",
+        "PHAṬ",
+        "PHAṬ",
+        "RA",
+        "KṢA",
+        "RA",
+        "KṢA",
+        "MĀṂ",
+        "SVĀ",
+        "HĀ"
+      ],
+      "tamColor": "#ffffff",
+      "tamOutlineColor": null,
+      "syllableStyle": {
+        "fill": "#ffffff",
+        "outlineColor": "#000000",
+        "outlineWidth": 0.02
+      },
+      "backgroundGradient": {
+        "type": "radial",
+        "colors": [
+          {
+            "color": "#f0e0ff",
+            "position": 0
+          },
+          {
+            "color": "#db0000",
+            "position": 100
+          }
+        ]
+      },
+      "startIndex": 0,
+      "releaseDate": "",
+      "releaseDateOverride": false
+    },
+    {
+      "id": "20",
+      "name": "20. Tara Sabari",
+      "english_homage": "HOMAGE TO DRÖLMA RITRÖ LOMA GYÖNMA",
+      "english_tara_name": "DRÖLMA RITRÖ LOMA GYÖNMA",
+      "english_tara_subtitle": "(TĀRĀ ŚABARĪ)",
+      "description": "TWENTIETH TARA Drölma Ritrö Gyönma is\npeaceful and yellow like saffron.\nDevotedly reciting her mantra dispels all deadly epidemics.\nUpon her lotus flower is a round vessel filled with nectar.\nHer eyes are like the sun and the full moon.\nFrom the sun of her right eye shines radiant light, destroying all disease-bearing beings.\nFrom the moon of her left eye, a rich stream of nectar descends, healing all forms of disease, including their causes and consequences.",
+      "syllables": [
+        "OṂ",
+        "TĀ",
+        "RE",
+        "TU",
+        "TTĀ",
+        "RE",
+        "TU",
+        "RE",
+        "NA",
+        "MA",
+        "TĀ",
+        "RE",
+        "MA",
+        "NO",
+        "HA",
+        "RA",
+        "HŪṂ",
+        "HA",
+        "RA",
+        "SVĀ",
+        "HĀ"
+      ],
+      "tamColor": "#ff5900",
+      "tamOutlineColor": null,
+      "syllableStyle": {
+        "fill": "#ffffff",
+        "outlineColor": "#000000",
+        "outlineWidth": 0.02
+      },
+      "backgroundGradient": {
+        "type": "radial",
+        "colors": [
+          {
+            "color": "#fff8e0",
+            "position": 0
+          },
+          {
+            "color": "#db0000",
+            "position": 100
+          }
+        ]
+      },
+      "startIndex": 0,
+      "releaseDate": "",
+      "releaseDateOverride": false
+    },
+    {
+      "id": "21",
+      "name": "21. Tara Marici",
+      "english_homage": "HOMAGE TO DRÖLMA LHAMO ÖZER CHENMA",
+      "english_tara_name": "DRÖLMA LHAMO ÖZER CHENMA",
+      "english_tara_subtitle": "(TĀRĀ MĀRĪCĪ)",
+      "description": "TWENTY-FIRST TARA Drölma Lhamo Özer Chenma\nis peaceful and white in color.\nShe protects our vitality and increases longevity.\nShe is also renowned for protecting animals and travelers.\nUpon her lotus flower is a golden fish.\nWisdom light radiates from her body and the golden fish, summoning the return of the life force that has been lost or stolen and establishing all beings in good health.",
+      "syllables": [
+        "OṂ",
+        "TĀ",
+        "RE",
+        "TU",
+        "TTĀ",
+        "RE",
+        "TU",
+        "RE",
+        "MĀ",
+        "RĪ",
+        "CYAI",
+        "CHE",
+        "BHRŪṂ",
+        "NṚ",
+        "JA",
+        "SVĀ",
+        "HĀ"
+      ],
+      "tamColor": "#ffffff",
+      "tamOutlineColor": null,
+      "syllableStyle": {
+        "fill": "#ffffff",
+        "outlineColor": "#000000",
+        "outlineWidth": 0.02
+      },
+      "backgroundGradient": {
+        "type": "radial",
+        "colors": [
+          {
+            "color": "#f0e0ff",
+            "position": 0
+          },
+          {
+            "color": "#db0000",
+            "position": 100
+          }
+        ]
+      },
+      "startIndex": 0,
+      "releaseDate": "",
+      "releaseDateOverride": false
     }
   ]
 }

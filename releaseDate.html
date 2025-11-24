@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mantra Release Schedule</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --burgundy: #8B1538;
+            --burgundy-dark: #6B0F2A;
+            --gold: #D4AF37;
+            --gold-light: #F4E4B0;
+            --cream: #FFF8E7;
+            --cream-dark: #F5E6C8;
+            --text: #2C1810;
+            --text-light: #6B4E3D;
+            --shadow: rgba(139, 21, 56, 0.12);
+            --border: rgba(139, 21, 56, 0.15);
+            --success: #28a745;
+            --error: #dc3545;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+            background: linear-gradient(135deg, #FFF8E7 0%, #F5E6C8 100%);
+            color: var(--text);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .app-header {
+            background: linear-gradient(90deg, var(--burgundy) 0%, var(--burgundy-dark) 100%);
+            color: var(--gold-light);
+            box-shadow: 0 4px 20px var(--shadow);
+            position: relative;
+            overflow: hidden;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 0 2rem;
+            justify-content: space-between;
+        }
+
+        .app-header h1 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: 0.02em;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--gold-light);
+            padding: 6px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .schedule-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px var(--shadow);
+            padding: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .status-bar {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ccc;
+        }
+
+        .status-indicator.active { background: var(--success); }
+        .status-indicator.saving { background: var(--gold); }
+
+        .save-btn {
+            background: var(--burgundy);
+            color: var(--gold-light);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-family: 'Crimson Pro', serif;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .save-btn:hover {
+            background: var(--burgundy-dark);
+            transform: translateY(-1px);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 1rem;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.1rem;
+            color: var(--burgundy);
+            border-bottom: 2px solid var(--gold);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        tr:hover td {
+            background: var(--cream);
+        }
+
+        .tara-name {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .tara-id {
+            color: var(--burgundy);
+            font-weight: 700;
+            width: 60px;
+        }
+
+        input[type="date"] {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-family: inherit;
+            color: var(--text);
+            background: white;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--success);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        .password-input {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-left: 1rem;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 2rem;
+            z-index: 100;
+        }
+
+        .toast {
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: slideIn 0.3s ease-out;
+            border-left: 4px solid var(--gold);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-header">
+        <h1>
+            <a href="admin.html" class="back-btn">← Back to Editor</a>
+            Publication Schedule
+        </h1>
+    </div>
+
+    <div class="container">
+        <div class="schedule-card">
+            <div class="controls">
+                <div class="status-bar">
+                    <div class="status-indicator" id="status-indicator"></div>
+                    <span id="status-text">Loading...</span>
+                </div>
+                <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                    <button class="save-btn" style="background: var(--gold); color: var(--text);" onclick="saveScheduleToFile()">Save to mantras.json</button>
+                    <button class="save-btn" onclick="downloadSchedule()">Download JSON</button>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Tara Name</th>
+                        <th>Release Date</th>
+                        <th>Override (Force Show)</th>
+                    </tr>
+                </thead>
+                <tbody id="schedule-body">
+                    <!-- Rows generated by JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <script>
+        let allTaraData = [];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadConfiguration();
+        });
+
+        async function loadConfiguration() {
+            updateStatus('saving', 'Loading...');
+            try {
+                // Fetch with cache busting
+                const response = await fetch(`mantras.json?t=${Date.now()}`, {
+                    headers: { 'Cache-Control': 'no-store' }
+                });
+                
+                let config = {};
+                if (response.ok) {
+                    config = await response.json();
+                } else {
+                    throw new Error('Failed to load mantras.json');
+                }
+
+                if (config.mantras) {
+                    allTaraData = config.mantras;
+                    // Ensure 21 mantras
+                    while (allTaraData.length < 21) {
+                        allTaraData.push(createEmptyTara(allTaraData.length + 1));
+                    }
+                    renderTable();
+                    updateStatus('active', 'Ready');
+                }
+            } catch (err) {
+                console.error(err);
+                updateStatus('error', 'Failed to load');
+                showToast('Error loading configuration: ' + err.message, 'error');
+            }
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('schedule-body');
+            tbody.innerHTML = '';
+
+            allTaraData.forEach((tara, index) => {
+                const tr = document.createElement('tr');
+                
+                tr.innerHTML = `
+                    <td class="tara-id">${tara.id || index + 1}</td>
+                    <td class="tara-name">${tara.name || 'Untitled'}</td>
+                    <td>
+                        <input type="date" 
+                            value="${tara.releaseDate || ''}" 
+                            onchange="updateDate(${index}, this.value)"
+                        >
+                    </td>
+                    <td>
+                        <label class="toggle-switch">
+                            <input type="checkbox" 
+                                ${tara.releaseDateOverride ? 'checked' : ''} 
+                                onchange="updateOverride(${index}, this.checked)"
+                            >
+                            <span class="slider"></span>
+                        </label>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateDate(index, value) {
+            allTaraData[index].releaseDate = value;
+            updateStatus('saving', 'Unsaved changes...');
+        }
+
+        function updateOverride(index, checked) {
+            allTaraData[index].releaseDateOverride = checked;
+            updateStatus('saving', 'Unsaved changes...');
+        }
+
+        async function downloadSchedule() {
+            updateStatus('saving', 'Preparing...');
+            
+            try {
+                const config = { mantras: allTaraData };
+                
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config, null, 2));
+                const downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href", dataStr);
+                downloadAnchorNode.setAttribute("download", "mantras.json");
+                document.body.appendChild(downloadAnchorNode);
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+
+                updateStatus('active', 'Downloaded ✓');
+                showToast('Schedule downloaded successfully!');
+            } catch (err) {
+                console.error(err);
+                updateStatus('error', 'Download failed');
+                showToast('Failed to download: ' + err.message, 'error');
+            }
+        }
+
+        async function saveScheduleToFile() {
+            const config = { mantras: allTaraData };
+
+            if (!window.showSaveFilePicker && !window.showOpenFilePicker) {
+                showToast('Saving directly requires a Chromium-based browser on desktop. Falling back to download.', 'info');
+                downloadSchedule();
+                return;
+            }
+
+            try {
+                let handle;
+                if (window.showSaveFilePicker) {
+                    handle = await window.showSaveFilePicker({
+                        suggestedName: 'mantras.json',
+                        types: [{
+                            description: 'JSON Files',
+                            accept: { 'application/json': ['.json'] }
+                        }]
+                    });
+                } else {
+                    [handle] = await window.showOpenFilePicker({
+                        types: [{
+                            description: 'JSON Files',
+                            accept: { 'application/json': ['.json'] }
+                        }],
+                        excludeAcceptAllOption: true,
+                        multiple: false
+                    });
+                }
+
+                const writable = await handle.createWritable();
+                await writable.write(JSON.stringify(config, null, 2));
+                await writable.close();
+
+                updateStatus('active', 'Saved ✓');
+                showToast('Saved to mantras.json');
+            } catch (err) {
+                if (err.name === 'AbortError') {
+                    showToast('Save cancelled', 'info');
+                    return;
+                }
+                console.error(err);
+                updateStatus('error', 'Save failed');
+                showToast('Failed to save: ' + err.message, 'error');
+            }
+        }
+
+        function createEmptyTara(id) {
+            return {
+                id: id.toString(),
+                name: `${id}. Tara ${id}`,
+                releaseDate: "",
+                releaseDateOverride: false,
+                syllables: []
+            };
+        }
+
+        function updateStatus(state, text) {
+            const indicator = document.getElementById('status-indicator');
+            const label = document.getElementById('status-text');
+            
+            indicator.className = 'status-indicator ' + state;
+            label.textContent = text;
+        }
+
+        function showToast(msg, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<span>${msg}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+    </script>
+</body>
+</html>
