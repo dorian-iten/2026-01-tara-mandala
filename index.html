@@ -349,7 +349,7 @@
       background: rgba(255, 255, 255, 0.85);
       padding: 6px;
       border-radius: 50px;
-      display: none;
+      display: flex;
       align-items: center;
       gap: 4px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
@@ -930,8 +930,6 @@
 
     // Update navigation button colors based on current mantra
     function updateNavButtonColors() {
-      if (!showAllMantras) return;
-      
       const navButtons = document.querySelectorAll('.nav-btn');
       if (navButtons.length === 0) return;
       
@@ -1141,12 +1139,8 @@
       // Populate dropdown with loaded mantras
       populateDropdown();
 
-      // Show navigation controls if showall parameter is present
-      if (showAllMantras) {
-        document.getElementById('nav-controls').style.display = 'flex';
-        // Set initial nav button colors
-        updateNavButtonColors();
-      }
+      // Set initial nav button colors
+      updateNavButtonColors();
 
       // Scene with atmospheric fog
       scene = new THREE.Scene();

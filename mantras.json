@@ -34,20 +34,20 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#ffffff",
+            "color": "#ffcccc",
             "position": 0
           },
           {
-            "color": "#ffcccc",
-            "position": 15
+            "color": "#ff9999",
+            "position": 10
           },
           {
             "color": "#ff6666",
-            "position": 45
+            "position": 35
           },
           {
             "color": "#cc0000",
-            "position": 70
+            "position": 65
           },
           {
             "color": "#db0000",
@@ -84,10 +84,10 @@
         "HĀ"
       ],
       "tamColor": "#ffffff",
-      "tamOutlineColor": null,
+      "tamOutlineColor": "#404040",
       "syllableStyle": {
         "fill": "#ffffff",
-        "outlineColor": "#808080",
+        "outlineColor": "#404040",
         "outlineWidth": 0.0255
       },
       "backgroundGradient": {
