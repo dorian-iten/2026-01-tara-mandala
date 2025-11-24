@@ -199,6 +199,18 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
       border: 0.5px solid rgba(200, 200, 200, 0.3);
       backdrop-filter: blur(30px);
+      transition: opacity 0.4s ease-in-out, visibility 0.4s ease-in-out;
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Desktop only: hide controls when inactive */
+    @media (min-width: 769px) {
+      #speed-controls.controls-hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
     }
 
     #speed-controls:hover {
@@ -355,6 +367,18 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
       border: 0.5px solid rgba(200, 200, 200, 0.3);
       backdrop-filter: blur(30px);
+      transition: opacity 0.4s ease-in-out, visibility 0.4s ease-in-out;
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Desktop only: hide controls when inactive */
+    @media (min-width: 769px) {
+      #nav-controls.controls-hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
     }
 
     #nav-controls:hover {
@@ -475,23 +499,6 @@
         height: 16px;
       }
 
-      #speed-controls {
-        bottom: 20px;
-        padding: 16px 24px;
-        gap: 16px;
-      }
-
-      .speed-btn {
-        width: 44px;
-        height: 44px;
-        font-size: 20px;
-      }
-
-      #speed-label {
-        font-size: 15px;
-        min-width: 85px;
-      }
-
       #audio-controls {
         bottom: 20px;
         padding: 10px 16px;
@@ -537,21 +544,20 @@
         height: 15px;
       }
 
+      /* Navigation controls - bottom left */
+      #nav-controls {
+        bottom: 20px;
+        left: 20px;
+        right: auto;
+        transform: none;
+      }
+
+      /* Speed controls - bottom right */
       #speed-controls {
-        bottom: 15px;
-        padding: 14px 20px;
-        gap: 14px;
-      }
-
-      .speed-btn {
-        width: 42px;
-        height: 42px;
-        font-size: 18px;
-      }
-
-      #speed-label {
-        font-size: 14px;
-        min-width: 80px;
+        bottom: 20px;
+        left: auto;
+        right: 20px;
+        transform: none;
       }
 
       #audio-controls {
@@ -1529,8 +1535,121 @@
       navPrevBtn.addEventListener('click', () => navigateToMantra('prev'));
       navNextBtn.addEventListener('click', () => navigateToMantra('next'));
 
+      // Auto-hide controls on desktop (desktop only)
+      setupAutoHideControls();
+
       // Start animation
       animate();
+    }
+
+    // Auto-hide controls functionality (desktop only)
+    function setupAutoHideControls() {
+      // Check if we're on desktop (width >= 769px)
+      const isDesktop = () => window.innerWidth >= 769;
+      
+      if (!isDesktop()) {
+        return; // Don't apply auto-hide on mobile
+      }
+
+      const speedControls = document.getElementById('speed-controls');
+      const navControls = document.getElementById('nav-controls');
+      
+      if (!speedControls || !navControls) {
+        return;
+      }
+
+      let hideTimeout = null;
+      let mouseMoveTimeout = null;
+      const HIDE_DELAY = 3000; // 3 seconds
+      const MOUSE_STOP_DELAY = 2000; // 2 seconds of no movement before hiding
+      const INITIAL_HIDE_DELAY = 3000; // Initial hide after 3 seconds
+
+      // Helper function to show controls
+      function showControls() {
+        speedControls.classList.remove('controls-hidden');
+        navControls.classList.remove('controls-hidden');
+      }
+
+      // Helper function to hide controls
+      function hideControls() {
+        speedControls.classList.add('controls-hidden');
+        navControls.classList.add('controls-hidden');
+      }
+
+      // Clear any existing timeouts
+      function clearAllTimeouts() {
+        if (hideTimeout) {
+          clearTimeout(hideTimeout);
+          hideTimeout = null;
+        }
+        if (mouseMoveTimeout) {
+          clearTimeout(mouseMoveTimeout);
+          mouseMoveTimeout = null;
+        }
+      }
+
+      // Schedule hiding controls
+      function scheduleHide(delay = MOUSE_STOP_DELAY) {
+        clearAllTimeouts();
+        hideTimeout = setTimeout(() => {
+          if (isDesktop()) {
+            hideControls();
+          }
+        }, delay);
+      }
+
+      // Handle mouse movement
+      function handleMouseMove() {
+        if (!isDesktop()) {
+          return;
+        }
+
+        // Show controls immediately when mouse moves
+        showControls();
+
+        // Clear any pending hide timeout
+        clearAllTimeouts();
+
+        // Schedule hide after mouse stops moving
+        mouseMoveTimeout = setTimeout(() => {
+          scheduleHide(0); // Hide immediately after mouse stops
+        }, MOUSE_STOP_DELAY);
+      }
+
+      // Handle mouse leaving the viewport
+      function handleMouseLeave() {
+        if (!isDesktop()) {
+          return;
+        }
+        clearAllTimeouts();
+        scheduleHide(0); // Hide immediately when mouse leaves
+      }
+
+      // Initial hide after page loads
+      scheduleHide(INITIAL_HIDE_DELAY);
+
+      // Add event listeners
+      document.addEventListener('mousemove', handleMouseMove, { passive: true });
+      document.addEventListener('mouseleave', handleMouseLeave, { passive: true });
+
+      // Also handle mouse leaving the window (for better cross-browser support)
+      document.addEventListener('mouseout', (e) => {
+        if (!e.relatedTarget && !e.toElement) {
+          handleMouseLeave();
+        }
+      }, { passive: true });
+
+      // Re-check on window resize (in case user switches between desktop/mobile)
+      window.addEventListener('resize', () => {
+        if (!isDesktop()) {
+          // If switched to mobile, show controls and clear timeouts
+          clearAllTimeouts();
+          showControls();
+        } else {
+          // If switched to desktop, start the auto-hide behavior
+          scheduleHide(INITIAL_HIDE_DELAY);
+        }
+      }, { passive: true });
     }
 
     function togglePlayPause() {
