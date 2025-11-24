@@ -415,6 +415,13 @@
       background: rgba(200, 190, 230, 0.5);
     }
 
+    .nav-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+    }
+
     /* Audio controls */
     #audio-controls {
       position: absolute;
@@ -762,8 +769,16 @@
   </div>
 
   <div id="nav-controls">
-    <button class="nav-btn" id="nav-prev" aria-label="Previous mantra">◀</button>
-    <button class="nav-btn" id="nav-next" aria-label="Next mantra">▶</button>
+    <button class="nav-btn" id="nav-prev" aria-label="Previous mantra">
+      <svg viewBox="0 0 24 24">
+        <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <button class="nav-btn" id="nav-next" aria-label="Next mantra">
+      <svg viewBox="0 0 24 24">
+        <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
   </div>
 
   <div id="audio-controls">
