@@ -283,6 +283,7 @@
   <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
     import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
     import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
@@ -300,14 +301,35 @@
     let style3Tam, style3SyllableGroup, style3MoonDisc;
     let style3MoonDiscOutline, style3MoonDiscOutlineMat;
 
-    // Helper: Create text texture
+    // Helper: Create text texture with proper aspect ratio
+    // Returns { texture, aspectRatio } where aspectRatio = width/height
     function createTextTexture(text, fontSize = 64, color = '#ffffff') {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-      canvas.width = 256;
-      canvas.height = 256;
       
-      ctx.font = `bold ${fontSize}px "Crimson Pro", serif`;
+      // Set font and measure text
+      const font = `bold ${fontSize}px "Crimson Pro", serif`;
+      ctx.font = font;
+      const metrics = ctx.measureText(text);
+      
+      // Get text dimensions with robust fallbacks
+      const textWidth = Math.max(metrics.width, fontSize * 0.5);
+      const textHeight = Math.max(
+        (metrics.actualBoundingBoxAscent || 0) + (metrics.actualBoundingBoxDescent || 0),
+        fontSize * 0.85 // Fallback based on typical font metrics
+      );
+      
+      // Add padding around text
+      const padding = fontSize * 0.4;
+      const canvasWidth = Math.max(64, Math.ceil(textWidth + padding * 2));
+      const canvasHeight = Math.max(64, Math.ceil(textHeight + padding * 2));
+      
+      // Set canvas size
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
+      
+      // Redraw with correct canvas size (need to re-set font after resize)
+      ctx.font = font;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillStyle = color;
@@ -315,17 +337,44 @@
       
       const texture = new THREE.CanvasTexture(canvas);
       texture.needsUpdate = true;
-      return texture;
+      
+      const aspectRatio = canvas.width / canvas.height;
+      
+      return { 
+        texture, 
+        aspectRatio: isNaN(aspectRatio) || aspectRatio <= 0 ? 1 : aspectRatio
+      };
     }
 
-    // Helper: Create text texture with outline
+    // Helper: Create text texture with outline and proper aspect ratio
+    // Returns { texture, aspectRatio } where aspectRatio = width/height
     function createTextTextureWithOutline(text, fontSize = 64, fillColor = '#ffffff', outlineColor = '#000000', outlineWidth = 3) {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-      canvas.width = 256;
-      canvas.height = 256;
       
-      ctx.font = `bold ${fontSize}px "Crimson Pro", serif`;
+      // Set font and measure text
+      const font = `bold ${fontSize}px "Crimson Pro", serif`;
+      ctx.font = font;
+      const metrics = ctx.measureText(text);
+      
+      // Get text dimensions with robust fallbacks
+      const textWidth = Math.max(metrics.width, fontSize * 0.5);
+      const textHeight = Math.max(
+        (metrics.actualBoundingBoxAscent || 0) + (metrics.actualBoundingBoxDescent || 0),
+        fontSize * 0.85 // Fallback based on typical font metrics
+      );
+      
+      // Add padding around text (account for outline)
+      const padding = fontSize * 0.4 + outlineWidth * 2;
+      const canvasWidth = Math.max(64, Math.ceil(textWidth + padding * 2));
+      const canvasHeight = Math.max(64, Math.ceil(textHeight + padding * 2));
+      
+      // Set canvas size
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
+      
+      // Redraw with correct canvas size (need to re-set font after resize)
+      ctx.font = font;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       
@@ -343,7 +392,13 @@
       
       const texture = new THREE.CanvasTexture(canvas);
       texture.needsUpdate = true;
-      return texture;
+      
+      const aspectRatio = canvas.width / canvas.height;
+      
+      return { 
+        texture, 
+        aspectRatio: isNaN(aspectRatio) || aspectRatio <= 0 ? 1 : aspectRatio
+      };
     }
 
     // Helper: Create TAM texture from SVG - returns {texture, aspectRatio}
@@ -414,6 +469,69 @@
             // Fallback: create text-based TAM
             resolve({ texture: createTextTexture('TAM', 80, color), aspectRatio: 1 });
           });
+      });
+    }
+
+    // Helper: Load 3D TAM mesh from GLB file
+    // Returns a promise that resolves to a cloned THREE.Group with the TAM mesh
+    const gltfLoader = new GLTFLoader();
+    let cachedTamGltf = null;
+
+    async function loadTam3D(color = '#4a3a6a', scale = 1.0) {
+      return new Promise((resolve, reject) => {
+        const createTamMesh = (gltf) => {
+          const tam = gltf.scene.clone(true);
+          
+          // Remove reflection meshes - they have negative Y scale (mirrored)
+          const toRemove = [];
+          tam.traverse((child) => {
+            if (child.isMesh) {
+              // Get the world scale to check for mirrored geometry
+              const worldScale = new THREE.Vector3();
+              child.getWorldScale(worldScale);
+              
+              // Negative Y scale indicates a mirrored/reflected mesh
+              if (worldScale.y < 0) {
+                toRemove.push(child);
+              }
+            }
+          });
+          
+          // Remove the mirrored meshes
+          toRemove.forEach(mesh => mesh.removeFromParent());
+          
+          // Apply color to remaining meshes
+          tam.traverse((child) => {
+            if (child.isMesh) {
+              child.material = new THREE.MeshBasicMaterial({
+                color: new THREE.Color(color),
+                side: THREE.DoubleSide
+              });
+            }
+          });
+          
+          // Scale the model
+          tam.scale.set(scale, scale, scale);
+          
+          resolve(tam);
+        };
+
+        if (cachedTamGltf) {
+          createTamMesh(cachedTamGltf);
+        } else {
+          gltfLoader.load(
+            '3D/tam.glb',
+            (gltf) => {
+              cachedTamGltf = gltf;
+              createTamMesh(gltf);
+            },
+            undefined,
+            (error) => {
+              console.error('Failed to load TAM 3D model:', error);
+              reject(error);
+            }
+          );
+        }
       });
     }
 
@@ -501,32 +619,39 @@
       outline.position.y = -0.49;
       scene.add(outline);
 
-      // TAM in center - preserve aspect ratio
-      const { texture: tamTexture, aspectRatio: tamAspect } = await loadTamTexture('#3a2a5a');
-      const tamHeight = 1.2;
-      const tamWidth = tamHeight * tamAspect;
-      const tamGeom = new THREE.PlaneGeometry(tamWidth, tamHeight);
-      const tamMat = new THREE.MeshBasicMaterial({
-        map: tamTexture,
-        transparent: true,
-        side: THREE.DoubleSide
-      });
-      const tam = new THREE.Mesh(tamGeom, tamMat);
-      tam.rotation.x = -Math.PI / 2;
-      tam.position.y = -0.49;
+      // TAM in center - 3D mesh
+      const tam = await loadTam3D('#3a2a5a', 2.5);
+      tam.position.set(0, -0.49, 0);
       scene.add(tam);
 
       // Syllable ring (as dots/crowns when viewed from above) - OUTSIDE the moon disc
       const syllableGroup = new THREE.Group();
       const radius = 1.8; // Larger than moon disc radius (1.4)
       
+      // Pre-create textures to get aspect ratios for proper sizing
+      const syllableData = defaultSyllables.map(syl => {
+        const { texture, aspectRatio } = createTextTexture(syl, 48, '#3a2a5a');
+        return { text: syl, texture, aspectRatio };
+      });
+      
+      // Calculate dot/label sizes based on available space
+      const numSyllables = defaultSyllables.length;
+      const anglePerSyllable = (Math.PI * 2) / numSyllables;
+      const arcLength = anglePerSyllable * radius;
+      const maxLabelHeight = arcLength * 0.7; // Leave some gap between syllables
+      
       defaultSyllables.forEach((syl, i) => {
-        const angle = (i / defaultSyllables.length) * Math.PI * 2 - Math.PI / 2;
+        const angle = (i / numSyllables) * Math.PI * 2 - Math.PI / 2;
         const x = Math.cos(angle) * radius;
         const z = Math.sin(angle) * radius;
         
-        // White circles representing syllable crowns
-        const dotGeom = new THREE.CircleGeometry(0.18, 32);
+        const data = syllableData[i];
+        const labelHeight = Math.min(maxLabelHeight, 0.25);
+        const labelWidth = labelHeight * data.aspectRatio;
+        
+        // White circles representing syllable crowns - size based on label
+        const dotRadius = Math.max(labelWidth, labelHeight) * 0.6;
+        const dotGeom = new THREE.CircleGeometry(dotRadius, 32);
         const dotMat = new THREE.MeshBasicMaterial({
           color: 0xffffff,
           transparent: true,
@@ -537,23 +662,10 @@
         dot.position.set(x, -0.48, z);
         syllableGroup.add(dot);
 
-        // Dark purple text label with transparent background
-        const labelCanvas = document.createElement('canvas');
-        const ctx = labelCanvas.getContext('2d');
-        labelCanvas.width = 128;
-        labelCanvas.height = 128;
-        // Clear canvas to transparent
-        ctx.clearRect(0, 0, 128, 128);
-        ctx.font = 'bold 48px Crimson Pro';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#3a2a5a'; // Dark purple for contrast
-        ctx.fillText(syl, 64, 64);
-        
-        const labelTex = new THREE.CanvasTexture(labelCanvas);
-        const labelGeom = new THREE.PlaneGeometry(0.28, 0.28);
+        // Label with proper aspect ratio
+        const labelGeom = new THREE.PlaneGeometry(labelWidth, labelHeight);
         const labelMat = new THREE.MeshBasicMaterial({ 
-          map: labelTex, 
+          map: data.texture, 
           transparent: true,
           depthWrite: false
         });
@@ -654,53 +766,44 @@
       outline.position.y = -0.49;
       scene.add(outline);
 
-      // TAM standing on moon disc - FIXED facing forward (12 o'clock / +Z direction)
-      const { texture: tamTexture, aspectRatio: tamAspect } = await loadTamTexture('#4a3a6a', renderer);
-      const tamHeight = 1.8;
-      const tamWidth = tamHeight * tamAspect;
-      const tamGeom = new THREE.PlaneGeometry(tamWidth, tamHeight);
-      const tamMat = new THREE.MeshBasicMaterial({
-        map: tamTexture,
-        transparent: true,
-        side: THREE.DoubleSide,
-        depthTest: true,
-        depthWrite: true
-      });
-      const tam = new THREE.Mesh(tamGeom, tamMat);
-      tam.position.set(0, 0.45, 0); // Just above moon disc
-      // TAM faces forward (+Z direction) and NEVER rotates
+      // TAM standing on moon disc - 3D mesh, FIXED facing forward
+      const tam = await loadTam3D('#4a3a6a', 2.0);
+      tam.position.set(0, -0.5, 0); // On the moon disc
       scene.add(tam);
 
       // Syllables orbiting around the moon disc edge - RING MODE (face outward)
-      // Uses proportional spacing based on text width for even gaps
+      // All syllables at uniform height, width varies by natural aspect ratio
       const syllableGroup = new THREE.Group();
       const radius = 1.5;
       const syllableY = -0.35; // Closer to moon disc level
       
-      // Measure text widths for proportional spacing
-      const measureCanvas = document.createElement('canvas');
-      const measureCtx = measureCanvas.getContext('2d');
-      measureCtx.font = 'bold 72px Crimson Pro';
+      // Pre-create all textures to get their aspect ratios
+      const syllableData = defaultSyllables.map(syl => {
+        const { texture, aspectRatio } = createTextTexture(syl, 72, '#5a4a7a');
+        return { text: syl, texture, aspectRatio };
+      });
       
-      const syllableWidths = defaultSyllables.map(syl => measureCtx.measureText(syl).width);
-      const totalTextWidth = syllableWidths.reduce((a, b) => a + b, 0);
+      // Calculate uniform height and resulting widths
+      const baseHeight = 0.5; // Uniform height for all syllables
+      const syllableWidths = syllableData.map(d => baseHeight * d.aspectRatio);
+      const totalArcWidth = syllableWidths.reduce((a, b) => a + b, 0);
       const circumference = 2 * Math.PI * radius;
       const numSyllables = defaultSyllables.length;
       
-      // Calculate scale factor to fit all syllables with gaps (text takes ~70% of circumference)
-      const targetTextRatio = 0.7;
-      const scaleFactor = (circumference * targetTextRatio) / totalTextWidth;
-      const totalScaledTextWidth = totalTextWidth * scaleFactor;
-      const gapSize = (circumference - totalScaledTextWidth) / numSyllables;
-      
-      // Base height for all syllables
-      const syllableHeight = 0.8;
+      // Calculate scale to fit all syllables with gaps (syllables take ~75% of circumference for larger text)
+      const targetTextRatio = 0.75;
+      const availableArc = circumference * targetTextRatio;
+      const uniformScale = availableArc / totalArcWidth;
+      const scaledHeight = baseHeight * uniformScale;
+      const scaledWidths = syllableWidths.map(w => w * uniformScale);
+      const totalScaledArc = scaledWidths.reduce((a, b) => a + b, 0);
+      const gapSize = (circumference - totalScaledArc) / numSyllables;
       
       // Position syllables with even gaps
       let currentAngle = -Math.PI / 2; // Start at 12 o'clock
       
-      defaultSyllables.forEach((syl, i) => {
-        const syllableWidth = syllableWidths[i] * scaleFactor;
+      syllableData.forEach((data, i) => {
+        const syllableWidth = scaledWidths[i];
         
         // Add half gap + half syllable width to get center position
         currentAngle += (gapSize / 2 + syllableWidth / 2) / radius;
@@ -708,10 +811,10 @@
         const x = Math.cos(currentAngle) * radius;
         const z = Math.sin(currentAngle) * radius;
         
-        const texture = createTextTexture(syl, 72, '#5a4a7a');
-        const geom = new THREE.PlaneGeometry(syllableWidth * 1.3, syllableHeight);
+        // Use natural aspect ratio for geometry
+        const geom = new THREE.PlaneGeometry(syllableWidth, scaledHeight);
         const mat = new THREE.MeshBasicMaterial({
-          map: texture,
+          map: data.texture,
           transparent: true,
           side: THREE.DoubleSide,
           depthTest: true,
@@ -917,29 +1020,19 @@
       // Clear old TAM
       while (style3Tam.children.length > 0) {
         const child = style3Tam.children[0];
-        if (child.geometry) child.geometry.dispose();
-        if (child.material) {
-          if (child.material.map) child.material.map.dispose();
-          child.material.dispose();
-        }
+        child.traverse((obj) => {
+          if (obj.geometry) obj.geometry.dispose();
+          if (obj.material) {
+            if (obj.material.map) obj.material.map.dispose();
+            obj.material.dispose();
+          }
+        });
         style3Tam.remove(child);
       }
 
-      // Load new TAM with mantra color - pass renderer for anisotropic filtering
-      const { texture: tamTexture, aspectRatio: tamAspect } = await loadTamTexture(tamColor, style3Renderer);
-      const tamHeight = 2.0;
-      const tamWidth = tamHeight * tamAspect;
-      const tamGeom = new THREE.PlaneGeometry(tamWidth, tamHeight);
-      const tamMat = new THREE.MeshBasicMaterial({
-        map: tamTexture,
-        transparent: true,
-        side: THREE.DoubleSide,
-        depthTest: true,
-        depthWrite: true
-      });
-      const tamMesh = new THREE.Mesh(tamGeom, tamMat);
-      tamMesh.position.set(0, 0.55, 0); // Just above moon disc
-      // TAM faces forward (+Z direction) and NEVER rotates
+      // Load new TAM 3D mesh with mantra color
+      const tamMesh = await loadTam3D(tamColor, 2.5);
+      tamMesh.position.set(0, -0.5, 0); // On the moon disc
       style3Tam.add(tamMesh);
 
       // Clear old syllables
@@ -954,54 +1047,56 @@
       }
 
       // Create new syllables with mantra styling
-      // Uses proportional spacing based on text width for even gaps
+      // All syllables at uniform height, width varies by natural aspect ratio
       const syllables = mantra.syllables;
       const radius = 1.7;
       const syllableY = -0.35; // Closer to moon disc level
       const outlineWidth = (syllableStyle.outlineWidth || 0) * 200; // Scale for canvas
 
-      // Measure text widths for proportional spacing
-      const measureCanvas = document.createElement('canvas');
-      const measureCtx = measureCanvas.getContext('2d');
-      measureCtx.font = 'bold 72px Crimson Pro';
-      
-      const syllableWidths = syllables.map(syl => measureCtx.measureText(syl).width);
-      const totalTextWidth = syllableWidths.reduce((a, b) => a + b, 0);
-      const circumference = 2 * Math.PI * radius;
-      const numSyllables = syllables.length;
-      
-      // Calculate scale factor to fit all syllables with gaps (text takes ~70% of circumference)
-      const targetTextRatio = 0.7;
-      const scaleFactor = (circumference * targetTextRatio) / totalTextWidth;
-      const totalScaledTextWidth = totalTextWidth * scaleFactor;
-      const gapSize = (circumference - totalScaledTextWidth) / numSyllables;
-      
-      // Base height for all syllables
-      const syllableHeight = 0.8;
-      
-      // Position syllables with even gaps
-      let currentAngle = -Math.PI / 2; // Start at 12 o'clock
-      
-      syllables.forEach((syl, i) => {
-        const syllableWidth = syllableWidths[i] * scaleFactor;
-        
-        // Add half gap + half syllable width to get center position
-        currentAngle += (gapSize / 2 + syllableWidth / 2) / radius;
-        
-        const x = Math.cos(currentAngle) * radius;
-        const z = Math.sin(currentAngle) * radius;
-
-        const texture = createTextTextureWithOutline(
+      // Pre-create all textures to get their aspect ratios
+      const syllableData = syllables.map(syl => {
+        const { texture, aspectRatio } = createTextTextureWithOutline(
           syl,
           72,
           syllableStyle.fill || '#ffffff',
           syllableStyle.outlineColor || '#000000',
           outlineWidth
         );
+        return { text: syl, texture, aspectRatio };
+      });
+      
+      // Calculate uniform height and resulting widths
+      const baseHeight = 0.5; // Uniform height for all syllables
+      const syllableWidths = syllableData.map(d => baseHeight * d.aspectRatio);
+      const totalArcWidth = syllableWidths.reduce((a, b) => a + b, 0);
+      const circumference = 2 * Math.PI * radius;
+      const numSyllables = syllables.length;
+      
+      // Calculate scale to fit all syllables with gaps (syllables take ~75% of circumference for larger text)
+      const targetTextRatio = 0.75;
+      const availableArc = circumference * targetTextRatio;
+      const uniformScale = availableArc / totalArcWidth;
+      const scaledHeight = baseHeight * uniformScale;
+      const scaledWidths = syllableWidths.map(w => w * uniformScale);
+      const totalScaledArc = scaledWidths.reduce((a, b) => a + b, 0);
+      const gapSize = (circumference - totalScaledArc) / numSyllables;
+      
+      // Position syllables with even gaps
+      let currentAngle = -Math.PI / 2; // Start at 12 o'clock
+      
+      syllableData.forEach((data, i) => {
+        const syllableWidth = scaledWidths[i];
         
-        const geom = new THREE.PlaneGeometry(syllableWidth * 1.3, syllableHeight);
+        // Add half gap + half syllable width to get center position
+        currentAngle += (gapSize / 2 + syllableWidth / 2) / radius;
+        
+        const x = Math.cos(currentAngle) * radius;
+        const z = Math.sin(currentAngle) * radius;
+        
+        // Use natural aspect ratio for geometry
+        const geom = new THREE.PlaneGeometry(syllableWidth, scaledHeight);
         const mat = new THREE.MeshBasicMaterial({
-          map: texture,
+          map: data.texture,
           transparent: true,
           side: THREE.DoubleSide,
           depthTest: true,
