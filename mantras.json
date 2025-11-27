@@ -11,15 +11,15 @@
         "OṂ",
         "TĀ",
         "RE",
-        "TU",
-        "TTĀ",
+        "TUT",
+        "TĀ",
         "RE",
         "TU",
         "RE",
         "BO",
         "DHI",
-        "CI",
-        "TTA",
+        "CIT",
+        "TA",
         "SVĀ",
         "HĀ"
       ],
@@ -71,8 +71,8 @@
         "OṂ",
         "TĀ",
         "RE",
-        "TU",
-        "TTĀ",
+        "TUT",
+        "TĀ",
         "RE",
         "TU",
         "RE",
@@ -94,31 +94,31 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#f8f0ff",
+            "color": "#e8e0f8",
             "position": 0
           },
           {
-            "color": "#f0f8ff",
+            "color": "#e0e8f8",
             "position": 12.5
           },
           {
-            "color": "#f0fff8",
+            "color": "#e0f0e8",
             "position": 25
           },
           {
-            "color": "#fffcf0",
+            "color": "#f0ece0",
             "position": 37.5
           },
           {
-            "color": "#fff8f5",
+            "color": "#f0e8e5",
             "position": 50
           },
           {
-            "color": "#f8f0ff",
+            "color": "#e8e0f8",
             "position": 62.5
           },
           {
-            "color": "#f0f8ff",
+            "color": "#e0e8f8",
             "position": 75
           },
           {
@@ -147,8 +147,8 @@
         "OṂ",
         "TĀ",
         "RE",
-        "TU",
-        "TTĀ",
+        "TUT",
+        "TĀ",
         "RE",
         "TU",
         "RE",
@@ -170,11 +170,11 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#ffffff",
+            "color": "#fff8e8",
             "position": 0
           },
           {
-            "color": "#fff9cc",
+            "color": "#fff2cc",
             "position": 15
           },
           {
@@ -207,8 +207,8 @@
         "OṂ",
         "TĀ",
         "RE",
-        "TU",
-        "TTĀ",
+        "TUT",
+        "TĀ",
         "RE",
         "TU",
         "RE",
@@ -231,11 +231,11 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#ffffff",
+            "color": "#fff8e8",
             "position": 0
           },
           {
-            "color": "#fff9cc",
+            "color": "#fff2cc",
             "position": 15
           },
           {
@@ -267,8 +267,8 @@
         "OṂ",
         "TĀ",
         "RE",
-        "TU",
-        "TTĀ",
+        "TUT",
+        "TĀ",
         "RE",
         "TU",
         "RE",
@@ -292,7 +292,7 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#ffffff",
+            "color": "#fff0f0",
             "position": 0
           },
           {
@@ -328,8 +328,8 @@
         "OṂ",
         "TĀ",
         "RE",
-        "TU",
-        "TTĀ",
+        "TUT",
+        "TĀ",
         "RE",
         "TU",
         "RE",
@@ -390,8 +390,8 @@
         "OṂ",
         "TĀ",
         "RE",
-        "TU",
-        "TTĀ",
+        "TUT",
+        "TĀ",
         "RE",
         "TU",
         "RE",
@@ -454,8 +454,8 @@
         "OṂ",
         "TĀ",
         "RE",
-        "TU",
-        "TTĀ",
+        "TUT",
+        "TĀ",
         "RE",
         "TU",
         "RE",
@@ -515,8 +515,8 @@
         "OṂ",
         "TĀ",
         "RE",
-        "TU",
-        "TTĀ",
+        "TUT",
+        "TĀ",
         "RE",
         "TU",
         "RE",
@@ -538,7 +538,7 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#ffffff",
+            "color": "#f0fff0",
             "position": 0
           },
           {
@@ -574,8 +574,8 @@
         "OṂ",
         "TĀ",
         "RE",
-        "TU",
-        "TTĀ",
+        "TUT",
+        "TĀ",
         "RE",
         "TU",
         "RE",
@@ -599,7 +599,7 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#ffffff",
+            "color": "#fff0f0",
             "position": 0
           },
           {
@@ -635,8 +635,8 @@
         "OṂ",
         "TĀ",
         "RE",
-        "TU",
-        "TTĀ",
+        "TUT",
+        "TĀ",
         "RE",
         "TU",
         "RE",
@@ -662,7 +662,7 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#ffffff",
+            "color": "#fff5f0",
             "position": 0
           },
           {
@@ -698,8 +698,8 @@
         "OṂ",
         "TĀ",
         "RE",
-        "TU",
-        "TTĀ",
+        "TUT",
+        "TĀ",
         "RE",
         "TU",
         "RE",
@@ -725,7 +725,7 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#ffffff",
+            "color": "#fff8e8",
             "position": 0
           },
           {
@@ -761,8 +761,8 @@
         "OṂ",
         "TĀ",
         "RE",
-        "TU",
-        "TTĀ",
+        "TUT",
+        "TĀ",
         "RE",
         "TU",
         "RE",
@@ -826,8 +826,8 @@
         "OṂ",
         "TĀ",
         "RE",
-        "TU",
-        "TTĀ",
+        "TUT",
+        "TĀ",
         "RE",
         "TU",
         "RE",
@@ -888,8 +888,8 @@
         "OṂ",
         "TĀ",
         "RE",
-        "TU",
-        "TTĀ",
+        "TUT",
+        "TĀ",
         "RE",
         "TU",
         "RE",
@@ -915,23 +915,23 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#f0f0f0",
+            "color": "#e8e8f0",
             "position": 0
           },
           {
-            "color": "#f5f5f5",
+            "color": "#e5e5ed",
             "position": 25
           },
           {
-            "color": "#f7f7f7",
+            "color": "#e2e2ea",
             "position": 50
           },
           {
-            "color": "#f8f8f7",
+            "color": "#e0e0e8",
             "position": 75
           },
           {
-            "color": "#f8f8f7",
+            "color": "#dcdce5",
             "position": 100
           }
         ]
@@ -951,8 +951,8 @@
         "OṂ",
         "TĀ",
         "RE",
-        "TU",
-        "TTĀ",
+        "TUT",
+        "TĀ",
         "RE",
         "TU",
         "RE",
@@ -1013,8 +1013,8 @@
         "OṂ",
         "TĀ",
         "RE",
-        "TU",
-        "TTĀ",
+        "TUT",
+        "TĀ",
         "RE",
         "TU",
         "RE",
@@ -1072,8 +1072,8 @@
         "OṂ",
         "TĀ",
         "RE",
-        "TU",
-        "TTĀ",
+        "TUT",
+        "TĀ",
         "RE",
         "TU",
         "RE",
@@ -1098,15 +1098,15 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#ffffff",
+            "color": "#e8e8f5",
             "position": 0
           },
           {
-            "color": "#f5f5ff",
+            "color": "#e5e5f2",
             "position": 15
           },
           {
-            "color": "#e8e8f5",
+            "color": "#e0e0ed",
             "position": 45
           },
           {
@@ -1134,8 +1134,8 @@
         "OṂ",
         "TĀ",
         "RE",
-        "TU",
-        "TTĀ",
+        "TUT",
+        "TĀ",
         "RE",
         "TU",
         "RE",
@@ -1162,15 +1162,15 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#ffffff",
+            "color": "#e8e8f5",
             "position": 0
           },
           {
-            "color": "#f5f5ff",
+            "color": "#e5e5f2",
             "position": 15
           },
           {
-            "color": "#e8e8f5",
+            "color": "#e0e0ed",
             "position": 45
           },
           {
@@ -1198,8 +1198,8 @@
         "OṂ",
         "TĀ",
         "RE",
-        "TU",
-        "TTĀ",
+        "TUT",
+        "TĀ",
         "RE",
         "TU",
         "RE",
@@ -1264,8 +1264,8 @@
         "OṂ",
         "TĀ",
         "RE",
-        "TU",
-        "TTĀ",
+        "TUT",
+        "TĀ",
         "RE",
         "TU",
         "RE",
@@ -1290,15 +1290,15 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#ffffff",
+            "color": "#e8e8f5",
             "position": 0
           },
           {
-            "color": "#f5f5ff",
+            "color": "#e5e5f2",
             "position": 15
           },
           {
-            "color": "#e8e8f5",
+            "color": "#e0e0ed",
             "position": 45
           },
           {
