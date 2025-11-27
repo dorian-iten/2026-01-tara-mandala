@@ -619,10 +619,25 @@
       outline.position.y = -0.49;
       scene.add(outline);
 
-      // TAM in center - 3D mesh
-      const tam = await loadTam3D('#3a2a5a', 2.5);
-      tam.position.set(0, -0.49, 0);
+      // TAM in center - 2D SVG texture on upright plane
+      const { texture: tamTexture, aspectRatio: tamAspect } = await loadTamTexture('#3a2a5a', renderer);
+      const tamHeight = 1.8;
+      const tamWidth = tamHeight * tamAspect;
+      const tamGeom = new THREE.PlaneGeometry(tamWidth, tamHeight);
+      const tamMat = new THREE.MeshBasicMaterial({
+        map: tamTexture,
+        transparent: true,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      });
+      const tam = new THREE.Mesh(tamGeom, tamMat);
+      tam.position.set(0, tamHeight / 2 - 0.49, 0);
       scene.add(tam);
+      
+      // 3D TAM alternative (commented out for future use):
+      // const tam = await loadTam3D('#3a2a5a', 2.5);
+      // tam.position.set(0, -0.49, 0);
+      // scene.add(tam);
 
       // Syllable ring (as dots/crowns when viewed from above) - OUTSIDE the moon disc
       const syllableGroup = new THREE.Group();
@@ -766,10 +781,25 @@
       outline.position.y = -0.49;
       scene.add(outline);
 
-      // TAM standing on moon disc - 3D mesh, FIXED facing forward
-      const tam = await loadTam3D('#4a3a6a', 2.0);
-      tam.position.set(0, -0.5, 0); // On the moon disc
+      // TAM standing on moon disc - 2D SVG texture on upright plane, FIXED facing forward
+      const { texture: tamTexture, aspectRatio: tamAspect } = await loadTamTexture('#4a3a6a', renderer);
+      const tamHeight = 1.8;
+      const tamWidth = tamHeight * tamAspect;
+      const tamGeom = new THREE.PlaneGeometry(tamWidth, tamHeight);
+      const tamMat = new THREE.MeshBasicMaterial({
+        map: tamTexture,
+        transparent: true,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      });
+      const tam = new THREE.Mesh(tamGeom, tamMat);
+      tam.position.set(0, tamHeight / 2 - 0.5, 0); // On the moon disc
       scene.add(tam);
+      
+      // 3D TAM alternative (commented out for future use):
+      // const tam = await loadTam3D('#4a3a6a', 2.0);
+      // tam.position.set(0, -0.5, 0);
+      // scene.add(tam);
 
       // Syllables orbiting around the moon disc edge - RING MODE (face outward)
       // All syllables at uniform height, width varies by natural aspect ratio
@@ -1030,10 +1060,25 @@
         style3Tam.remove(child);
       }
 
-      // Load new TAM 3D mesh with mantra color
-      const tamMesh = await loadTam3D(tamColor, 2.5);
-      tamMesh.position.set(0, -0.5, 0); // On the moon disc
+      // Load new TAM - 2D SVG texture on upright plane with mantra color
+      const { texture: tamTexture, aspectRatio: tamAspect } = await loadTamTexture(tamColor, style3Renderer);
+      const tamHeight = 2.0;
+      const tamWidth = tamHeight * tamAspect;
+      const tamGeom = new THREE.PlaneGeometry(tamWidth, tamHeight);
+      const tamMat = new THREE.MeshBasicMaterial({
+        map: tamTexture,
+        transparent: true,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      });
+      const tamMesh = new THREE.Mesh(tamGeom, tamMat);
+      tamMesh.position.set(0, tamHeight / 2 - 0.5, 0); // On the moon disc
       style3Tam.add(tamMesh);
+      
+      // 3D TAM alternative (commented out for future use):
+      // const tamMesh = await loadTam3D(tamColor, 2.5);
+      // tamMesh.position.set(0, -0.5, 0);
+      // style3Tam.add(tamMesh);
 
       // Clear old syllables
       while (style3SyllableGroup.children.length > 0) {
