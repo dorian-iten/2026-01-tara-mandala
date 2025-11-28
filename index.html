@@ -1092,15 +1092,10 @@
       return tamColor;
     }
 
-    // Update moon disc outline color based on current mantra
+    // Update moon disc outline color - always use gray
     function updateMoonDiscOutlineColor() {
       if (!moonDiscOutlineMat) return;
-
-      const schema = schemas[currentSchema];
-      // Use syllable outline color if available, otherwise tam color, otherwise default
-      const syllableStyle = schema.syllableStyle || {};
-      const outlineColor = syllableStyle.outlineColor || schema.tamColor || '#4a3a6a';
-      moonDiscOutlineMat.color.set(outlineColor);
+      moonDiscOutlineMat.color.set('#aaaaaa'); // Gray for all mantras
     }
 
     // Update navigation button colors based on current mantra
@@ -2152,10 +2147,10 @@
       moonDisc.renderOrder = 0; // Render after orb but before outline
       sceneGroup.add(moonDisc);
 
-      // Outline ring for moon disc (will be colored by mantra)
-      const outlineGeom = new THREE.RingGeometry(1.48, 1.52, 128);
+      // Outline ring for moon disc (always gray)
+      const outlineGeom = new THREE.RingGeometry(1.485, 1.515, 128); // Slightly thicker: 0.03 thickness
       moonDiscOutlineMat = new THREE.MeshBasicMaterial({
-        color: 0x4a3a6a, // Default color, will be updated by mantra
+        color: 0xaaaaaa, // Darker gray for all mantras
         transparent: true,
         opacity: 0.35,
         side: THREE.DoubleSide
@@ -2181,11 +2176,9 @@
       const tamColor = schema.tamColor || '#ffffff';
       const syllableStyle = schema.syllableStyle || {};
 
-      // Update moon disc outline color to match syllable outline (has contrast on white mantras)
-      // Use syllable outline color if available, otherwise tam color, otherwise default
+      // Update moon disc outline color - always use gray
       if (moonDiscOutlineMat) {
-        const outlineColor = syllableStyle.outlineColor || schema.tamColor || '#4a3a6a';
-        moonDiscOutlineMat.color.set(outlineColor);
+        moonDiscOutlineMat.color.set('#aaaaaa');
       }
 
       // Check if this is an SVG file
