@@ -800,28 +800,25 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#5555aa",
+            "color": "#0909e2",
             "position": 0
           },
           {
-            "color": "#444499",
-            "position": 20
+            "color": "#1515b5",
+            "position": 25
           },
           {
-            "color": "#333388",
-            "position": 50
+            "color": "#111197",
+            "position": 70
           },
           {
-            "color": "#222277",
-            "position": 75
-          },
-          {
-            "color": "#080075",
+            "color": "#07006a",
             "position": 100
           }
         ]
       },
       "startIndex": 0,
+      "patternOpacity": 0.04,
       "releaseDate": "",
       "releaseDateOverride": false
     },
