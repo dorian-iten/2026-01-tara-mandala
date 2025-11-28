@@ -1923,61 +1923,112 @@
     }
 
     function createGlowBall() {
-      // Inner solid white sphere - using MeshBasicMaterial for unlit white appearance
-      // High polygon count for smooth appearance
-      const geometry = new THREE.SphereGeometry(2, 128, 128);
-      const material = new THREE.MeshBasicMaterial({
-        color: 0xffffff, // White
-        transparent: false, // Fully opaque
-        opacity: 1.0, // 100% opacity
-        depthWrite: false, // Disable depth write so TAM plane at same position can render
-        depthTest: true, // Enable depth test
-        fog: false // Not affected by atmospheric fog
-      });
-      glowBall = new THREE.Mesh(geometry, material);
-      glowBall.renderOrder = -1; // Render first, behind everything else
-      scene.add(glowBall);
-
-      // Outer white glow effect (semi-transparent larger sphere)
-      const glowGeometry = new THREE.SphereGeometry(2.15, 128, 128);
-      const glowMaterial = new THREE.MeshBasicMaterial({
-        color: 0xffffff, // White
-        transparent: true, // Transparent for glow effect
-        opacity: 0.3, // Semi-transparent glow (matching styles.html)
-        side: THREE.BackSide,
-        depthWrite: false, // Don't write to depth buffer for glow
-        fog: false // Not affected by atmospheric fog
-      });
-      const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
-      glowMesh.renderOrder = -2; // Render even earlier for glow
-      scene.add(glowMesh);
-
-      // Additional outer glow layer for more pronounced effect
-      const outerGlowGeometry = new THREE.SphereGeometry(2.3, 128, 128);
-      const outerGlowMaterial = new THREE.MeshBasicMaterial({
-        color: 0xffffff, // White
+      // 1. Single Orb Geometry
+      const orbGeometry = new THREE.SphereGeometry(2, 64, 64);
+      const orbMaterial = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
         transparent: true,
-        opacity: 0.15, // Softer outer glow (matching styles.html)
-        side: THREE.BackSide,
+        opacity: 0.9, // Slightly transparent to look like light
         depthWrite: false,
-        fog: false // Not affected by atmospheric fog
+        side: THREE.FrontSide
       });
-      const outerGlowMesh = new THREE.Mesh(outerGlowGeometry, outerGlowMaterial);
-      outerGlowMesh.renderOrder = -2; // Render early for glow
-      scene.add(outerGlowMesh);
+      const orb = new THREE.Mesh(orbGeometry, orbMaterial);
+      orb.renderOrder = -1;
+      scene.add(orb);
 
-      // Edge glow sprite for soft halo effect
-      const glowTexture = createEdgeGlowTexture();
-      const glowSpriteMaterial = new THREE.SpriteMaterial({
-        map: glowTexture,
-        transparent: true,
+      // 2. Glow Gradient on the outside (Custom Shader)
+      const glowGeometry = new THREE.SphereGeometry(2.8, 64, 64); // Larger for the glow
+      const glowMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+          c: { type: "f", value: 0.2 },
+          p: { type: "f", value: 2.5 }, // Falloff power
+          glowColor: { type: "c", value: new THREE.Color(0xffffff) },
+          viewVector: { type: "v3", value: camera.position }
+        },
+        vertexShader: `
+          uniform vec3 viewVector;
+          varying float intensity;
+          void main() {
+            vec3 vNormal = normalize( normalMatrix * normal );
+            vec3 vNormel = normalize( normalMatrix * viewVector );
+            intensity = pow( 0.4 - dot(vNormal, vNormel), 4.0 ); // Fresnel-like effect inverted
+            
+            gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+          }
+        `,
+        fragmentShader: `
+          uniform vec3 glowColor;
+          varying float intensity;
+          void main() {
+            vec3 glow = glowColor * intensity;
+            gl_FragColor = vec4( glow, intensity );
+          }
+        `,
+        side: THREE.BackSide, // Render on inside of outer sphere so it looks like it's surrounding
         blending: THREE.AdditiveBlending,
+        transparent: true,
         depthWrite: false
       });
-      const glowSprite = new THREE.Sprite(glowSpriteMaterial);
-      glowSprite.scale.set(5.5, 5.5, 1);
-      glowSprite.renderOrder = -3;
-      scene.add(glowSprite);
+
+      // We need to update viewVector in animate loop if camera moves, 
+      // but for a simple static glow relative to camera, we can try a simpler approach 
+      // or just use a static radial gradient texture on a sprite if the shader is too complex to maintain.
+
+      // Let's try a simpler "Atmosphere" shader approach which is robust
+      const atmosphereMaterial = new THREE.ShaderMaterial({
+        vertexShader: `
+          varying vec3 vNormal;
+          void main() {
+            vNormal = normalize(normalMatrix * normal);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          varying vec3 vNormal;
+          void main() {
+            float intensity = pow(0.6 - dot(vNormal, vec3(0, 0, 1.0)), 2.0);
+            gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0) * intensity * 0.5;
+          }
+        `,
+        blending: THREE.AdditiveBlending,
+        side: THREE.BackSide,
+        transparent: true,
+        depthWrite: false
+      });
+
+      const glow = new THREE.Mesh(glowGeometry, atmosphereMaterial);
+      glow.renderOrder = -2;
+      scene.add(glow);
+
+      // 3. Second Gradient for Elegant Flourish (Alternative Style)
+      // A slightly larger, more subtle outer glow with a different falloff
+      const glowGeometry2 = new THREE.SphereGeometry(3.2, 64, 64);
+      const atmosphereMaterial2 = new THREE.ShaderMaterial({
+        vertexShader: `
+          varying vec3 vNormal;
+          void main() {
+            vNormal = normalize(normalMatrix * normal);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          varying vec3 vNormal;
+          void main() {
+            // Softer, wider falloff for the outer flourish
+            float intensity = pow(0.5 - dot(vNormal, vec3(0, 0, 1.0)), 3.0);
+            // Slightly bluish/purplish tint for elegance (matching the background theme)
+            gl_FragColor = vec4(0.9, 0.9, 1.0, 1.0) * intensity * 0.3;
+          }
+        `,
+        blending: THREE.AdditiveBlending,
+        side: THREE.BackSide,
+        transparent: true,
+        depthWrite: false
+      });
+
+      const glow2 = new THREE.Mesh(glowGeometry2, atmosphereMaterial2);
+      glow2.renderOrder = -3; // Render before the inner glow
+      scene.add(glow2);
 
       // Moon disc - WHITE horizontal disc where TAM stands
       const discGeom = new THREE.CircleGeometry(1.5, 128);
@@ -2001,18 +2052,12 @@
         color: 0x4a3a6a, // Default color, will be updated by mantra
         transparent: true,
         opacity: 0.35,
-        side: THREE.DoubleSide,
-        fog: false,
-        depthWrite: true // Write to depth buffer to prevent showing through orb
+        side: THREE.DoubleSide
       });
       moonDiscOutline = new THREE.Mesh(outlineGeom, moonDiscOutlineMat);
       moonDiscOutline.rotation.x = -Math.PI / 2;
       moonDiscOutline.position.y = -0.49; // Slightly higher than moon disc to avoid z-fighting
-      moonDiscOutline.renderOrder = 1; // Render after the orb
       scene.add(moonDiscOutline);
-
-      // Add particle effect around the ball
-      createParticles();
     }
 
     function addTammToSphere(schemaIndex) {
@@ -2078,10 +2123,14 @@
               const canvas = document.createElement('canvas');
               const ctx = canvas.getContext('2d');
 
-              // Use higher resolution for crisp rendering (2x the SVG dimensions)
-              const scale = 2;
+              // Use higher resolution for crisp rendering when foreshortened (4x the SVG dimensions)
+              const scale = 4;
               canvas.width = img.width * scale;
               canvas.height = img.height * scale;
+
+              // Enable high-quality image smoothing
+              ctx.imageSmoothingEnabled = true;
+              ctx.imageSmoothingQuality = 'high';
 
               // Draw the SVG image to canvas
               ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
@@ -2089,6 +2138,14 @@
               // Create Three.js texture from canvas
               const texture = new THREE.CanvasTexture(canvas);
               texture.minFilter = THREE.LinearMipmapLinearFilter;
+              texture.magFilter = THREE.LinearFilter;
+              texture.generateMipmaps = true;
+              // Apply anisotropic filtering for sharp rendering at angles
+              if (renderer && renderer.capabilities) {
+                texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+              } else {
+                texture.anisotropy = 16; // Default high anisotropy
+              }
               texture.needsUpdate = true;
 
               // Get aspect ratio from SVG to avoid distortion
@@ -2149,8 +2206,16 @@
           (texture) => {
             console.log('TAM texture loaded successfully!', texture);
 
-            // Ensure texture is ready
+            // Ensure texture is ready with high-quality settings
             texture.minFilter = THREE.LinearMipmapLinearFilter;
+            texture.magFilter = THREE.LinearFilter;
+            texture.generateMipmaps = true;
+            // Apply anisotropic filtering for sharp rendering at angles
+            if (renderer && renderer.capabilities) {
+              texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+            } else {
+              texture.anisotropy = 16; // Default high anisotropy
+            }
             texture.needsUpdate = true;
 
             // Get aspect ratio from texture to avoid distortion
