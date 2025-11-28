@@ -2685,7 +2685,10 @@
       const gapSize = (circumference - totalScaledArc) / numSyllables;
 
       // Position syllables with even gaps
-      let currentAngle = -Math.PI / 2; // Start at 12 o'clock
+      // Start at baseAngle + offset, but subtract the gap/width we'll add before positioning
+      // so that the start syllable (index 0) ends up exactly at baseAngle + angleOffset
+      const firstSyllableWidth = scaledWidths[0];
+      let currentAngle = baseAngle + angleOffset - (gapSize / 2 + firstSyllableWidth / 2) / radius;
 
       syllableData.forEach((data, i) => {
         const syllableWidth = scaledWidths[i];
