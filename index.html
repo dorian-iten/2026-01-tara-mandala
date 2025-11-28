@@ -1278,6 +1278,7 @@
     let moonDiscOutline = null; // Reference to moon disc outline ring
     let moonDiscOutlineMat = null; // Reference to moon disc outline material (for color updates)
     let sceneGroup = null; // Group to hold all 3D objects for scaling
+    let cachedTamSvg = null; // Cached TAM SVG content for preloading
 
 
 
@@ -1365,6 +1366,16 @@
     async function init() {
       // Load mantras configuration first
       await loadMantrasConfig();
+
+      // Preload TAM SVG to avoid delay on scene switch
+      try {
+        const tamImagePath = 'images/tam-paths.svg';
+        const response = await fetch(tamImagePath);
+        cachedTamSvg = await response.text();
+        console.log('TAM SVG preloaded successfully');
+      } catch (error) {
+        console.error('Failed to preload TAM SVG:', error);
+      }
 
       // Validate and set current schema from localStorage
       currentSchema = getValidMantraIndex(currentSchema);
@@ -2181,10 +2192,12 @@
       const isSVG = tamImagePath.toLowerCase().endsWith('.svg');
 
       if (isSVG) {
-        // Load and process SVG
-        fetch(tamImagePath)
-          .then(response => response.text())
-          .then(svgText => {
+        // Use cached SVG if available, otherwise fetch it
+        const loadSvg = cachedTamSvg 
+          ? Promise.resolve(cachedTamSvg)
+          : fetch(tamImagePath).then(response => response.text());
+
+        loadSvg.then(svgText => {
             // Parse SVG
             const parser = new DOMParser();
             const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
