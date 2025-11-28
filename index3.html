@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Moon Disc Style Comparisons</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Cormorant+Garamond:wght@400;500;600&family=Noto+Sans:wght@400;600&display=swap"
+    rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Cormorant Garamond", Georgia, serif;
+      background: linear-gradient(135deg, #0a0a12 0%, #1a1a2e 50%, #0f0f1a 100%);
+      color: #e8e0f0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .header {
+      text-align: center;
+      padding: 60px 20px 40px;
+      background: linear-gradient(180deg, rgba(30, 20, 50, 0.8) 0%, transparent 100%);
+    }
+
+    .header h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 400;
+      letter-spacing: 0.1em;
+      margin-bottom: 56px;
+      background: linear-gradient(135deg, #f0e8ff 0%, #c8b8e8 50%, #a898d8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.8;
+      opacity: 0.85;
+    }
+
+    .description-box {
+      max-width: 800px;
+      margin: 0 auto 60px;
+      padding: 30px 40px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      font-size: 1rem;
+      line-height: 1.9;
+      font-style: italic;
+      opacity: 0.8;
+    }
+
+    .styles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+      gap: 40px;
+      padding: 0 40px 80px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .style-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      transition: box-shadow 0.4s ease;
+    }
+
+    .style-card:hover {
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    }
+
+    .style-card.full-width {
+      grid-column: 1 / -1;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .canvas-container {
+      width: 100%;
+      aspect-ratio: 1;
+      position: relative;
+      background: radial-gradient(circle at center,
+          rgba(248, 240, 255, 0.15) 0%,
+          rgba(240, 248, 255, 0.1) 20%,
+          rgba(20, 20, 35, 0.9) 60%,
+          rgba(10, 10, 20, 1) 100%);
+    }
+
+    .canvas-container.with-gradient {
+      background: none;
+      position: relative;
+      /* Will be set dynamically */
+    }
+
+    .canvas-container.with-gradient::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+
+      /* Pattern overlay with mask */
+      background-color: rgba(255, 255, 255, 0.08);
+      -webkit-mask-image: url('images/pattern.svg');
+      mask-image: url('images/pattern.svg');
+      -webkit-mask-size: 80px 80px;
+      mask-size: 80px 80px;
+      -webkit-mask-repeat: repeat;
+      mask-repeat: repeat;
+
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .canvas-container.with-gradient canvas {
+      position: relative;
+      z-index: 2;
+    }
+
+    .canvas-container canvas {
+      width: 100%;
+      height: 100%;
+    }
+
+    .style-info {
+      padding: 30px;
+    }
+
+    .style-info h2 {
+      font-size: 1.5rem;
+      font-weight: 500;
+      margin-bottom: 12px;
+      color: #d8c8f0;
+    }
+
+    .style-info p {
+      font-size: 1rem;
+      line-height: 1.7;
+      opacity: 0.75;
+    }
+
+    .back-link-container {
+      text-align: center;
+      padding: 60px 0 80px;
+    }
+
+    .back-link {
+      display: inline-block;
+      padding: 12px 24px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 30px;
+      color: #e8e0f0;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .back-link:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* Mantra Switcher */
+    .mantra-switcher {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.3);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .mantra-switcher .nav-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #e8e0f0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      font-size: 18px;
+    }
+
+    .mantra-switcher .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.05);
+    }
+
+    .mantra-switcher .nav-btn:active {
+      transform: scale(0.95);
+    }
+
+    .mantra-name {
+      font-family: "Noto Sans", sans-serif;
+      font-size: 1rem;
+      font-weight: 400;
+      min-width: 280px;
+      text-align: center;
+      color: #e8e0f0;
+    }
+
+
+    @media (max-width: 500px) {
+      .styles-grid {
+        grid-template-columns: 1fr;
+        padding: 0 20px 60px;
+      }
+
+      .description-box {
+        margin: 0 20px 40px;
+        padding: 20px;
+      }
+
+      .mantra-name {
+        min-width: 180px;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <h1>Tara Mandala Visualizations</h1>
+
+  <div class="styles-grid">
+    <!-- Style 1: Classic Top-Down View -->
+    <div class="style-card">
+      <div class="canvas-container">
+        <canvas id="canvas1"></canvas>
+      </div>
+      <div class="style-info">
+        <h2>Top-Down View</h2>
+        <p>Gaze down into your heart center. The moon disc appears as a flat circle with the TAM syllable at its center,
+          surrounded by the mantra garland showing only the crowns of each syllable.</p>
+      </div>
+    </div>
+
+    <!-- Style 2: Orbital Ring (was Style 3) -->
+    <div class="style-card">
+      <div class="canvas-container">
+        <canvas id="canvas2"></canvas>
+      </div>
+      <div class="style-info">
+        <h2>Orbital Ring</h2>
+        <p>Watch the mantra garland spiral around the TAM as you recite. The syllables circle the edge of the moon disc,
+          each one facing outward like a train following the OṂ.</p>
+      </div>
+    </div>
+
+    <!-- Style 3: JSON-Driven with Mantra Colors -->
+    <div class="style-card full-width">
+      <div class="mantra-switcher">
+        <button class="nav-btn" id="prev-mantra" aria-label="Previous mantra">←</button>
+        <div class="mantra-name" id="mantra-name">Loading...</div>
+        <button class="nav-btn" id="next-mantra" aria-label="Next mantra">→</button>
+      </div>
+      <div class="canvas-container with-gradient" id="canvas3-container">
+        <canvas id="canvas3"></canvas>
+      </div>
+      <div class="style-info">
+        <h2>Tara Mandalas</h2>
+        <p>Use the arrows above to explore each of the Taras mandalas.</p>
+      </div>
+    </div>
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+    import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+
+    // Default mantra syllables (for variations 1 and 2)
+    const defaultSyllables = ["OṂ", "TĀ", "RE", "TU", "TTĀ", "RE", "TU", "RE", "PRA", "JÑĀ", "HRĪṂ", "HRĪṂ", "SVĀ", "HĀ"];
+
+    // Mantras data (loaded from JSON)
+    let mantras = [];
+    // Load saved mantra selection or default to 0
+    let currentMantraIndex = parseInt(localStorage.getItem('mantraSelection_index3') || '0');
+
+    // Style 3 references
+    let style3Scene, style3Camera, style3Renderer, style3Controls, style3Composer;
+    let style3Tam, style3SyllableGroup, style3MoonDisc;
+    let style3MoonDiscOutline, style3MoonDiscOutlineMat;
+
+    // Helper: Create text texture with proper aspect ratio
+    // Returns { texture, aspectRatio } where aspectRatio = width/height
+    function createTextTexture(text, fontSize = 64, color = '#ffffff') {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      // Set font and measure text
+      const font = `bold ${fontSize}px "Crimson Pro", serif`;
+      ctx.font = font;
+      const metrics = ctx.measureText(text);
+
+      // Get text dimensions with robust fallbacks
+      const textWidth = Math.max(metrics.width, fontSize * 0.5);
+      const textHeight = Math.max(
+        (metrics.actualBoundingBoxAscent || 0) + (metrics.actualBoundingBoxDescent || 0),
+        fontSize * 0.85 // Fallback based on typical font metrics
+      );
+
+      // Add padding around text
+      const padding = fontSize * 0.4;
+      const canvasWidth = Math.max(64, Math.ceil(textWidth + padding * 2));
+      const canvasHeight = Math.max(64, Math.ceil(textHeight + padding * 2));
+
+      // Set canvas size
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
+
+      // Redraw with correct canvas size (need to re-set font after resize)
+      ctx.font = font;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = color;
+      ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.needsUpdate = true;
+
+      const aspectRatio = canvas.width / canvas.height;
+
+      return {
+        texture,
+        aspectRatio: isNaN(aspectRatio) || aspectRatio <= 0 ? 1 : aspectRatio
+      };
+    }
+
+    // Helper: Create text texture with outline and proper aspect ratio
+    // Returns { texture, aspectRatio } where aspectRatio = width/height
+    function createTextTextureWithOutline(text, fontSize = 64, fillColor = '#ffffff', outlineColor = '#000000', outlineWidth = 3) {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      // Set font and measure text
+      const font = `bold ${fontSize}px "Crimson Pro", serif`;
+      ctx.font = font;
+      const metrics = ctx.measureText(text);
+
+      // Get text dimensions with robust fallbacks
+      const textWidth = Math.max(metrics.width, fontSize * 0.5);
+      const textHeight = Math.max(
+        (metrics.actualBoundingBoxAscent || 0) + (metrics.actualBoundingBoxDescent || 0),
+        fontSize * 0.85 // Fallback based on typical font metrics
+      );
+
+      // Add padding around text (account for outline)
+      const padding = fontSize * 0.4 + outlineWidth * 2;
+      const canvasWidth = Math.max(64, Math.ceil(textWidth + padding * 2));
+      const canvasHeight = Math.max(64, Math.ceil(textHeight + padding * 2));
+
+      // Set canvas size
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
+
+      // Redraw with correct canvas size (need to re-set font after resize)
+      ctx.font = font;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      // Draw outline first
+      if (outlineWidth > 0) {
+        ctx.strokeStyle = outlineColor;
+        ctx.lineWidth = outlineWidth * 2;
+        ctx.lineJoin = 'round';
+        ctx.strokeText(text, canvas.width / 2, canvas.height / 2);
+      }
+
+      // Draw fill
+      ctx.fillStyle = fillColor;
+      ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.needsUpdate = true;
+
+      const aspectRatio = canvas.width / canvas.height;
+
+      return {
+        texture,
+        aspectRatio: isNaN(aspectRatio) || aspectRatio <= 0 ? 1 : aspectRatio
+      };
+    }
+
+    // Helper: Create TAM texture from SVG - returns {texture, aspectRatio}
+    // High resolution for crisp rendering at all angles
+    async function loadTamTexture(color = '#4a3a6a', renderer = null) {
+      return new Promise((resolve) => {
+        fetch('images/tam-paths.svg')
+          .then(r => r.text())
+          .then(svgText => {
+            const parser = new DOMParser();
+            const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+            const svgEl = svgDoc.documentElement;
+            const path = svgDoc.querySelector('path');
+            if (path) path.setAttribute('fill', color);
+
+            // Get original SVG dimensions for aspect ratio
+            const viewBox = svgEl.getAttribute('viewBox');
+            let svgWidth = 100, svgHeight = 100;
+            if (viewBox) {
+              const parts = viewBox.split(/\s+/);
+              svgWidth = parseFloat(parts[2]) || 100;
+              svgHeight = parseFloat(parts[3]) || 100;
+            } else {
+              svgWidth = parseFloat(svgEl.getAttribute('width')) || 100;
+              svgHeight = parseFloat(svgEl.getAttribute('height')) || 100;
+            }
+            const aspectRatio = svgWidth / svgHeight;
+
+            const serializer = new XMLSerializer();
+            const modifiedSvg = serializer.serializeToString(svgDoc.documentElement);
+            const blob = new Blob([modifiedSvg], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+
+            const img = new Image();
+            img.onload = () => {
+              // HIGH RESOLUTION canvas for crisp rendering when foreshortened
+              const canvasHeight = 2048;
+              const canvasWidth = Math.round(canvasHeight * aspectRatio);
+
+              const canvas = document.createElement('canvas');
+              const ctx = canvas.getContext('2d');
+              canvas.width = canvasWidth;
+              canvas.height = canvasHeight;
+
+              // Enable high quality rendering
+              ctx.imageSmoothingEnabled = true;
+              ctx.imageSmoothingQuality = 'high';
+              ctx.drawImage(img, 0, 0, canvasWidth, canvasHeight);
+
+              const texture = new THREE.CanvasTexture(canvas);
+              // High quality texture filtering for foreshortened views
+              texture.minFilter = THREE.LinearMipmapLinearFilter;
+              texture.magFilter = THREE.LinearFilter;
+              texture.generateMipmaps = true;
+              // Anisotropic filtering for sharp rendering at angles
+              if (renderer && renderer.capabilities) {
+                texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+              } else {
+                texture.anisotropy = 16; // Default high anisotropy
+              }
+              texture.needsUpdate = true;
+              URL.revokeObjectURL(url);
+              resolve({ texture, aspectRatio });
+            };
+            img.src = url;
+          })
+          .catch(() => {
+            // Fallback: create text-based TAM
+            resolve({ texture: createTextTexture('TAM', 80, color), aspectRatio: 1 });
+          });
+      });
+    }
+
+    // Helper: Load 3D TAM mesh from GLB file
+    // Returns a promise that resolves to a cloned THREE.Group with the TAM mesh
+    const gltfLoader = new GLTFLoader();
+    let cachedTamGltf = null;
+
+    async function loadTam3D(color = '#4a3a6a', scale = 1.0) {
+      return new Promise((resolve, reject) => {
+        const createTamMesh = (gltf) => {
+          const tam = gltf.scene.clone(true);
+
+          // Remove reflection meshes - they have negative Y scale (mirrored)
+          const toRemove = [];
+          tam.traverse((child) => {
+            if (child.isMesh) {
+              // Get the world scale to check for mirrored geometry
+              const worldScale = new THREE.Vector3();
+              child.getWorldScale(worldScale);
+
+              // Negative Y scale indicates a mirrored/reflected mesh
+              if (worldScale.y < 0) {
+                toRemove.push(child);
+              }
+            }
+          });
+
+          // Remove the mirrored meshes
+          toRemove.forEach(mesh => mesh.removeFromParent());
+
+          // Apply color to remaining meshes
+          tam.traverse((child) => {
+            if (child.isMesh) {
+              child.material = new THREE.MeshBasicMaterial({
+                color: new THREE.Color(color),
+                side: THREE.DoubleSide
+              });
+            }
+          });
+
+          // Scale the model
+          tam.scale.set(scale, scale, scale);
+
+          resolve(tam);
+        };
+
+        if (cachedTamGltf) {
+          createTamMesh(cachedTamGltf);
+        } else {
+          gltfLoader.load(
+            '3D/tam.glb',
+            (gltf) => {
+              cachedTamGltf = gltf;
+              createTamMesh(gltf);
+            },
+            undefined,
+            (error) => {
+              console.error('Failed to load TAM 3D model:', error);
+              reject(error);
+            }
+          );
+        }
+      });
+    }
+
+    // Load mantras from JSON
+    async function loadMantras() {
+      try {
+        const response = await fetch('mantras.json');
+        const data = await response.json();
+        mantras = data.mantras;
+        console.log('Loaded mantras:', mantras.length);
+        return mantras;
+      } catch (error) {
+        console.error('Failed to load mantras.json:', error);
+        return [];
+      }
+    }
+
+    // Apply background gradient to container
+    function applyBackgroundGradient(container, gradientConfig) {
+      if (!gradientConfig || !gradientConfig.colors) {
+        // Default gradient
+        container.style.background = 'radial-gradient(circle at center, rgba(248, 240, 255, 0.15) 0%, rgba(240, 248, 255, 0.1) 20%, rgba(20, 20, 35, 0.9) 60%, rgba(10, 10, 20, 1) 100%)';
+        return;
+      }
+
+      const colors = gradientConfig.colors.map(c => `${c.color} ${c.position}%`).join(', ');
+      const gradientType = gradientConfig.type === 'linear' ? 'linear-gradient' : 'radial-gradient';
+      const gradientValue = gradientType === 'radial-gradient'
+        ? `radial-gradient(circle at center, ${colors})`
+        : `linear-gradient(${gradientConfig.direction || 'to bottom'}, ${colors})`;
+
+      container.style.background = gradientValue;
+    }
+
+    // ============================================
+    // STYLE 1: Top-Down View
+    // ============================================
+    async function initStyle1() {
+      const container = document.getElementById('canvas1');
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
+      camera.position.set(0, 8, 0.1);
+      camera.lookAt(0, 0, 0);
+
+      const renderer = new THREE.WebGLRenderer({ canvas: container, antialias: true, alpha: true });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      // Orb of white light - HIGH POLYGON COUNT for smooth appearance
+      const orbGeom = new THREE.SphereGeometry(2.5, 128, 128);
+      const orbMat = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.15,
+        side: THREE.BackSide
+      });
+      scene.add(new THREE.Mesh(orbGeom, orbMat));
+
+      // Moon disc - SMALLER, syllables orbit OUTSIDE it - WHITE with outline
+      const discGeom = new THREE.CircleGeometry(1.4, 128);
+      const discMat = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.95,
+        side: THREE.DoubleSide
+      });
+      const moonDisc = new THREE.Mesh(discGeom, discMat);
+      moonDisc.rotation.x = -Math.PI / 2;
+      moonDisc.position.y = -0.5;
+      scene.add(moonDisc);
+
+      // Subtle outline ring for moon disc
+      const outlineGeom = new THREE.RingGeometry(1.38, 1.42, 128);
+      const outlineMat = new THREE.MeshBasicMaterial({
+        color: 0x3a2a5a, // Same as TAM color
+        transparent: true,
+        opacity: 0.4,
+        side: THREE.DoubleSide
+      });
+      const outline = new THREE.Mesh(outlineGeom, outlineMat);
+      outline.rotation.x = -Math.PI / 2;
+      outline.position.y = -0.49;
+      scene.add(outline);
+
+      // TAM in center - 2D SVG texture on upright plane
+      const { texture: tamTexture, aspectRatio: tamAspect } = await loadTamTexture('#3a2a5a', renderer);
+      const tamHeight = 1.8;
+      const tamWidth = tamHeight * tamAspect;
+      const tamGeom = new THREE.PlaneGeometry(tamWidth, tamHeight);
+      const tamMat = new THREE.MeshBasicMaterial({
+        map: tamTexture,
+        transparent: true,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      });
+      const tam = new THREE.Mesh(tamGeom, tamMat);
+      tam.position.set(0, tamHeight / 2 - 0.49, 0);
+      scene.add(tam);
+
+      // 3D TAM alternative (commented out for future use):
+      // const tam = await loadTam3D('#3a2a5a', 2.5);
+      // tam.position.set(0, -0.49, 0);
+      // scene.add(tam);
+
+      // Syllable ring (as dots/crowns when viewed from above) - OUTSIDE the moon disc
+      const syllableGroup = new THREE.Group();
+      const radius = 1.8; // Larger than moon disc radius (1.4)
+
+      // Pre-create textures to get aspect ratios for proper sizing
+      const syllableData = defaultSyllables.map(syl => {
+        const { texture, aspectRatio } = createTextTexture(syl, 48, '#3a2a5a');
+        return { text: syl, texture, aspectRatio };
+      });
+
+      // Calculate dot/label sizes based on available space
+      const numSyllables = defaultSyllables.length;
+      const anglePerSyllable = (Math.PI * 2) / numSyllables;
+      const arcLength = anglePerSyllable * radius;
+      const maxLabelHeight = arcLength * 0.7; // Leave some gap between syllables
+
+      defaultSyllables.forEach((syl, i) => {
+        const angle = (i / numSyllables) * Math.PI * 2 - Math.PI / 2;
+        const x = Math.cos(angle) * radius;
+        const z = Math.sin(angle) * radius;
+
+        const data = syllableData[i];
+        const labelHeight = Math.min(maxLabelHeight, 0.25);
+        const labelWidth = labelHeight * data.aspectRatio;
+
+        // White circles representing syllable crowns - size based on label
+        const dotRadius = Math.max(labelWidth, labelHeight) * 0.6;
+        const dotGeom = new THREE.CircleGeometry(dotRadius, 32);
+        const dotMat = new THREE.MeshBasicMaterial({
+          color: 0xffffff,
+          transparent: true,
+          opacity: 0.95
+        });
+        const dot = new THREE.Mesh(dotGeom, dotMat);
+        dot.rotation.x = -Math.PI / 2;
+        dot.position.set(x, -0.48, z);
+        syllableGroup.add(dot);
+
+        // Label with proper aspect ratio
+        const labelGeom = new THREE.PlaneGeometry(labelWidth, labelHeight);
+        const labelMat = new THREE.MeshBasicMaterial({
+          map: data.texture,
+          transparent: true,
+          depthWrite: false
+        });
+        const label = new THREE.Mesh(labelGeom, labelMat);
+        label.rotation.x = -Math.PI / 2;
+        label.position.set(x, -0.47, z);
+        syllableGroup.add(label);
+      });
+
+      scene.add(syllableGroup);
+
+      // Animation - counter-clockwise when viewed from above (positive Y rotation)
+      let time = 0;
+      function animate() {
+        requestAnimationFrame(animate);
+        time += 0.002;
+        syllableGroup.rotation.y = time; // Counter-clockwise from above
+        renderer.render(scene, camera);
+      }
+      animate();
+    }
+
+    // ============================================
+    // STYLE 2: Orbital Ring (Ring mode like index.html)
+    // ============================================
+    async function initStyle2() {
+      const container = document.getElementById('canvas2');
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
+      camera.position.set(0, 2.5, 6);
+      camera.lookAt(0, 0, 0);
+
+      const renderer = new THREE.WebGLRenderer({ canvas: container, antialias: true, alpha: true });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.enableZoom = false;
+      controls.autoRotate = false;
+
+      // Core white orb
+      const orbGeom = new THREE.SphereGeometry(2, 128, 128);
+      const orbMat = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        depthWrite: false
+      });
+      const orb = new THREE.Mesh(orbGeom, orbMat);
+      orb.renderOrder = -1;
+      scene.add(orb);
+
+      // Two outer rings
+      const ring1Geom = new THREE.SphereGeometry(2.15, 128, 128);
+      const ring1Mat = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.3,
+        side: THREE.BackSide
+      });
+      scene.add(new THREE.Mesh(ring1Geom, ring1Mat));
+
+      const ring2Geom = new THREE.SphereGeometry(2.3, 128, 128);
+      const ring2Mat = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.15,
+        side: THREE.BackSide
+      });
+      scene.add(new THREE.Mesh(ring2Geom, ring2Mat));
+
+      // Larger moon disc at base of TAM - WHITE with outline
+      const discGeom = new THREE.CircleGeometry(1.3, 128);
+      const discMat = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.95,
+        side: THREE.DoubleSide
+      });
+      const moonDisc = new THREE.Mesh(discGeom, discMat);
+      moonDisc.rotation.x = -Math.PI / 2;
+      moonDisc.position.y = -0.5;
+      scene.add(moonDisc);
+
+      // Subtle outline ring for moon disc
+      const outlineGeom = new THREE.RingGeometry(1.28, 1.32, 128);
+      const outlineMat = new THREE.MeshBasicMaterial({
+        color: 0x4a3a6a, // Same as TAM color
+        transparent: true,
+        opacity: 0.35,
+        side: THREE.DoubleSide
+      });
+      const outline = new THREE.Mesh(outlineGeom, outlineMat);
+      outline.rotation.x = -Math.PI / 2;
+      outline.position.y = -0.49;
+      scene.add(outline);
+
+      // TAM standing on moon disc - 2D SVG texture on upright plane, FIXED facing forward
+      const { texture: tamTexture, aspectRatio: tamAspect } = await loadTamTexture('#4a3a6a', renderer);
+      const tamHeight = 1.8;
+      const tamWidth = tamHeight * tamAspect;
+      const tamGeom = new THREE.PlaneGeometry(tamWidth, tamHeight);
+      const tamMat = new THREE.MeshBasicMaterial({
+        map: tamTexture,
+        transparent: true,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      });
+      const tam = new THREE.Mesh(tamGeom, tamMat);
+      tam.position.set(0, tamHeight / 2 - 0.5, 0); // On the moon disc
+      scene.add(tam);
+
+      // 3D TAM alternative (commented out for future use):
+      // const tam = await loadTam3D('#4a3a6a', 2.0);
+      // tam.position.set(0, -0.5, 0);
+      // scene.add(tam);
+
+      // Syllables orbiting around the moon disc edge - RING MODE (face outward)
+      // All syllables at uniform height, width varies by natural aspect ratio
+      const syllableGroup = new THREE.Group();
+      const radius = 1.5;
+      const syllableY = -0.35; // Closer to moon disc level
+
+      // Pre-create all textures to get their aspect ratios
+      const syllableData = defaultSyllables.map(syl => {
+        const { texture, aspectRatio } = createTextTexture(syl, 72, '#5a4a7a');
+        return { text: syl, texture, aspectRatio };
+      });
+
+      // Calculate uniform height and resulting widths
+      const baseHeight = 0.5; // Uniform height for all syllables
+      const syllableWidths = syllableData.map(d => baseHeight * d.aspectRatio);
+      const totalArcWidth = syllableWidths.reduce((a, b) => a + b, 0);
+      const circumference = 2 * Math.PI * radius;
+      const numSyllables = defaultSyllables.length;
+
+      // Calculate scale to fit all syllables with gaps (syllables take ~75% of circumference for larger text)
+      const targetTextRatio = 0.75;
+      const availableArc = circumference * targetTextRatio;
+      const uniformScale = availableArc / totalArcWidth;
+      const scaledHeight = baseHeight * uniformScale;
+      const scaledWidths = syllableWidths.map(w => w * uniformScale);
+      const totalScaledArc = scaledWidths.reduce((a, b) => a + b, 0);
+      const gapSize = (circumference - totalScaledArc) / numSyllables;
+
+      // Position syllables with even gaps
+      let currentAngle = -Math.PI / 2; // Start at 12 o'clock
+
+      syllableData.forEach((data, i) => {
+        const syllableWidth = scaledWidths[i];
+
+        // Add half gap + half syllable width to get center position
+        currentAngle += (gapSize / 2 + syllableWidth / 2) / radius;
+
+        const x = Math.cos(currentAngle) * radius;
+        const z = Math.sin(currentAngle) * radius;
+
+        // Use natural aspect ratio for geometry
+        const geom = new THREE.PlaneGeometry(syllableWidth, scaledHeight);
+        const mat = new THREE.MeshBasicMaterial({
+          map: data.texture,
+          transparent: true,
+          side: THREE.DoubleSide,
+          depthTest: true,
+          depthWrite: false,
+          alphaTest: 0.01
+        });
+        const mesh = new THREE.Mesh(geom, mat);
+        mesh.position.set(x, syllableY, z);
+
+        // Face outward from center (ring mode)
+        mesh.lookAt(x * 2, syllableY, z * 2);
+
+        syllableGroup.add(mesh);
+
+        // Move to end of this syllable + half gap for next
+        currentAngle += (syllableWidth / 2 + gapSize / 2) / radius;
+      });
+
+      scene.add(syllableGroup);
+
+      // Animation
+      let time = 0;
+      function animate() {
+        requestAnimationFrame(animate);
+        time += 0.002;
+        syllableGroup.rotation.y = time;
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      animate();
+    }
+
+    // ============================================
+    // STYLE 3: JSON-Driven Mantra Colors
+    // ============================================
+    let style3Time = 0; // Animation time for syllable rotation
+
+    // Global references for Style 3 glow elements
+    let style3Orb, style3Ring1, style3Ring2, style3GlowSprite;
+    let isGlowEnabled = true;
+
+    // Helper to update glow settings based on mantra ID
+    function updateStyle3GlowSettings(mantraId) {
+      if (!isGlowEnabled) {
+        // Disable all glow elements
+        if (style3Orb && style3Orb.material.uniforms) style3Orb.material.uniforms.maxOpacity.value = 0.0;
+        if (style3Ring1) style3Ring1.material.opacity = 0.0;
+        if (style3Ring2) style3Ring2.material.opacity = 0.0;
+        if (style3GlowSprite) style3GlowSprite.material.opacity = 0.0;
+        return;
+      }
+
+      // List of "light" mantras that need toned down glow
+      // IDs: 2, 15, 18, 19, 21
+      const lightMantras = ['2', '15', '18', '19', '21'];
+
+      const isLightMantra = lightMantras.includes(mantraId);
+
+      console.log(`Mantra ID: ${mantraId}, Is Light: ${isLightMantra}`);
+
+      if (isLightMantra) {
+        // Toned down settings for light mantras
+
+        // 1. Soften the central orb edge and reduce opacity
+        if (style3Orb && style3Orb.material.uniforms) {
+          // Increase falloff for a softer, more gradual edge
+          style3Orb.material.uniforms.edgeFalloff.value = 0.6;
+          // Clip the outer edge to make it feel smaller
+          style3Orb.material.uniforms.minEdge.value = 0.2; // Increased clipping
+          // Drastically reduce max opacity
+          style3Orb.material.uniforms.maxOpacity.value = 0.4; // Was 0.8
+        }
+
+        // 2. Reduce outer ring opacity
+        if (style3Ring1) style3Ring1.material.opacity = 0.1; // Was 0.15
+        if (style3Ring2) style3Ring2.material.opacity = 0.05; // Was 0.08
+
+        // 3. Reduce glow sprite opacity
+        if (style3GlowSprite) style3GlowSprite.material.opacity = 0.2; // Was 0.5
+
+      } else {
+        // Default settings for other mantras (like the golden ones)
+        // RESTORED TO ORIGINAL SHARPNESS to fix regression
+
+        // 1. Sharp edge for standard look (mimic MeshBasicMaterial)
+        if (style3Orb && style3Orb.material.uniforms) {
+          style3Orb.material.uniforms.edgeFalloff.value = 0.01; // Very sharp
+          style3Orb.material.uniforms.minEdge.value = 0.0;
+          style3Orb.material.uniforms.maxOpacity.value = 1.0; // Full brightness
+        }
+
+        // 2. Standard outer ring opacity
+        if (style3Ring1) style3Ring1.material.opacity = 0.3;
+        if (style3Ring2) style3Ring2.material.opacity = 0.15;
+
+        // 3. Standard glow sprite opacity
+        if (style3GlowSprite) style3GlowSprite.material.opacity = 1.0;
+      }
+    }
+
+    async function initStyle3() {
+      const container = document.getElementById('canvas3');
+      const containerWrapper = document.getElementById('canvas3-container');
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      style3Scene = new THREE.Scene();
+      style3Camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
+      style3Camera.position.set(0, 2.5, 6);
+      style3Camera.lookAt(0, 0, 0);
+
+      style3Renderer = new THREE.WebGLRenderer({ canvas: container, antialias: true, alpha: true });
+      style3Renderer.setSize(width, height);
+      style3Renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      style3Controls = new OrbitControls(style3Camera, style3Renderer.domElement);
+      style3Controls.enableDamping = true;
+      style3Controls.dampingFactor = 0.05;
+      style3Controls.enableZoom = false;
+      style3Controls.autoRotate = false; // Camera stays still, syllables rotate
+
+      // Create radial gradient texture for edge glow
+      function createEdgeGlowTexture3() {
+        const size = 512;
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+
+        const gradient = ctx.createRadialGradient(
+          size / 2, size / 2, size * 0.40,
+          size / 2, size / 2, size * 0.50
+        );
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
+        gradient.addColorStop(0.3, 'rgba(255, 255, 255, 0.5)');
+        gradient.addColorStop(0.6, 'rgba(255, 255, 255, 0.2)');
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, size, size);
+
+        const texture = new THREE.CanvasTexture(canvas);
+        texture.needsUpdate = true;
+        return texture;
+      }
+
+      // Core white orb with ShaderMaterial for soft edge control
+      const orbGeom = new THREE.SphereGeometry(2, 128, 128);
+
+      // Custom shader to control the edge softness
+      const orbMat = new THREE.ShaderMaterial({
+        uniforms: {
+          color: { value: new THREE.Color(0xffffff) },
+          edgeFalloff: { value: 0.1 }, // Controls how soft the edge is
+          minEdge: { value: 0.0 },     // Controls where the alpha starts falling off (clipping)
+          maxOpacity: { value: 1.0 }   // Controls the maximum opacity
+        },
+        vertexShader: `
+          varying vec3 vNormal;
+          varying vec3 vViewPosition;
+          void main() {
+            vNormal = normalize(normalMatrix * normal);
+            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+            vViewPosition = -mvPosition.xyz;
+            gl_Position = projectionMatrix * mvPosition;
+          }
+        `,
+        fragmentShader: `
+          uniform vec3 color;
+          uniform float edgeFalloff;
+          uniform float minEdge;
+          uniform float maxOpacity;
+          varying vec3 vNormal;
+          varying vec3 vViewPosition;
+          
+          void main() {
+            // Calculate dot product between normal and view direction
+            vec3 normal = normalize(vNormal);
+            vec3 viewDir = normalize(vViewPosition);
+            float dotNV = dot(normal, viewDir);
+            
+            // Calculate alpha based on dot product and falloff
+            // If dotNV < minEdge, alpha is 0 (clipped)
+            // If dotNV > edgeFalloff, alpha approaches 1 (solid center)
+            float alpha = smoothstep(minEdge, max(minEdge + 0.01, edgeFalloff), dotNV);
+            
+            // Apply max opacity
+            alpha *= maxOpacity;
+            
+            gl_FragColor = vec4(color, alpha);
+          }
+        `,
+        transparent: true,
+        depthWrite: false, // Important: don't write depth so internal items show
+        side: THREE.FrontSide // Only render front face
+      });
+
+      style3Orb = new THREE.Mesh(orbGeom, orbMat);
+      style3Orb.renderOrder = -1; // Render behind everything
+      style3Scene.add(style3Orb);
+
+      // Two outer rings
+      const ring1Geom = new THREE.SphereGeometry(2.15, 128, 128);
+      const ring1Mat = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.3,
+        side: THREE.BackSide
+      });
+      style3Ring1 = new THREE.Mesh(ring1Geom, ring1Mat);
+      style3Scene.add(style3Ring1);
+
+      const ring2Geom = new THREE.SphereGeometry(2.3, 128, 128);
+      const ring2Mat = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.15,
+        side: THREE.BackSide
+      });
+      style3Ring2 = new THREE.Mesh(ring2Geom, ring2Mat);
+      style3Scene.add(style3Ring2);
+
+      // Edge glow sprite
+      const glowTexture3 = createEdgeGlowTexture3();
+      const glowMaterial3 = new THREE.SpriteMaterial({
+        map: glowTexture3,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+      style3GlowSprite = new THREE.Sprite(glowMaterial3);
+      style3GlowSprite.scale.set(5.5, 5.5, 1);
+      style3GlowSprite.renderOrder = -2;
+      style3Scene.add(style3GlowSprite);
+
+      // Moon disc - WHITE with outline - LARGER within orb
+      const discGeom = new THREE.CircleGeometry(1.5, 128);
+      const discMat = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.95,
+        side: THREE.DoubleSide
+      });
+      style3MoonDisc = new THREE.Mesh(discGeom, discMat);
+      style3MoonDisc.rotation.x = -Math.PI / 2;
+      style3MoonDisc.position.y = -0.5;
+      style3Scene.add(style3MoonDisc);
+
+      // Outline ring for moon disc (will be colored by mantra)
+      const outlineGeom = new THREE.RingGeometry(1.48, 1.52, 128);
+      style3MoonDiscOutlineMat = new THREE.MeshBasicMaterial({
+        color: 0xcc0000, // Will be set by mantra
+        transparent: true,
+        opacity: 0.35,
+        side: THREE.DoubleSide
+      });
+      style3MoonDiscOutline = new THREE.Mesh(outlineGeom, style3MoonDiscOutlineMat);
+      style3MoonDiscOutline.rotation.x = -Math.PI / 2;
+      style3MoonDiscOutline.position.y = -0.49;
+      style3Scene.add(style3MoonDiscOutline);
+
+      // TAM placeholder (will be replaced) - faces forward, never rotates
+      style3Tam = new THREE.Group();
+      style3Scene.add(style3Tam);
+
+      // Syllables group - this will rotate
+      style3SyllableGroup = new THREE.Group();
+      style3Scene.add(style3SyllableGroup);
+
+      // Load initial mantra
+      await updateStyle3Mantra();
+
+      // Animation - SYLLABLES spin counter-clockwise, TAM stays fixed
+      function animate() {
+        requestAnimationFrame(animate);
+        style3Time += 0.002;
+
+        // Syllables rotate counter-clockwise around the TAM
+        style3SyllableGroup.rotation.y = style3Time;
+
+        // TAM stays fixed facing forward
+
+        style3Controls.update();
+        style3Renderer.render(style3Scene, style3Camera);
+      }
+      animate();
+    }
+
+    // Update Style 3 with current mantra
+    async function updateStyle3Mantra() {
+      if (mantras.length === 0) return;
+
+      const mantra = mantras[currentMantraIndex];
+      const containerWrapper = document.getElementById('canvas3-container');
+      const mantraNameEl = document.getElementById('mantra-name');
+
+      // Update mantra name display
+      mantraNameEl.textContent = mantra.name;
+
+      // Apply background gradient
+      applyBackgroundGradient(containerWrapper, mantra.backgroundGradient);
+
+      // Apply dynamic glow settings based on mantra ID
+      updateStyle3GlowSettings(mantra.id);
+
+      // Get colors
+      const tamColor = mantra.tamColor || '#4a3a6a';
+      const syllableStyle = mantra.syllableStyle || { fill: '#ffffff', outlineColor: '#000000', outlineWidth: 0 };
+
+      // Update moon disc outline color to match syllable outline (has contrast on white mantras)
+      if (style3MoonDiscOutlineMat) {
+        const outlineColor = syllableStyle.outlineColor || tamColor || '#808080';
+        style3MoonDiscOutlineMat.color.set(outlineColor);
+      }
+
+      // Clear old TAM
+      while (style3Tam.children.length > 0) {
+        const child = style3Tam.children[0];
+        child.traverse((obj) => {
+          if (obj.geometry) obj.geometry.dispose();
+          if (obj.material) {
+            if (obj.material.map) obj.material.map.dispose();
+            obj.material.dispose();
+          }
+        });
+        style3Tam.remove(child);
+      }
+
+      // Load new TAM - 2D SVG texture on upright plane with mantra color
+      const { texture: tamTexture, aspectRatio: tamAspect } = await loadTamTexture(tamColor, style3Renderer);
+      const tamHeight = 2.0;
+      const tamWidth = tamHeight * tamAspect;
+      const tamGeom = new THREE.PlaneGeometry(tamWidth, tamHeight);
+      const tamMat = new THREE.MeshBasicMaterial({
+        map: tamTexture,
+        transparent: true,
+        side: THREE.DoubleSide,
+        depthWrite: false
+      });
+      const tamMesh = new THREE.Mesh(tamGeom, tamMat);
+      tamMesh.position.set(0, tamHeight / 2 - 0.5, 0); // On the moon disc
+      style3Tam.add(tamMesh);
+
+      // 3D TAM alternative (commented out for future use):
+      // const tamMesh = await loadTam3D(tamColor, 2.5);
+      // tamMesh.position.set(0, -0.5, 0);
+      // style3Tam.add(tamMesh);
+
+      // Clear old syllables
+      while (style3SyllableGroup.children.length > 0) {
+        const child = style3SyllableGroup.children[0];
+        if (child.geometry) child.geometry.dispose();
+        if (child.material) {
+          if (child.material.map) child.material.map.dispose();
+          child.material.dispose();
+        }
+        style3SyllableGroup.remove(child);
+      }
+
+      // Create new syllables with mantra styling
+      // All syllables at uniform height, width varies by natural aspect ratio
+      const syllables = mantra.syllables;
+      const radius = 1.7;
+      const syllableY = -0.35; // Closer to moon disc level
+      const outlineWidth = (syllableStyle.outlineWidth || 0) * 200; // Scale for canvas
+
+      // Pre-create all textures to get their aspect ratios
+      const syllableData = syllables.map(syl => {
+        const { texture, aspectRatio } = createTextTextureWithOutline(
+          syl,
+          72,
+          syllableStyle.fill || '#ffffff',
+          syllableStyle.outlineColor || '#000000',
+          outlineWidth
+        );
+        return { text: syl, texture, aspectRatio };
+      });
+
+      // Calculate uniform height and resulting widths
+      const baseHeight = 0.5; // Uniform height for all syllables
+      const syllableWidths = syllableData.map(d => baseHeight * d.aspectRatio);
+      const totalArcWidth = syllableWidths.reduce((a, b) => a + b, 0);
+      const circumference = 2 * Math.PI * radius;
+      const numSyllables = syllables.length;
+
+      // Calculate scale to fit all syllables with gaps (syllables take ~75% of circumference for larger text)
+      const targetTextRatio = 0.75;
+      const availableArc = circumference * targetTextRatio;
+      const uniformScale = availableArc / totalArcWidth;
+      const scaledHeight = baseHeight * uniformScale;
+      const scaledWidths = syllableWidths.map(w => w * uniformScale);
+      const totalScaledArc = scaledWidths.reduce((a, b) => a + b, 0);
+      const gapSize = (circumference - totalScaledArc) / numSyllables;
+
+      // Position syllables with even gaps
+      let currentAngle = -Math.PI / 2; // Start at 12 o'clock
+
+      syllableData.forEach((data, i) => {
+        const syllableWidth = scaledWidths[i];
+
+        // Add half gap + half syllable width to get center position
+        currentAngle += (gapSize / 2 + syllableWidth / 2) / radius;
+
+        const x = Math.cos(currentAngle) * radius;
+        const z = Math.sin(currentAngle) * radius;
+
+        // Use natural aspect ratio for geometry
+        const geom = new THREE.PlaneGeometry(syllableWidth, scaledHeight);
+        const mat = new THREE.MeshBasicMaterial({
+          map: data.texture,
+          transparent: true,
+          side: THREE.DoubleSide,
+          depthTest: true,
+          depthWrite: false,
+          alphaTest: 0.01
+        });
+        const mesh = new THREE.Mesh(geom, mat);
+        mesh.position.set(x, syllableY, z);
+
+        // Face outward from center (ring mode)
+        mesh.lookAt(x * 2, syllableY, z * 2);
+
+        style3SyllableGroup.add(mesh);
+
+        // Move to end of this syllable + half gap for next
+        currentAngle += (syllableWidth / 2 + gapSize / 2) / radius;
+      });
+    }
+
+    // Helper function to save mantra selection
+    function saveMantraSelection(index) {
+      localStorage.setItem('mantraSelection_index3', index.toString());
+    }
+
+    // Navigation functions
+    function prevMantra() {
+      currentMantraIndex = (currentMantraIndex - 1 + mantras.length) % mantras.length;
+      saveMantraSelection(currentMantraIndex);
+      updateStyle3Mantra();
+    }
+
+    function nextMantra() {
+      currentMantraIndex = (currentMantraIndex + 1) % mantras.length;
+      saveMantraSelection(currentMantraIndex);
+      updateStyle3Mantra();
+    }
+
+    // Initialize all visualizations
+    async function init() {
+      // Load mantras first
+      await loadMantras();
+
+      // Validate and set current mantra index from localStorage
+      if (currentMantraIndex < 0 || currentMantraIndex >= mantras.length) {
+        currentMantraIndex = 0;
+      }
+
+      // Initialize all styles
+      await Promise.all([
+        initStyle1(),
+        initStyle2(),
+        initStyle3()
+      ]);
+
+      // Setup navigation buttons
+      document.getElementById('prev-mantra').addEventListener('click', prevMantra);
+      document.getElementById('next-mantra').addEventListener('click', nextMantra);
+
+      // Setup keyboard shortcuts for navigation
+      document.addEventListener('keydown', (e) => {
+        // Only handle arrow keys if not typing in an input/textarea
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+          return;
+        }
+        
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          prevMantra();
+        } else if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          nextMantra();
+        }
+      });
+
+      console.log('All styles initialized');
+    }
+
+    init();
+  </script>
+</body>
+
+</html>
