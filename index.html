@@ -36,6 +36,34 @@
           #fff8e0 100%);
       overflow: hidden;
       touch-action: none;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+
+      /* Use mask to allow color control via background-color */
+      /* Opacity is dynamically controlled via injected style element */
+      background-color: rgba(255, 255, 255, 0.06);
+      -webkit-mask-image: url('images/pattern.svg');
+      mask-image: url('images/pattern.svg');
+      -webkit-mask-size: 100px 100px;
+      mask-size: 100px 100px;
+      -webkit-mask-repeat: repeat;
+      mask-repeat: repeat;
+
+      /* Subtle highlight effect - soft glow */
+      filter: brightness(1.1) drop-shadow(0 0 1px rgba(255, 255, 255, 0.4));
+      -webkit-filter: brightness(1.1) drop-shadow(0 0 1px rgba(255, 255, 255, 0.4));
+
+      pointer-events: none;
+      z-index: 0;
+      transition: background-color 0.5s ease;
     }
 
     #container {
@@ -771,12 +799,14 @@
   <div id="nav-controls">
     <button class="nav-btn" id="nav-prev" aria-label="Previous mantra">
       <svg viewBox="0 0 24 24">
-        <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"
+          stroke-linejoin="round" />
       </svg>
     </button>
     <button class="nav-btn" id="nav-next" aria-label="Next mantra">
       <svg viewBox="0 0 24 24">
-        <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"
+          stroke-linejoin="round" />
       </svg>
     </button>
   </div>
@@ -852,6 +882,7 @@
             outlineColor: outlineColor,
             syllableStyle: syllableStyle,
             backgroundGradient: mantra.backgroundGradient || null,
+            patternOpacity: mantra.patternOpacity !== undefined ? mantra.patternOpacity : null, // Optional override
             startIndex: mantra.startIndex || 0,
             releaseDate: mantra.releaseDate || "",
             releaseDateOverride: mantra.releaseDateOverride || false
@@ -922,14 +953,95 @@
     function getColorLuminance(hexColor) {
       // Remove # if present
       const hex = hexColor.replace('#', '');
-      
+
       // Parse RGB
       const r = parseInt(hex.substring(0, 2), 16) / 255;
       const g = parseInt(hex.substring(2, 4), 16) / 255;
       const b = parseInt(hex.substring(4, 6), 16) / 255;
-      
+
       // Calculate relative luminance (ITU-R BT.709)
       return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    }
+
+    // Helper function to calculate average luminance from gradient
+    function getGradientAverageLuminance(gradientConfig) {
+      if (!gradientConfig || !gradientConfig.colors || gradientConfig.colors.length === 0) {
+        // Default gradient - return average luminance of default colors
+        const defaultColors = ['#f0e0ff', '#e0f0ff', '#e0ffe0', '#fff8e0', '#ffe0e8'];
+        const luminances = defaultColors.map(getColorLuminance);
+        return luminances.reduce((a, b) => a + b, 0) / luminances.length;
+      }
+
+      // Calculate weighted average luminance based on color stops
+      const colors = gradientConfig.colors;
+      let totalWeight = 0;
+      let weightedLuminance = 0;
+
+      for (let i = 0; i < colors.length; i++) {
+        const color = colors[i];
+        const luminance = getColorLuminance(color.color);
+
+        // Calculate weight based on position span
+        let weight;
+        if (i === 0) {
+          weight = color.position / 100;
+        } else if (i === colors.length - 1) {
+          weight = (100 - colors[i - 1].position) / 100;
+        } else {
+          weight = (color.position - colors[i - 1].position) / 100;
+        }
+
+        weightedLuminance += luminance * weight;
+        totalWeight += weight;
+      }
+
+      return totalWeight > 0 ? weightedLuminance / totalWeight : 0.5;
+    }
+
+    // Calculate pattern opacity based on background luminance
+    // Higher luminance (lighter backgrounds) = higher opacity (more visible pattern)
+    // Lower luminance (darker backgrounds) = lower opacity (more subtle pattern)
+    function calculatePatternOpacity(luminance, overrideOpacity = null) {
+      // If override is provided, use it directly
+      if (overrideOpacity !== null && overrideOpacity !== undefined) {
+        return Math.max(0, Math.min(1, overrideOpacity));
+      }
+
+      // Map luminance (0-1) to opacity range
+      // Light backgrounds (luminance > 0.7): opacity 0.12-0.18 (more visible)
+      // Medium backgrounds (luminance 0.3-0.7): opacity 0.06-0.12 (balanced)
+      // Dark backgrounds (luminance < 0.3): opacity 0.02-0.06 (more subtle)
+
+      if (luminance > 0.7) {
+        // Light backgrounds: scale from 0.12 to 0.18
+        const t = (luminance - 0.7) / 0.3; // Normalize to 0-1
+        return 0.12 + (t * 0.06);
+      } else if (luminance > 0.3) {
+        // Medium backgrounds: scale from 0.06 to 0.12
+        const t = (luminance - 0.3) / 0.4; // Normalize to 0-1
+        return 0.06 + (t * 0.06);
+      } else {
+        // Dark backgrounds: scale from 0.02 to 0.06
+        const t = luminance / 0.3; // Normalize to 0-1
+        return 0.02 + (t * 0.04);
+      }
+    }
+
+    // Update pattern opacity based on current background
+    function updatePatternOpacity(gradientConfig, overrideOpacity = null) {
+      const luminance = getGradientAverageLuminance(gradientConfig);
+      const opacity = calculatePatternOpacity(luminance, overrideOpacity);
+
+      // Since ::before pseudo-element can't be directly accessed, inject/update a style element
+      let patternStyleElement = document.getElementById('dynamic-pattern-opacity');
+      if (!patternStyleElement) {
+        patternStyleElement = document.createElement('style');
+        patternStyleElement.id = 'dynamic-pattern-opacity';
+        document.head.appendChild(patternStyleElement);
+      }
+
+      // Update the style with the calculated opacity
+      patternStyleElement.textContent = `body::before { background-color: rgba(255, 255, 255, ${opacity}); }`;
     }
 
     // Helper function to get nav button color based on tamColor
@@ -937,26 +1049,37 @@
       if (!tamColor) {
         return '#2d1b4e'; // Default dark color
       }
-      
+
       const luminance = getColorLuminance(tamColor);
-      
+
       // If luminance is high (light color), use dark gray
       // Threshold of 0.8 means very light colors (near white) will be inverted
       if (luminance > 0.8) {
         return '#3a3a3a'; // Dark gray
       }
-      
+
       return tamColor;
+    }
+
+    // Update moon disc outline color based on current mantra
+    function updateMoonDiscOutlineColor() {
+      if (!moonDiscOutlineMat) return;
+
+      const schema = schemas[currentSchema];
+      // Use syllable outline color if available, otherwise tam color, otherwise default
+      const syllableStyle = schema.syllableStyle || {};
+      const outlineColor = syllableStyle.outlineColor || schema.tamColor || '#4a3a6a';
+      moonDiscOutlineMat.color.set(outlineColor);
     }
 
     // Update navigation button colors based on current mantra
     function updateNavButtonColors() {
       const navButtons = document.querySelectorAll('.nav-btn');
       if (navButtons.length === 0) return;
-      
+
       const tamColor = schemas[currentSchema]?.tamColor;
       const buttonColor = getNavButtonColor(tamColor);
-      
+
       navButtons.forEach(btn => {
         btn.style.color = buttonColor;
       });
@@ -1033,11 +1156,12 @@
     }
 
     // Apply background gradient from config
-    function applyBackgroundGradient(gradientConfig) {
+    function applyBackgroundGradient(gradientConfig, patternOpacityOverride = null) {
       if (!gradientConfig || !gradientConfig.colors) {
         // Use default background
         document.body.style.background = 'radial-gradient(circle at center, #f0e0ff 0%, #e0f0ff 12.5%, #e0ffe0 25%, #fff8e0 37.5%, #ffe0e8 50%, #f0e0ff 62.5%, #e0f0ff 75%, #e0ffe0 87.5%, #fff8e0 100%)';
         updateVignette(null); // Update vignette for default background
+        updatePatternOpacity(null, patternOpacityOverride); // Update pattern for default background
         return;
       }
 
@@ -1049,6 +1173,7 @@
 
       document.body.style.background = gradientValue;
       updateVignette(gradientConfig); // Update vignette when background changes
+      updatePatternOpacity(gradientConfig, patternOpacityOverride); // Update pattern opacity when background changes
     }
 
     // Check for URL parameter to show all mantras
@@ -1109,7 +1234,8 @@
 
     let scene, camera, renderer, controls;
     let glowBall, textMeshes = [];
-    let currentSchema = 0;
+    // Load saved mantra selection or default to 0
+    let currentSchema = parseInt(localStorage.getItem('mantraSelection_index') || '0');
     let audio = new Audio();
     let isPlaying = false;
     let composer;
@@ -1117,11 +1243,9 @@
     let speedLevel = parseInt(localStorage.getItem('mantraSpeedLevel') || '2');
     let rotationSpeed = 0.128 * speedLevel * speedLevel; // Calculate initial rotation speed
     let tamPlane = null; // Reference to TAM character plane
-    let revealAnimation = {
-      isActive: false,
-      startTime: 0,
-      fadeDuration: 800 // milliseconds for smooth unified fade in
-    };
+    let moonDisc = null; // Reference to moon disc
+    let moonDiscOutline = null; // Reference to moon disc outline ring
+    let moonDiscOutlineMat = null; // Reference to moon disc outline material (for color updates)
 
 
 
@@ -1132,27 +1256,51 @@
       const isDesktop = window.innerWidth >= 768 && !isPortrait && !isLandscapeMobile;
 
       if (isLandscapeMobile) {
-        // Zoom in closer in landscape mobile
-        return { x: 0, y: 1.5, z: 7 };
+        return { x: 0, y: 1.8, z: 6.5 };
       } else if (isPortrait) {
-        // Zoom out a bit in portrait and shift up to account for bottom controls
-        return { x: 0, y: 0.5, z: 11 };
+        return { x: 0, y: 1.2, z: 9 };
       } else if (isDesktop) {
-        // Desktop: zoom to fit with padding (text ring radius is 5, so ~8 gives nice padding)
-        return { x: 0, y: 1, z: 8 };
+        return { x: 0, y: 2.2, z: 7 };
       } else {
-        // Tablet landscape fallback
-        return { x: 0, y: 1, z: 8 };
+        return { x: 0, y: 2.2, z: 7 };
       }
+    }
+
+    // Helper function to validate and get a valid mantra index
+    function getValidMantraIndex(savedIndex) {
+      // Ensure index is within bounds
+      if (savedIndex < 0 || savedIndex >= schemas.length) {
+        return 0;
+      }
+
+      // Check if the mantra at this index is released
+      if (!isMantraReleased(schemas[savedIndex])) {
+        // Find first released mantra
+        const firstReleased = schemas.findIndex(schema => isMantraReleased(schema));
+        return firstReleased >= 0 ? firstReleased : 0;
+      }
+
+      return savedIndex;
+    }
+
+    // Helper function to save mantra selection
+    function saveMantraSelection(index) {
+      localStorage.setItem('mantraSelection_index', index.toString());
     }
 
     async function init() {
       // Load mantras configuration first
       await loadMantrasConfig();
 
+      // Validate and set current schema from localStorage
+      currentSchema = getValidMantraIndex(currentSchema);
+
       // Apply initial background gradient
       if (schemas[currentSchema] && schemas[currentSchema].backgroundGradient) {
-        applyBackgroundGradient(schemas[currentSchema].backgroundGradient);
+        applyBackgroundGradient(schemas[currentSchema].backgroundGradient, schemas[currentSchema].patternOpacity);
+      } else {
+        // Apply default background with pattern opacity
+        applyBackgroundGradient(null, schemas[currentSchema]?.patternOpacity);
       }
 
 
@@ -1163,17 +1311,21 @@
       // Set initial nav button colors
       updateNavButtonColors();
 
+      // Set initial moon disc outline color
+      updateMoonDiscOutlineColor();
+
       // Scene with atmospheric fog
       scene = new THREE.Scene();
       // Fog: color matching the subtle rainbow gradient background
-      // Dramatic falloff: near stays clear (8), far fades quickly (15)
-      scene.fog = new THREE.Fog(0xe5f0f5, 8, 15);
+      // Adjusted for closer camera position with moon disk visualization
+      scene.fog = new THREE.Fog(0xe5f0f5, 5, 12);
 
       // Camera
       const aspect = window.innerWidth / window.innerHeight;
-      camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
+      camera = new THREE.PerspectiveCamera(50, aspect, 0.1, 1000);
       const camPos = getCameraPosition();
       camera.position.set(camPos.x, camPos.y, camPos.z);
+      camera.lookAt(0, 0, 0);
 
       // Renderer with enhanced quality settings
       renderer = new THREE.WebGLRenderer({
@@ -1269,13 +1421,14 @@
 
         // Update schema
         currentSchema = value;
+        saveMantraSelection(currentSchema);
 
         // Apply background gradient for new schema
         if (schemas[currentSchema] && schemas[currentSchema].backgroundGradient) {
-          applyBackgroundGradient(schemas[currentSchema].backgroundGradient);
+          applyBackgroundGradient(schemas[currentSchema].backgroundGradient, schemas[currentSchema].patternOpacity);
         } else {
           // Apply default background and vignette
-          applyBackgroundGradient(null);
+          applyBackgroundGradient(null, schemas[currentSchema]?.patternOpacity);
         }
 
 
@@ -1292,6 +1445,9 @@
 
         // Update navigation button colors
         updateNavButtonColors();
+
+        // Update moon disc outline color
+        updateMoonDiscOutlineColor();
 
         setCameraToStartSyllable();
         updateAudioInfo();
@@ -1486,7 +1642,7 @@
 
         // Find current position in released mantras
         const currentPos = releasedMantras.findIndex(({ index }) => index === currentSchema);
-        
+
         if (currentPos === -1) return;
 
         // Calculate next position with wrapping
@@ -1498,15 +1654,16 @@
         }
 
         const nextMantra = releasedMantras[nextPos];
-        
+
         // Update schema
         currentSchema = nextMantra.index;
+        saveMantraSelection(currentSchema);
 
         // Apply background gradient for new schema
         if (schemas[currentSchema] && schemas[currentSchema].backgroundGradient) {
-          applyBackgroundGradient(schemas[currentSchema].backgroundGradient);
+          applyBackgroundGradient(schemas[currentSchema].backgroundGradient, schemas[currentSchema].patternOpacity);
         } else {
-          applyBackgroundGradient(null);
+          applyBackgroundGradient(null, schemas[currentSchema]?.patternOpacity);
         }
 
         // Update text ring and TAM for new schema
@@ -1521,6 +1678,9 @@
 
         // Update navigation button colors
         updateNavButtonColors();
+
+        // Update moon disc outline color
+        updateMoonDiscOutlineColor();
 
         // Update dropdown label
         const dropdownLabel = document.querySelector('.dropdown-label');
@@ -1550,6 +1710,22 @@
       navPrevBtn.addEventListener('click', () => navigateToMantra('prev'));
       navNextBtn.addEventListener('click', () => navigateToMantra('next'));
 
+      // Setup keyboard shortcuts for navigation
+      document.addEventListener('keydown', (e) => {
+        // Only handle arrow keys if not typing in an input/textarea
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+          return;
+        }
+
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          navigateToMantra('prev');
+        } else if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          navigateToMantra('next');
+        }
+      });
+
       // Auto-hide controls on desktop (desktop only)
       setupAutoHideControls();
 
@@ -1561,14 +1737,14 @@
     function setupAutoHideControls() {
       // Check if we're on desktop (width >= 769px)
       const isDesktop = () => window.innerWidth >= 769;
-      
+
       if (!isDesktop()) {
         return; // Don't apply auto-hide on mobile
       }
 
       const speedControls = document.getElementById('speed-controls');
       const navControls = document.getElementById('nav-controls');
-      
+
       if (!speedControls || !navControls) {
         return;
       }
@@ -1721,9 +1897,35 @@
       }
     }
 
+    // Create radial gradient texture for edge glow
+    function createEdgeGlowTexture() {
+      const size = 512;
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+
+      const gradient = ctx.createRadialGradient(
+        size / 2, size / 2, size * 0.40,
+        size / 2, size / 2, size * 0.50
+      );
+      gradient.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
+      gradient.addColorStop(0.3, 'rgba(255, 255, 255, 0.5)');
+      gradient.addColorStop(0.6, 'rgba(255, 255, 255, 0.2)');
+      gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, size, size);
+
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.needsUpdate = true;
+      return texture;
+    }
+
     function createGlowBall() {
       // Inner solid white sphere - using MeshBasicMaterial for unlit white appearance
-      const geometry = new THREE.SphereGeometry(2, 32, 32);
+      // High polygon count for smooth appearance
+      const geometry = new THREE.SphereGeometry(2, 128, 128);
       const material = new THREE.MeshBasicMaterial({
         color: 0xffffff, // White
         transparent: false, // Fully opaque
@@ -1737,11 +1939,11 @@
       scene.add(glowBall);
 
       // Outer white glow effect (semi-transparent larger sphere)
-      const glowGeometry = new THREE.SphereGeometry(2.2, 32, 32);
+      const glowGeometry = new THREE.SphereGeometry(2.15, 128, 128);
       const glowMaterial = new THREE.MeshBasicMaterial({
         color: 0xffffff, // White
         transparent: true, // Transparent for glow effect
-        opacity: 0.4, // Semi-transparent glow
+        opacity: 0.3, // Semi-transparent glow (matching styles.html)
         side: THREE.BackSide,
         depthWrite: false, // Don't write to depth buffer for glow
         fog: false // Not affected by atmospheric fog
@@ -1751,11 +1953,11 @@
       scene.add(glowMesh);
 
       // Additional outer glow layer for more pronounced effect
-      const outerGlowGeometry = new THREE.SphereGeometry(2.5, 32, 32);
+      const outerGlowGeometry = new THREE.SphereGeometry(2.3, 128, 128);
       const outerGlowMaterial = new THREE.MeshBasicMaterial({
         color: 0xffffff, // White
         transparent: true,
-        opacity: 0.2, // Softer outer glow
+        opacity: 0.15, // Softer outer glow (matching styles.html)
         side: THREE.BackSide,
         depthWrite: false,
         fog: false // Not affected by atmospheric fog
@@ -1763,6 +1965,51 @@
       const outerGlowMesh = new THREE.Mesh(outerGlowGeometry, outerGlowMaterial);
       outerGlowMesh.renderOrder = -2; // Render early for glow
       scene.add(outerGlowMesh);
+
+      // Edge glow sprite for soft halo effect
+      const glowTexture = createEdgeGlowTexture();
+      const glowSpriteMaterial = new THREE.SpriteMaterial({
+        map: glowTexture,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+      });
+      const glowSprite = new THREE.Sprite(glowSpriteMaterial);
+      glowSprite.scale.set(5.5, 5.5, 1);
+      glowSprite.renderOrder = -3;
+      scene.add(glowSprite);
+
+      // Moon disc - WHITE horizontal disc where TAM stands
+      const discGeom = new THREE.CircleGeometry(1.5, 128);
+      const discMat = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.95,
+        side: THREE.DoubleSide,
+        fog: false,
+        depthWrite: true // Write to depth buffer
+      });
+      moonDisc = new THREE.Mesh(discGeom, discMat);
+      moonDisc.rotation.x = -Math.PI / 2;
+      moonDisc.position.y = -0.5;
+      moonDisc.renderOrder = 0; // Render after orb but before outline
+      scene.add(moonDisc);
+
+      // Outline ring for moon disc (will be colored by mantra)
+      const outlineGeom = new THREE.RingGeometry(1.48, 1.52, 128);
+      moonDiscOutlineMat = new THREE.MeshBasicMaterial({
+        color: 0x4a3a6a, // Default color, will be updated by mantra
+        transparent: true,
+        opacity: 0.35,
+        side: THREE.DoubleSide,
+        fog: false,
+        depthWrite: true // Write to depth buffer to prevent showing through orb
+      });
+      moonDiscOutline = new THREE.Mesh(outlineGeom, moonDiscOutlineMat);
+      moonDiscOutline.rotation.x = -Math.PI / 2;
+      moonDiscOutline.position.y = -0.49; // Slightly higher than moon disc to avoid z-fighting
+      moonDiscOutline.renderOrder = 1; // Render after the orb
+      scene.add(moonDiscOutline);
 
       // Add particle effect around the ball
       createParticles();
@@ -1781,6 +2028,14 @@
       // Support both new (tamOutlineColor) and old (outlineColor) field names for backward compatibility
       const tamOutlineColor = schema.tamOutlineColor || schema.outlineColor || null;
       const tamColor = schema.tamColor || '#ffffff';
+      const syllableStyle = schema.syllableStyle || {};
+
+      // Update moon disc outline color to match syllable outline (has contrast on white mantras)
+      // Use syllable outline color if available, otherwise tam color, otherwise default
+      if (moonDiscOutlineMat) {
+        const outlineColor = syllableStyle.outlineColor || schema.tamColor || '#4a3a6a';
+        moonDiscOutlineMat.color.set(outlineColor);
+      }
 
       // Check if this is an SVG file
       const isSVG = tamImagePath.toLowerCase().endsWith('.svg');
@@ -1838,7 +2093,7 @@
 
               // Get aspect ratio from SVG to avoid distortion
               const aspectRatio = img.width / img.height;
-              const height = 3.6;
+              const height = 2.0; // Smaller, relative to moon disk
               const width = height * aspectRatio;
 
               console.log('TAM SVG loaded and rendered to texture');
@@ -1865,8 +2120,8 @@
 
               tamPlane = new THREE.Mesh(planeGeometry, planeMaterial);
 
-              // Position slightly in front of white sphere center to ensure it renders on top
-              tamPlane.position.set(0, 0, 0.01);
+              // Position TAM standing on the moon disc (bottom at y = -0.5)
+              tamPlane.position.set(0, height / 2 - 0.5, 0);
               tamPlane.renderOrder = 0;
 
               console.log('TAM plane created and added to scene', tamPlane);
@@ -1900,7 +2155,7 @@
 
             // Get aspect ratio from texture to avoid distortion
             const aspectRatio = texture.image.width / texture.image.height;
-            const height = 3.6; // Slightly smaller relative to white sphere
+            const height = 2.0; // Smaller, relative to moon disk
             const width = height * aspectRatio;
 
             console.log('TAM texture dimensions:', texture.image.width, 'x', texture.image.height);
@@ -2008,17 +2263,12 @@
 
             tamPlane = new THREE.Mesh(planeGeometry, planeMaterial);
 
-            // Position slightly in front of white sphere center to ensure it renders on top
-            // Small offset (0.01) ensures visibility without noticeable separation
-            tamPlane.position.set(0, 0, 0.01);
+            // Position TAM standing on the moon disc (bottom at y = -0.5)
+            tamPlane.position.set(0, height / 2 - 0.5, 0);
 
             // Use default renderOrder (0) and let depth buffer handle occlusion naturally
             // depthWrite: true ensures proper depth testing with syllables
             tamPlane.renderOrder = 0;
-
-            // TAM plane renders after white sphere (renderOrder 2 > 0) so it's visible on top
-            // depthTest ensures syllables in front will occlude TAM
-            // Even though both are at same position, higher renderOrder ensures TAM renders in later pass
 
             console.log('TAM plane created and added to scene', tamPlane);
             console.log('TAM plane position:', tamPlane.position);
@@ -2065,6 +2315,70 @@
 
     // Orientation mode: 'billboard' or 'ring'
     let orientationMode = 'ring';
+
+    // Helper function to create texture from canvas with outlined text and proper aspect ratio
+    // Returns { texture, aspectRatio } where aspectRatio = width/height
+    function createTextTextureWithOutline(text, fontSize = 64, fillColor = '#ffffff', outlineColor = '#000000', outlineWidth = 3) {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      // Set font and measure text
+      const font = `bold ${fontSize}px "Crimson Pro", serif`;
+      ctx.font = font;
+      const metrics = ctx.measureText(text);
+
+      // Get text dimensions with robust fallbacks
+      const textWidth = Math.max(metrics.width, fontSize * 0.5);
+      const textHeight = Math.max(
+        (metrics.actualBoundingBoxAscent || 0) + (metrics.actualBoundingBoxDescent || 0),
+        fontSize * 0.85 // Fallback based on typical font metrics
+      );
+
+      // Add padding around text (account for outline)
+      const padding = fontSize * 0.4 + outlineWidth * 2;
+      const canvasWidth = Math.max(64, Math.ceil(textWidth + padding * 2));
+      const canvasHeight = Math.max(64, Math.ceil(textHeight + padding * 2));
+
+      // Set canvas size
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
+
+      // Redraw with correct canvas size (need to re-set font after resize)
+      ctx.font = font;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      // Draw outline first
+      if (outlineWidth > 0) {
+        ctx.strokeStyle = outlineColor;
+        ctx.lineWidth = outlineWidth * 2;
+        ctx.lineJoin = 'round';
+        ctx.strokeText(text, canvas.width / 2, canvas.height / 2);
+      }
+
+      // Draw fill
+      ctx.fillStyle = fillColor;
+      ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.minFilter = THREE.LinearMipmapLinearFilter;
+      texture.magFilter = THREE.LinearFilter;
+      texture.generateMipmaps = true;
+      // Apply anisotropic filtering for sharp rendering at angles
+      if (renderer && renderer.capabilities) {
+        texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+      } else {
+        texture.anisotropy = 16; // Default high anisotropy
+      }
+      texture.needsUpdate = true;
+
+      const aspectRatio = canvas.width / canvas.height;
+
+      return {
+        texture,
+        aspectRatio: isNaN(aspectRatio) || aspectRatio <= 0 ? 1 : aspectRatio
+      };
+    }
 
     // Helper function to create texture from canvas with outlined text
     function createTextTexture(text, fillColor, outlineColor, outlineWidth, fontSize = 80) {
@@ -2123,7 +2437,7 @@
       const schema = schemas[currentSchema];
       const startIndex = schema.startIndex || 0;
       const syllables = schema.syllables;
-      const radius = 5;
+      const radius = 1.7; // Match createTextRing moon disk orbit radius
       const angleStep = (Math.PI * 2) / syllables.length; // Match createTextRing
       const baseAngle = Math.PI / 2; // Match createTextRing
       const angleOffset = -angleStep * startIndex;
@@ -2153,7 +2467,8 @@
 
       const syllables = schemas[schemaIndex].syllables;
       const startIndex = schemas[schemaIndex].startIndex || 0;
-      const radius = 5; // Distance from center
+      const radius = 1.7; // Orbit around moon disk edge (moon disk radius is 1.5)
+      const syllableY = -0.35; // Closer to moon disk level
       const angleStep = (Math.PI * 2) / syllables.length; // Positive for counter-clockwise (right-to-left)
 
       // Base angle to align ring so index 0 is at positive Z (facing camera)
@@ -2166,70 +2481,90 @@
       const syllableStyle = schemas[schemaIndex].syllableStyle || {};
       const fillColor = syllableStyle.fill || '#ffffff';
       const outlineColor = syllableStyle.outlineColor || '#000000';
-      const outlineWidth = syllableStyle.outlineWidth || 0;
+      const outlineWidth = (syllableStyle.outlineWidth || 0) * 200; // Scale for canvas
 
-      syllables.forEach((syllable, index) => {
-        const angle = angleStep * index + angleOffset + baseAngle;
+      // Pre-create all textures to get their aspect ratios
+      const syllableData = syllables.map(syl => {
+        const { texture, aspectRatio } = createTextTextureWithOutline(
+          syl,
+          72,
+          fillColor,
+          outlineColor,
+          outlineWidth
+        );
+        return { text: syl, texture, aspectRatio };
+      });
 
-        // Create texture using Canvas→Texture method
-        // outlineWidth from config (0.02) * 200 = 4px outline (scaled for higher res canvas)
-        // Increased font size by 30% (160 * 1.3 = 208)
-        const texture = createTextTexture(syllable, fillColor, outlineColor, outlineWidth * 400, 208);
+      // Calculate uniform height and resulting widths
+      const baseHeight = 0.5; // Uniform height for all syllables
+      const syllableWidths = syllableData.map(d => baseHeight * d.aspectRatio);
+      const totalArcWidth = syllableWidths.reduce((a, b) => a + b, 0);
+      const circumference = 2 * Math.PI * radius;
+      const numSyllables = syllables.length;
 
-        // Create plane geometry for the syllable
-        // Increased size by 30% (2 * 1.3 = 2.6, 1 * 1.3 = 1.3)
-        const planeGeometry = new THREE.PlaneGeometry(2.6, 1.3);
-        const planeMaterial = new THREE.MeshBasicMaterial({
-          map: texture,
+      // Calculate scale to fit all syllables with gaps (syllables take ~75% of circumference for larger text)
+      const targetTextRatio = 0.75;
+      const availableArc = circumference * targetTextRatio;
+      const uniformScale = availableArc / totalArcWidth;
+      const scaledHeight = baseHeight * uniformScale;
+      const scaledWidths = syllableWidths.map(w => w * uniformScale);
+      const totalScaledArc = scaledWidths.reduce((a, b) => a + b, 0);
+      const gapSize = (circumference - totalScaledArc) / numSyllables;
+
+      // Position syllables with even gaps
+      let currentAngle = -Math.PI / 2; // Start at 12 o'clock
+
+      syllableData.forEach((data, i) => {
+        const syllableWidth = scaledWidths[i];
+
+        // Add half gap + half syllable width to get center position
+        currentAngle += (gapSize / 2 + syllableWidth / 2) / radius;
+
+        const x = Math.cos(currentAngle) * radius;
+        const z = Math.sin(currentAngle) * radius;
+
+        // Use natural aspect ratio for geometry
+        const geom = new THREE.PlaneGeometry(syllableWidth, scaledHeight);
+        const mat = new THREE.MeshBasicMaterial({
+          map: data.texture,
           transparent: true,
           side: THREE.DoubleSide,
           depthTest: true,
-          depthWrite: true,  // Enable for proper depth sorting between syllables
+          depthWrite: false,
           opacity: 1.0,
-          alphaTest: 0.1  // Small threshold to discard fully transparent pixels
+          alphaTest: 0.01
         });
+        const textMesh = new THREE.Mesh(geom, mat);
+        textMesh.position.set(x, syllableY, z);
 
-        const textMesh = new THREE.Mesh(planeGeometry, planeMaterial);
-
-        // Position on the ring
-        textMesh.position.x = Math.cos(angle) * radius;
-        textMesh.position.z = Math.sin(angle) * radius;
-        textMesh.position.y = 0;
+        // Face outward from center (ring mode)
+        textMesh.lookAt(x * 2, syllableY, z * 2);
 
         // Store angle for later orientation updates
-        textMesh.userData.angle = angle;
-        textMesh.userData.originalIndex = index;
-        textMesh.userData.revealOrder = (index - startIndex + syllables.length) % syllables.length;
+        textMesh.userData.angle = currentAngle;
+        textMesh.userData.originalIndex = i;
+        textMesh.userData.revealOrder = (i - startIndex + syllables.length) % syllables.length;
 
-        // Initially hide all except the first one
-        if (index === startIndex) {
-          textMesh.material.opacity = 1.0;
-        } else {
-          textMesh.material.opacity = 0.0;
-        }
+        // Start with all syllables visible (no initial hiding)
+        textMesh.material.opacity = 1.0;
 
         // Add to scene
         scene.add(textMesh);
         textMeshes.push(textMesh);
+
+        // Move to end of this syllable + half gap for next
+        currentAngle += (syllableWidth / 2 + gapSize / 2) / radius;
       });
 
-      // Start reveal animation
-      revealAnimation.isActive = true;
-      revealAnimation.startTime = performance.now();
+      // Reveal animation disabled - syllables are immediately visible
     }
 
     function animate() {
       requestAnimationFrame(animate);
 
-      // Rotate the glow ball slowly
-      if (glowBall) {
-        glowBall.rotation.y += 0.002;
-        glowBall.rotation.x += 0.001;
-      }
-
-      // Make TAM character always face the camera
-      if (tamPlane && camera) {
-        tamPlane.lookAt(camera.position);
+      // Make TAM always face the camera (Y-axis only)
+      if (tamPlane) {
+        tamPlane.lookAt(camera.position.x, tamPlane.position.y, camera.position.z);
       }
 
       // Handle syllable orientation based on mode
@@ -2238,7 +2573,7 @@
           // Billboard mode: always face camera
           mesh.lookAt(camera.position);
         } else {
-          // Ring mode: face outward from center
+          // Ring mode: face outward from center (already set in createTextRing, but update for rotation)
           const outwardPosition = new THREE.Vector3(
             mesh.position.x * 2,
             mesh.position.y,
@@ -2248,90 +2583,13 @@
         }
       });
 
-      // Handle reveal animation with smooth easing - all syllables fade in together
-      if (revealAnimation.isActive && textMeshes.length > 0) {
-        const elapsed = performance.now() - revealAnimation.startTime;
+      // Reveal animation removed - syllables are always visible
 
-        // Smooth easing function (ease-out cubic)
-        const easeOutCubic = (t) => {
-          return 1 - Math.pow(1 - t, 3);
-        };
-
-        // Calculate unified opacity for all syllables
-        let opacity;
-        if (elapsed < revealAnimation.fadeDuration) {
-          // All syllables fade in together
-          const progress = Math.min(1.0, elapsed / revealAnimation.fadeDuration);
-          opacity = easeOutCubic(progress);
-        } else {
-          // All syllables are fully visible
-          opacity = 1.0;
-        }
-
-        // Apply the same opacity to all syllables
-        textMeshes.forEach((mesh) => {
-          mesh.material.opacity = opacity;
-          mesh.material.transparent = opacity < 1.0;
-        });
-
-        // Check if animation is complete
-        if (elapsed >= revealAnimation.fadeDuration) {
-          revealAnimation.isActive = false;
-          // Ensure all words are fully visible
-          textMeshes.forEach((mesh) => {
-            // Handle both single meshes and groups (with outline/fill)
-            if (mesh.userData && mesh.userData.fillMesh) {
-              // This is a group with outline
-              mesh.userData.fillMesh.material.opacity = 1.0;
-              mesh.userData.fillMesh.material.transparent = false;
-              if (mesh.userData.outlineMesh) {
-                mesh.userData.outlineMesh.material.opacity = 1.0;
-                mesh.userData.outlineMesh.material.transparent = false;
-              }
-            } else if (mesh.material) {
-              // This is a single mesh
-              mesh.material.opacity = 1.0;
-              mesh.material.transparent = false;
-            }
-          });
-        }
-      }
-
-      // Update text: floating animation and distance-based atmospheric effect
+      // Update text: floating animation
+      const baseSyllableY = -0.35; // Match createTextRing syllableY
       textMeshes.forEach((mesh, i) => {
-        // Very gentle floating animation
-        mesh.position.y = Math.sin(Date.now() * 0.0005 + i) * 0.05;
-
-        // Calculate distance from camera for atmospheric effect
-        const distance = mesh.position.distanceTo(camera.position);
-
-        // Atmospheric fog effect: brightness decreases with distance
-        // Matching the fog settings: near (8), far (15)
-        const nearDistance = 8;
-        const farDistance = 15;  // More dramatic falloff
-        const fogStart = nearDistance;
-        const fogEnd = farDistance;
-
-        // Calculate fog factor (1 = fully visible, 0 = fully fogged)
-        const fogFactor = Math.max(0, Math.min(1, (fogEnd - distance) / (fogEnd - fogStart)));
-
-        // Apply even steeper atmospheric curve for dramatic drop-off
-        const atmosphericBrightness = Math.pow(fogFactor, 3.0);  // Steeper curve (was 2.0)
-
-        // Update emissive intensity based on distance (atmospheric dimming)
-        // Keep close objects bright, distant objects much dimmer
-        // Only apply if word is visible (opacity > 0)
-        // Handle both single meshes and groups (with outline/fill)
-        if (mesh.userData && mesh.userData.fillMesh) {
-          // This is a group with outline - update the fill mesh
-          const fillMesh = mesh.userData.fillMesh;
-          if (fillMesh.material.opacity > 0) {
-            fillMesh.material.emissiveIntensity = 0.3 + atmosphericBrightness * 0.7;
-          }
-        } else if (mesh.material && mesh.material.opacity > 0) {
-          // This is a single mesh
-          mesh.material.emissiveIntensity = 0.3 + atmosphericBrightness * 0.7;
-        }
+        // Remove wavy animation
+        mesh.position.y = baseSyllableY;
       });
 
       controls.update();

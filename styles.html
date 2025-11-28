@@ -24,6 +24,7 @@
       color: #e8e0f0;
       min-height: 100vh;
       overflow-x: hidden;
+      position: relative;
     }
 
     .header {
@@ -97,15 +98,43 @@
       width: 100%;
       aspect-ratio: 1;
       position: relative;
-      background: radial-gradient(circle at center, 
-        rgba(248, 240, 255, 0.15) 0%, 
-        rgba(240, 248, 255, 0.1) 20%,
-        rgba(20, 20, 35, 0.9) 60%,
-        rgba(10, 10, 20, 1) 100%);
+      background: radial-gradient(circle at center,
+          rgba(248, 240, 255, 0.15) 0%,
+          rgba(240, 248, 255, 0.1) 20%,
+          rgba(20, 20, 35, 0.9) 60%,
+          rgba(10, 10, 20, 1) 100%);
     }
 
     .canvas-container.with-gradient {
-      background: none; /* Will be set dynamically */
+      background: none;
+      position: relative;
+      /* Will be set dynamically */
+    }
+
+    .canvas-container.with-gradient::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+
+      /* Pattern overlay with mask */
+      background-color: rgba(255, 255, 255, 0.08);
+      -webkit-mask-image: url('images/pattern.svg');
+      mask-image: url('images/pattern.svg');
+      -webkit-mask-size: 80px 80px;
+      mask-size: 80px 80px;
+      -webkit-mask-repeat: repeat;
+      mask-repeat: repeat;
+
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .canvas-container.with-gradient canvas {
+      position: relative;
+      z-index: 2;
     }
 
     .canvas-container canvas {
@@ -195,12 +224,30 @@
       color: #e8e0f0;
     }
 
+    /* Debug Toggle */
+    .debug-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 10px 15px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 1000;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-family: sans-serif;
+      font-size: 14px;
+    }
+
     @media (max-width: 500px) {
       .styles-grid {
         grid-template-columns: 1fr;
         padding: 0 20px 60px;
       }
-      
+
       .description-box {
         margin: 0 20px 40px;
         padding: 20px;
@@ -215,15 +262,21 @@
 </head>
 
 <body>
+  <div class="debug-toggle">
+    <input type="checkbox" id="glow-toggle" checked>
+    <label for="glow-toggle">Enable Glow</label>
+  </div>
+
   <div class="header">
     <h1>Moon Disc Visualizations</h1>
-    <p>Different ways to visualize the TAM syllable standing on a moon disc within the orb of white light, with the mantra garland circling around it.</p>
+    <p>Different ways to visualize the TAM syllable standing on a moon disc within the orb of white light, with the
+      mantra garland circling around it.</p>
   </div>
 
   <div class="description-box">
-    "Inside the orb of white light, you see a flat moon disk. It's like a watch face looking up at you. 
-    In the middle of that flat white moon disk is the TAM syllable standing upright. 
-    Around the edge of the moon disk is her mantra, with OM at twelve o'clock. 
+    "Inside the orb of white light, you see a flat moon disk. It's like a watch face looking up at you.
+    In the middle of that flat white moon disk is the TAM syllable standing upright.
+    Around the edge of the moon disk is her mantra, with OM at twelve o'clock.
     As we recite, the mantra mala spirals counterclockwise around the TAM."
   </div>
 
@@ -235,7 +288,8 @@
       </div>
       <div class="style-info">
         <h2>Top-Down View</h2>
-        <p>Gaze down into your heart center. The moon disc appears as a flat circle with the TAM syllable at its center, surrounded by the mantra garland showing only the crowns of each syllable.</p>
+        <p>Gaze down into your heart center. The moon disc appears as a flat circle with the TAM syllable at its center,
+          surrounded by the mantra garland showing only the crowns of each syllable.</p>
       </div>
     </div>
 
@@ -246,7 +300,8 @@
       </div>
       <div class="style-info">
         <h2>Orbital Ring</h2>
-        <p>Watch the mantra garland spiral around the TAM as you recite. The syllables circle the edge of the moon disc, each one facing outward like a train following the OṂ.</p>
+        <p>Watch the mantra garland spiral around the TAM as you recite. The syllables circle the edge of the moon disc,
+          each one facing outward like a train following the OṂ.</p>
       </div>
     </div>
 
@@ -262,7 +317,8 @@
       </div>
       <div class="style-info">
         <h2>Mantra Colors</h2>
-        <p>Each of the 21 Taras has her own color scheme. Use the arrows above to explore how each mantra's unique colors transform the visualization.</p>
+        <p>Each of the 21 Taras has her own color scheme. Use the arrows above to explore how each mantra's unique
+          colors transform the visualization.</p>
       </div>
     </div>
   </div>
@@ -306,42 +362,42 @@
     function createTextTexture(text, fontSize = 64, color = '#ffffff') {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-      
+
       // Set font and measure text
       const font = `bold ${fontSize}px "Crimson Pro", serif`;
       ctx.font = font;
       const metrics = ctx.measureText(text);
-      
+
       // Get text dimensions with robust fallbacks
       const textWidth = Math.max(metrics.width, fontSize * 0.5);
       const textHeight = Math.max(
         (metrics.actualBoundingBoxAscent || 0) + (metrics.actualBoundingBoxDescent || 0),
         fontSize * 0.85 // Fallback based on typical font metrics
       );
-      
+
       // Add padding around text
       const padding = fontSize * 0.4;
       const canvasWidth = Math.max(64, Math.ceil(textWidth + padding * 2));
       const canvasHeight = Math.max(64, Math.ceil(textHeight + padding * 2));
-      
+
       // Set canvas size
       canvas.width = canvasWidth;
       canvas.height = canvasHeight;
-      
+
       // Redraw with correct canvas size (need to re-set font after resize)
       ctx.font = font;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillStyle = color;
       ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-      
+
       const texture = new THREE.CanvasTexture(canvas);
       texture.needsUpdate = true;
-      
+
       const aspectRatio = canvas.width / canvas.height;
-      
-      return { 
-        texture, 
+
+      return {
+        texture,
         aspectRatio: isNaN(aspectRatio) || aspectRatio <= 0 ? 1 : aspectRatio
       };
     }
@@ -351,33 +407,33 @@
     function createTextTextureWithOutline(text, fontSize = 64, fillColor = '#ffffff', outlineColor = '#000000', outlineWidth = 3) {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-      
+
       // Set font and measure text
       const font = `bold ${fontSize}px "Crimson Pro", serif`;
       ctx.font = font;
       const metrics = ctx.measureText(text);
-      
+
       // Get text dimensions with robust fallbacks
       const textWidth = Math.max(metrics.width, fontSize * 0.5);
       const textHeight = Math.max(
         (metrics.actualBoundingBoxAscent || 0) + (metrics.actualBoundingBoxDescent || 0),
         fontSize * 0.85 // Fallback based on typical font metrics
       );
-      
+
       // Add padding around text (account for outline)
       const padding = fontSize * 0.4 + outlineWidth * 2;
       const canvasWidth = Math.max(64, Math.ceil(textWidth + padding * 2));
       const canvasHeight = Math.max(64, Math.ceil(textHeight + padding * 2));
-      
+
       // Set canvas size
       canvas.width = canvasWidth;
       canvas.height = canvasHeight;
-      
+
       // Redraw with correct canvas size (need to re-set font after resize)
       ctx.font = font;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      
+
       // Draw outline first
       if (outlineWidth > 0) {
         ctx.strokeStyle = outlineColor;
@@ -385,18 +441,18 @@
         ctx.lineJoin = 'round';
         ctx.strokeText(text, canvas.width / 2, canvas.height / 2);
       }
-      
+
       // Draw fill
       ctx.fillStyle = fillColor;
       ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-      
+
       const texture = new THREE.CanvasTexture(canvas);
       texture.needsUpdate = true;
-      
+
       const aspectRatio = canvas.width / canvas.height;
-      
-      return { 
-        texture, 
+
+      return {
+        texture,
         aspectRatio: isNaN(aspectRatio) || aspectRatio <= 0 ? 1 : aspectRatio
       };
     }
@@ -413,7 +469,7 @@
             const svgEl = svgDoc.documentElement;
             const path = svgDoc.querySelector('path');
             if (path) path.setAttribute('fill', color);
-            
+
             // Get original SVG dimensions for aspect ratio
             const viewBox = svgEl.getAttribute('viewBox');
             let svgWidth = 100, svgHeight = 100;
@@ -426,28 +482,28 @@
               svgHeight = parseFloat(svgEl.getAttribute('height')) || 100;
             }
             const aspectRatio = svgWidth / svgHeight;
-            
+
             const serializer = new XMLSerializer();
             const modifiedSvg = serializer.serializeToString(svgDoc.documentElement);
             const blob = new Blob([modifiedSvg], { type: 'image/svg+xml;charset=utf-8' });
             const url = URL.createObjectURL(blob);
-            
+
             const img = new Image();
             img.onload = () => {
               // HIGH RESOLUTION canvas for crisp rendering when foreshortened
               const canvasHeight = 2048;
               const canvasWidth = Math.round(canvasHeight * aspectRatio);
-              
+
               const canvas = document.createElement('canvas');
               const ctx = canvas.getContext('2d');
               canvas.width = canvasWidth;
               canvas.height = canvasHeight;
-              
+
               // Enable high quality rendering
               ctx.imageSmoothingEnabled = true;
               ctx.imageSmoothingQuality = 'high';
               ctx.drawImage(img, 0, 0, canvasWidth, canvasHeight);
-              
+
               const texture = new THREE.CanvasTexture(canvas);
               // High quality texture filtering for foreshortened views
               texture.minFilter = THREE.LinearMipmapLinearFilter;
@@ -481,7 +537,7 @@
       return new Promise((resolve, reject) => {
         const createTamMesh = (gltf) => {
           const tam = gltf.scene.clone(true);
-          
+
           // Remove reflection meshes - they have negative Y scale (mirrored)
           const toRemove = [];
           tam.traverse((child) => {
@@ -489,17 +545,17 @@
               // Get the world scale to check for mirrored geometry
               const worldScale = new THREE.Vector3();
               child.getWorldScale(worldScale);
-              
+
               // Negative Y scale indicates a mirrored/reflected mesh
               if (worldScale.y < 0) {
                 toRemove.push(child);
               }
             }
           });
-          
+
           // Remove the mirrored meshes
           toRemove.forEach(mesh => mesh.removeFromParent());
-          
+
           // Apply color to remaining meshes
           tam.traverse((child) => {
             if (child.isMesh) {
@@ -509,10 +565,10 @@
               });
             }
           });
-          
+
           // Scale the model
           tam.scale.set(scale, scale, scale);
-          
+
           resolve(tam);
         };
 
@@ -605,7 +661,7 @@
       moonDisc.rotation.x = -Math.PI / 2;
       moonDisc.position.y = -0.5;
       scene.add(moonDisc);
-      
+
       // Subtle outline ring for moon disc
       const outlineGeom = new THREE.RingGeometry(1.38, 1.42, 128);
       const outlineMat = new THREE.MeshBasicMaterial({
@@ -633,7 +689,7 @@
       const tam = new THREE.Mesh(tamGeom, tamMat);
       tam.position.set(0, tamHeight / 2 - 0.49, 0);
       scene.add(tam);
-      
+
       // 3D TAM alternative (commented out for future use):
       // const tam = await loadTam3D('#3a2a5a', 2.5);
       // tam.position.set(0, -0.49, 0);
@@ -642,28 +698,28 @@
       // Syllable ring (as dots/crowns when viewed from above) - OUTSIDE the moon disc
       const syllableGroup = new THREE.Group();
       const radius = 1.8; // Larger than moon disc radius (1.4)
-      
+
       // Pre-create textures to get aspect ratios for proper sizing
       const syllableData = defaultSyllables.map(syl => {
         const { texture, aspectRatio } = createTextTexture(syl, 48, '#3a2a5a');
         return { text: syl, texture, aspectRatio };
       });
-      
+
       // Calculate dot/label sizes based on available space
       const numSyllables = defaultSyllables.length;
       const anglePerSyllable = (Math.PI * 2) / numSyllables;
       const arcLength = anglePerSyllable * radius;
       const maxLabelHeight = arcLength * 0.7; // Leave some gap between syllables
-      
+
       defaultSyllables.forEach((syl, i) => {
         const angle = (i / numSyllables) * Math.PI * 2 - Math.PI / 2;
         const x = Math.cos(angle) * radius;
         const z = Math.sin(angle) * radius;
-        
+
         const data = syllableData[i];
         const labelHeight = Math.min(maxLabelHeight, 0.25);
         const labelWidth = labelHeight * data.aspectRatio;
-        
+
         // White circles representing syllable crowns - size based on label
         const dotRadius = Math.max(labelWidth, labelHeight) * 0.6;
         const dotGeom = new THREE.CircleGeometry(dotRadius, 32);
@@ -679,8 +735,8 @@
 
         // Label with proper aspect ratio
         const labelGeom = new THREE.PlaneGeometry(labelWidth, labelHeight);
-        const labelMat = new THREE.MeshBasicMaterial({ 
-          map: data.texture, 
+        const labelMat = new THREE.MeshBasicMaterial({
+          map: data.texture,
           transparent: true,
           depthWrite: false
         });
@@ -689,7 +745,7 @@
         label.position.set(x, -0.47, z);
         syllableGroup.add(label);
       });
-      
+
       scene.add(syllableGroup);
 
       // Animation - counter-clockwise when viewed from above (positive Y rotation)
@@ -767,7 +823,7 @@
       moonDisc.rotation.x = -Math.PI / 2;
       moonDisc.position.y = -0.5;
       scene.add(moonDisc);
-      
+
       // Subtle outline ring for moon disc
       const outlineGeom = new THREE.RingGeometry(1.28, 1.32, 128);
       const outlineMat = new THREE.MeshBasicMaterial({
@@ -795,7 +851,7 @@
       const tam = new THREE.Mesh(tamGeom, tamMat);
       tam.position.set(0, tamHeight / 2 - 0.5, 0); // On the moon disc
       scene.add(tam);
-      
+
       // 3D TAM alternative (commented out for future use):
       // const tam = await loadTam3D('#4a3a6a', 2.0);
       // tam.position.set(0, -0.5, 0);
@@ -806,20 +862,20 @@
       const syllableGroup = new THREE.Group();
       const radius = 1.5;
       const syllableY = -0.35; // Closer to moon disc level
-      
+
       // Pre-create all textures to get their aspect ratios
       const syllableData = defaultSyllables.map(syl => {
         const { texture, aspectRatio } = createTextTexture(syl, 72, '#5a4a7a');
         return { text: syl, texture, aspectRatio };
       });
-      
+
       // Calculate uniform height and resulting widths
       const baseHeight = 0.5; // Uniform height for all syllables
       const syllableWidths = syllableData.map(d => baseHeight * d.aspectRatio);
       const totalArcWidth = syllableWidths.reduce((a, b) => a + b, 0);
       const circumference = 2 * Math.PI * radius;
       const numSyllables = defaultSyllables.length;
-      
+
       // Calculate scale to fit all syllables with gaps (syllables take ~75% of circumference for larger text)
       const targetTextRatio = 0.75;
       const availableArc = circumference * targetTextRatio;
@@ -828,19 +884,19 @@
       const scaledWidths = syllableWidths.map(w => w * uniformScale);
       const totalScaledArc = scaledWidths.reduce((a, b) => a + b, 0);
       const gapSize = (circumference - totalScaledArc) / numSyllables;
-      
+
       // Position syllables with even gaps
       let currentAngle = -Math.PI / 2; // Start at 12 o'clock
-      
+
       syllableData.forEach((data, i) => {
         const syllableWidth = scaledWidths[i];
-        
+
         // Add half gap + half syllable width to get center position
         currentAngle += (gapSize / 2 + syllableWidth / 2) / radius;
-        
+
         const x = Math.cos(currentAngle) * radius;
         const z = Math.sin(currentAngle) * radius;
-        
+
         // Use natural aspect ratio for geometry
         const geom = new THREE.PlaneGeometry(syllableWidth, scaledHeight);
         const mat = new THREE.MeshBasicMaterial({
@@ -853,16 +909,16 @@
         });
         const mesh = new THREE.Mesh(geom, mat);
         mesh.position.set(x, syllableY, z);
-        
+
         // Face outward from center (ring mode)
         mesh.lookAt(x * 2, syllableY, z * 2);
-        
+
         syllableGroup.add(mesh);
-        
+
         // Move to end of this syllable + half gap for next
         currentAngle += (syllableWidth / 2 + gapSize / 2) / radius;
       });
-      
+
       scene.add(syllableGroup);
 
       // Animation
@@ -881,7 +937,70 @@
     // STYLE 3: JSON-Driven Mantra Colors
     // ============================================
     let style3Time = 0; // Animation time for syllable rotation
-    
+
+    // Global references for Style 3 glow elements
+    let style3Orb, style3Ring1, style3Ring2, style3GlowSprite;
+    let isGlowEnabled = true;
+
+    // Helper to update glow settings based on mantra ID
+    function updateStyle3GlowSettings(mantraId) {
+      if (!isGlowEnabled) {
+        // Disable all glow elements
+        if (style3Orb && style3Orb.material.uniforms) style3Orb.material.uniforms.maxOpacity.value = 0.0;
+        if (style3Ring1) style3Ring1.material.opacity = 0.0;
+        if (style3Ring2) style3Ring2.material.opacity = 0.0;
+        if (style3GlowSprite) style3GlowSprite.material.opacity = 0.0;
+        return;
+      }
+
+      // List of "light" mantras that need toned down glow
+      // IDs: 2, 15, 18, 19, 21
+      const lightMantras = ['2', '15', '18', '19', '21'];
+
+      const isLightMantra = lightMantras.includes(mantraId);
+
+      console.log(`Mantra ID: ${mantraId}, Is Light: ${isLightMantra}`);
+
+      if (isLightMantra) {
+        // Toned down settings for light mantras
+
+        // 1. Soften the central orb edge and reduce opacity
+        if (style3Orb && style3Orb.material.uniforms) {
+          // Increase falloff for a softer, more gradual edge
+          style3Orb.material.uniforms.edgeFalloff.value = 0.6;
+          // Clip the outer edge to make it feel smaller
+          style3Orb.material.uniforms.minEdge.value = 0.2; // Increased clipping
+          // Drastically reduce max opacity
+          style3Orb.material.uniforms.maxOpacity.value = 0.4; // Was 0.8
+        }
+
+        // 2. Reduce outer ring opacity
+        if (style3Ring1) style3Ring1.material.opacity = 0.1; // Was 0.15
+        if (style3Ring2) style3Ring2.material.opacity = 0.05; // Was 0.08
+
+        // 3. Reduce glow sprite opacity
+        if (style3GlowSprite) style3GlowSprite.material.opacity = 0.2; // Was 0.5
+
+      } else {
+        // Default settings for other mantras (like the golden ones)
+        // RESTORED TO ORIGINAL SHARPNESS to fix regression
+
+        // 1. Sharp edge for standard look (mimic MeshBasicMaterial)
+        if (style3Orb && style3Orb.material.uniforms) {
+          style3Orb.material.uniforms.edgeFalloff.value = 0.01; // Very sharp
+          style3Orb.material.uniforms.minEdge.value = 0.0;
+          style3Orb.material.uniforms.maxOpacity.value = 1.0; // Full brightness
+        }
+
+        // 2. Standard outer ring opacity
+        if (style3Ring1) style3Ring1.material.opacity = 0.3;
+        if (style3Ring2) style3Ring2.material.opacity = 0.15;
+
+        // 3. Standard glow sprite opacity
+        if (style3GlowSprite) style3GlowSprite.material.opacity = 1.0;
+      }
+    }
+
     async function initStyle3() {
       const container = document.getElementById('canvas3');
       const containerWrapper = document.getElementById('canvas3-container');
@@ -910,33 +1029,78 @@
         canvas.width = size;
         canvas.height = size;
         const ctx = canvas.getContext('2d');
-        
+
         const gradient = ctx.createRadialGradient(
-          size/2, size/2, size * 0.40,
-          size/2, size/2, size * 0.50
+          size / 2, size / 2, size * 0.40,
+          size / 2, size / 2, size * 0.50
         );
         gradient.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
         gradient.addColorStop(0.3, 'rgba(255, 255, 255, 0.5)');
         gradient.addColorStop(0.6, 'rgba(255, 255, 255, 0.2)');
         gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-        
+
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, size, size);
-        
+
         const texture = new THREE.CanvasTexture(canvas);
         texture.needsUpdate = true;
         return texture;
       }
 
-      // Core white orb
+      // Core white orb with ShaderMaterial for soft edge control
       const orbGeom = new THREE.SphereGeometry(2, 128, 128);
-      const orbMat = new THREE.MeshBasicMaterial({
-        color: 0xffffff,
-        depthWrite: false
+
+      // Custom shader to control the edge softness
+      const orbMat = new THREE.ShaderMaterial({
+        uniforms: {
+          color: { value: new THREE.Color(0xffffff) },
+          edgeFalloff: { value: 0.1 }, // Controls how soft the edge is
+          minEdge: { value: 0.0 },     // Controls where the alpha starts falling off (clipping)
+          maxOpacity: { value: 1.0 }   // Controls the maximum opacity
+        },
+        vertexShader: `
+          varying vec3 vNormal;
+          varying vec3 vViewPosition;
+          void main() {
+            vNormal = normalize(normalMatrix * normal);
+            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+            vViewPosition = -mvPosition.xyz;
+            gl_Position = projectionMatrix * mvPosition;
+          }
+        `,
+        fragmentShader: `
+          uniform vec3 color;
+          uniform float edgeFalloff;
+          uniform float minEdge;
+          uniform float maxOpacity;
+          varying vec3 vNormal;
+          varying vec3 vViewPosition;
+          
+          void main() {
+            // Calculate dot product between normal and view direction
+            vec3 normal = normalize(vNormal);
+            vec3 viewDir = normalize(vViewPosition);
+            float dotNV = dot(normal, viewDir);
+            
+            // Calculate alpha based on dot product and falloff
+            // If dotNV < minEdge, alpha is 0 (clipped)
+            // If dotNV > edgeFalloff, alpha approaches 1 (solid center)
+            float alpha = smoothstep(minEdge, max(minEdge + 0.01, edgeFalloff), dotNV);
+            
+            // Apply max opacity
+            alpha *= maxOpacity;
+            
+            gl_FragColor = vec4(color, alpha);
+          }
+        `,
+        transparent: true,
+        depthWrite: false, // Important: don't write depth so internal items show
+        side: THREE.FrontSide // Only render front face
       });
-      const orb = new THREE.Mesh(orbGeom, orbMat);
-      orb.renderOrder = -1;
-      style3Scene.add(orb);
+
+      style3Orb = new THREE.Mesh(orbGeom, orbMat);
+      style3Orb.renderOrder = -1; // Render behind everything
+      style3Scene.add(style3Orb);
 
       // Two outer rings
       const ring1Geom = new THREE.SphereGeometry(2.15, 128, 128);
@@ -946,7 +1110,8 @@
         opacity: 0.3,
         side: THREE.BackSide
       });
-      style3Scene.add(new THREE.Mesh(ring1Geom, ring1Mat));
+      style3Ring1 = new THREE.Mesh(ring1Geom, ring1Mat);
+      style3Scene.add(style3Ring1);
 
       const ring2Geom = new THREE.SphereGeometry(2.3, 128, 128);
       const ring2Mat = new THREE.MeshBasicMaterial({
@@ -955,7 +1120,8 @@
         opacity: 0.15,
         side: THREE.BackSide
       });
-      style3Scene.add(new THREE.Mesh(ring2Geom, ring2Mat));
+      style3Ring2 = new THREE.Mesh(ring2Geom, ring2Mat);
+      style3Scene.add(style3Ring2);
 
       // Edge glow sprite
       const glowTexture3 = createEdgeGlowTexture3();
@@ -965,10 +1131,10 @@
         blending: THREE.AdditiveBlending,
         depthWrite: false
       });
-      const glowSprite3 = new THREE.Sprite(glowMaterial3);
-      glowSprite3.scale.set(5.5, 5.5, 1);
-      glowSprite3.renderOrder = -2;
-      style3Scene.add(glowSprite3);
+      style3GlowSprite = new THREE.Sprite(glowMaterial3);
+      style3GlowSprite.scale.set(5.5, 5.5, 1);
+      style3GlowSprite.renderOrder = -2;
+      style3Scene.add(style3GlowSprite);
 
       // Moon disc - WHITE with outline - LARGER within orb
       const discGeom = new THREE.CircleGeometry(1.5, 128);
@@ -982,7 +1148,7 @@
       style3MoonDisc.rotation.x = -Math.PI / 2;
       style3MoonDisc.position.y = -0.5;
       style3Scene.add(style3MoonDisc);
-      
+
       // Outline ring for moon disc (will be colored by mantra)
       const outlineGeom = new THREE.RingGeometry(1.48, 1.52, 128);
       style3MoonDiscOutlineMat = new THREE.MeshBasicMaterial({
@@ -1011,12 +1177,12 @@
       function animate() {
         requestAnimationFrame(animate);
         style3Time += 0.002;
-        
+
         // Syllables rotate counter-clockwise around the TAM
         style3SyllableGroup.rotation.y = style3Time;
-        
+
         // TAM stays fixed facing forward
-        
+
         style3Controls.update();
         style3Renderer.render(style3Scene, style3Camera);
       }
@@ -1036,6 +1202,9 @@
 
       // Apply background gradient
       applyBackgroundGradient(containerWrapper, mantra.backgroundGradient);
+
+      // Apply dynamic glow settings based on mantra ID
+      updateStyle3GlowSettings(mantra.id);
 
       // Get colors
       const tamColor = mantra.tamColor || '#4a3a6a';
@@ -1074,7 +1243,7 @@
       const tamMesh = new THREE.Mesh(tamGeom, tamMat);
       tamMesh.position.set(0, tamHeight / 2 - 0.5, 0); // On the moon disc
       style3Tam.add(tamMesh);
-      
+
       // 3D TAM alternative (commented out for future use):
       // const tamMesh = await loadTam3D(tamColor, 2.5);
       // tamMesh.position.set(0, -0.5, 0);
@@ -1109,14 +1278,14 @@
         );
         return { text: syl, texture, aspectRatio };
       });
-      
+
       // Calculate uniform height and resulting widths
       const baseHeight = 0.5; // Uniform height for all syllables
       const syllableWidths = syllableData.map(d => baseHeight * d.aspectRatio);
       const totalArcWidth = syllableWidths.reduce((a, b) => a + b, 0);
       const circumference = 2 * Math.PI * radius;
       const numSyllables = syllables.length;
-      
+
       // Calculate scale to fit all syllables with gaps (syllables take ~75% of circumference for larger text)
       const targetTextRatio = 0.75;
       const availableArc = circumference * targetTextRatio;
@@ -1125,19 +1294,19 @@
       const scaledWidths = syllableWidths.map(w => w * uniformScale);
       const totalScaledArc = scaledWidths.reduce((a, b) => a + b, 0);
       const gapSize = (circumference - totalScaledArc) / numSyllables;
-      
+
       // Position syllables with even gaps
       let currentAngle = -Math.PI / 2; // Start at 12 o'clock
-      
+
       syllableData.forEach((data, i) => {
         const syllableWidth = scaledWidths[i];
-        
+
         // Add half gap + half syllable width to get center position
         currentAngle += (gapSize / 2 + syllableWidth / 2) / radius;
-        
+
         const x = Math.cos(currentAngle) * radius;
         const z = Math.sin(currentAngle) * radius;
-        
+
         // Use natural aspect ratio for geometry
         const geom = new THREE.PlaneGeometry(syllableWidth, scaledHeight);
         const mat = new THREE.MeshBasicMaterial({
@@ -1150,12 +1319,12 @@
         });
         const mesh = new THREE.Mesh(geom, mat);
         mesh.position.set(x, syllableY, z);
-        
+
         // Face outward from center (ring mode)
         mesh.lookAt(x * 2, syllableY, z * 2);
-        
+
         style3SyllableGroup.add(mesh);
-        
+
         // Move to end of this syllable + half gap for next
         currentAngle += (syllableWidth / 2 + gapSize / 2) / radius;
       });
@@ -1187,6 +1356,14 @@
       // Setup navigation buttons
       document.getElementById('prev-mantra').addEventListener('click', prevMantra);
       document.getElementById('next-mantra').addEventListener('click', nextMantra);
+
+      // Setup debug toggle
+      document.getElementById('glow-toggle').addEventListener('change', (e) => {
+        isGlowEnabled = e.target.checked;
+        if (mantras.length > 0) {
+          updateStyle3GlowSettings(mantras[currentMantraIndex].id);
+        }
+      });
 
       console.log('All styles initialized');
     }
