@@ -50,7 +50,7 @@
       /* Use mask to allow color control via background-color */
       /* Opacity is dynamically controlled via injected style element */
       /* Start with very low opacity, will fade in to final opacity */
-      background-color: rgba(255, 255, 255, 0.01);
+      background-color: rgba(255, 255, 255, 0.005);
       -webkit-mask-image: url('images/pattern.svg');
       mask-image: url('images/pattern.svg');
       -webkit-mask-size: 80px 80px;
@@ -1032,23 +1032,23 @@
         return Math.max(0, Math.min(1, overrideOpacity));
       }
 
-      // Map luminance (0-1) to opacity range
-      // Light backgrounds (luminance > 0.7): opacity 0.12-0.18 (more visible)
-      // Medium backgrounds (luminance 0.3-0.7): opacity 0.06-0.12 (balanced)
-      // Dark backgrounds (luminance < 0.3): opacity 0.02-0.06 (more subtle)
+      // Map luminance (0-1) to opacity range (balanced for visibility)
+      // Light backgrounds (luminance > 0.7): opacity 0.06-0.08 (more visible)
+      // Medium backgrounds (luminance 0.3-0.7): opacity 0.04-0.06 (balanced)
+      // Dark backgrounds (luminance < 0.3): opacity 0.02-0.04 (more subtle)
 
       if (luminance > 0.7) {
-        // Light backgrounds: scale from 0.12 to 0.18
+        // Light backgrounds: scale from 0.06 to 0.08
         const t = (luminance - 0.7) / 0.3; // Normalize to 0-1
-        return 0.12 + (t * 0.06);
+        return 0.06 + (t * 0.02);
       } else if (luminance > 0.3) {
-        // Medium backgrounds: scale from 0.06 to 0.12
+        // Medium backgrounds: scale from 0.04 to 0.06
         const t = (luminance - 0.3) / 0.4; // Normalize to 0-1
-        return 0.06 + (t * 0.06);
+        return 0.04 + (t * 0.02);
       } else {
-        // Dark backgrounds: scale from 0.02 to 0.06
+        // Dark backgrounds: scale from 0.02 to 0.04
         const t = luminance / 0.3; // Normalize to 0-1
-        return 0.02 + (t * 0.04);
+        return 0.02 + (t * 0.02);
       }
     }
 
