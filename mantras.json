@@ -34,23 +34,23 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#ffcccc",
+            "color": "#fff0f0",
             "position": 0
           },
           {
-            "color": "#ff9999",
-            "position": 10
+            "color": "#ffcccc",
+            "position": 15
           },
           {
-            "color": "#ff6666",
-            "position": 35
+            "color": "#cc3333",
+            "position": 45
           },
           {
-            "color": "#cc0000",
-            "position": 65
+            "color": "#aa0000",
+            "position": 70
           },
           {
-            "color": "#db0000",
+            "color": "#990000",
             "position": 100
           }
         ]
@@ -163,7 +163,7 @@
       "tamOutlineColor": null,
       "syllableStyle": {
         "fill": "#ffffff",
-        "outlineColor": "#ffc800",
+        "outlineColor": "#cc9900",
         "outlineWidth": 0.025
       },
       "backgroundGradient": {
@@ -174,19 +174,15 @@
             "position": 0
           },
           {
-            "color": "#fff2cc",
-            "position": 15
-          },
-          {
             "color": "#ffe666",
-            "position": 45
+            "position": 40
           },
           {
             "color": "#ffb300",
-            "position": 70
+            "position": 60
           },
           {
-            "color": "#ffc800",
+            "color": "#ffb300",
             "position": 100
           }
         ]
@@ -224,7 +220,7 @@
       "tamOutlineColor": null,
       "syllableStyle": {
         "fill": "#ffffff",
-        "outlineColor": "#ffc800",
+        "outlineColor": "#cc9900",
         "outlineWidth": 0.025
       },
       "backgroundGradient": {
@@ -235,19 +231,15 @@
             "position": 0
           },
           {
-            "color": "#fff2cc",
-            "position": 15
-          },
-          {
             "color": "#ffe666",
-            "position": 45
+            "position": 40
           },
           {
             "color": "#ffb300",
-            "position": 70
+            "position": 60
           },
           {
-            "color": "#ffc800",
+            "color": "#ffb300",
             "position": 100
           }
         ]
@@ -292,23 +284,19 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#fff0f0",
+            "color": "#ff3737",
             "position": 0
           },
           {
-            "color": "#ffcccc",
-            "position": 15
+            "color": "#ff3737",
+            "position": 25
           },
           {
-            "color": "#cc3333",
-            "position": 45
+            "color": "#d72e2e",
+            "position": 50
           },
           {
-            "color": "#aa0000",
-            "position": 70
-          },
-          {
-            "color": "#c70000",
+            "color": "#bb0d0d",
             "position": 100
           }
         ]
@@ -354,23 +342,19 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#aa6677",
+            "color": "#ea1148",
             "position": 0
           },
           {
-            "color": "#884455",
+            "color": "#9d0e32",
             "position": 25
           },
           {
-            "color": "#662233",
+            "color": "#6e0f27",
             "position": 50
           },
           {
-            "color": "#550022",
-            "position": 75
-          },
-          {
-            "color": "#6b0025",
+            "color": "#440011",
             "position": 100
           }
         ]
@@ -418,28 +402,25 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#5555aa",
+            "color": "#0909e2",
             "position": 0
           },
           {
-            "color": "#444499",
+            "color": "#1515b5",
             "position": 25
           },
           {
-            "color": "#333388",
-            "position": 50
+            "color": "#111197",
+            "position": 70
           },
           {
-            "color": "#222277",
-            "position": 75
-          },
-          {
-            "color": "#080075",
+            "color": "#07006a",
             "position": 100
           }
         ]
       },
       "startIndex": 0,
+      "patternOpacity": 0.04,
       "releaseDate": "",
       "releaseDateOverride": false
     },
@@ -479,23 +460,19 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#aa6677",
+            "color": "#d20035",
             "position": 0
           },
           {
-            "color": "#884455",
+            "color": "#9d0027",
             "position": 25
           },
           {
-            "color": "#662233",
+            "color": "#6e001b",
             "position": 50
           },
           {
-            "color": "#550022",
-            "position": 75
-          },
-          {
-            "color": "#6b0025",
+            "color": "#570016",
             "position": 100
           }
         ]
@@ -538,20 +515,12 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#f0fff0",
+            "color": "#66aa66",
             "position": 0
           },
           {
-            "color": "#ccffcc",
-            "position": 15
-          },
-          {
-            "color": "#66aa88",
-            "position": 45
-          },
-          {
-            "color": "#006644",
-            "position": 70
+            "color": "#2F7040",
+            "position": 20
           },
           {
             "color": "#003d26",
@@ -559,6 +528,7 @@
           }
         ]
       },
+      "patternOpacity": 0.03,
       "startIndex": 0,
       "releaseDate": "",
       "releaseDateOverride": false
@@ -599,23 +569,19 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#fff0f0",
+            "color": "#ff3737",
             "position": 0
           },
           {
-            "color": "#ffcccc",
-            "position": 15
+            "color": "#ff3737",
+            "position": 25
           },
           {
-            "color": "#cc3366",
-            "position": 45
+            "color": "#d72e2e",
+            "position": 50
           },
           {
-            "color": "#aa0044",
-            "position": 70
-          },
-          {
-            "color": "#cc0047",
+            "color": "#bb0d0d",
             "position": 100
           }
         ]
@@ -671,11 +637,7 @@
           },
           {
             "color": "#cc7744",
-            "position": 45
-          },
-          {
-            "color": "#c84400",
-            "position": 70
+            "position": 25
           },
           {
             "color": "#db4200",
@@ -683,6 +645,7 @@
           }
         ]
       },
+      "patternOpacity": 0.05,
       "startIndex": 0,
       "releaseDate": "",
       "releaseDateOverride": false
@@ -725,20 +688,12 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#fff8e8",
+            "color": "#ffeba6",
             "position": 0
           },
           {
-            "color": "#ffe6cc",
-            "position": 15
-          },
-          {
             "color": "#cc9944",
-            "position": 45
-          },
-          {
-            "color": "#aa6600",
-            "position": 70
+            "position": 30
           },
           {
             "color": "#cc7700",
@@ -746,6 +701,7 @@
           }
         ]
       },
+      "patternOpacity": 0.05,
       "startIndex": 0,
       "releaseDate": "",
       "releaseDateOverride": false
@@ -790,20 +746,12 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#aa5555",
+            "color": "#de0000",
             "position": 0
           },
           {
-            "color": "#883333",
-            "position": 25
-          },
-          {
-            "color": "#662222",
+            "color": "#8a0303",
             "position": 50
-          },
-          {
-            "color": "#550000",
-            "position": 75
           },
           {
             "color": "#750000",
@@ -915,23 +863,39 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#e8e8f0",
+            "color": "#e8e0f8",
             "position": 0
           },
           {
-            "color": "#e5e5ed",
+            "color": "#e0e8f8",
+            "position": 12.5
+          },
+          {
+            "color": "#e0f0e8",
             "position": 25
           },
           {
-            "color": "#e2e2ea",
+            "color": "#f0ece0",
+            "position": 37.5
+          },
+          {
+            "color": "#f0e8e5",
             "position": 50
           },
           {
-            "color": "#e0e0e8",
+            "color": "#e8e0f8",
+            "position": 62.5
+          },
+          {
+            "color": "#e0e8f8",
             "position": 75
           },
           {
-            "color": "#dcdce5",
+            "color": "#f0fff8",
+            "position": 87.5
+          },
+          {
+            "color": "#fffcf0",
             "position": 100
           }
         ]
@@ -977,23 +941,19 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#ffe0e0",
+            "color": "#ff4d66",
             "position": 0
           },
           {
-            "color": "#ffcccc",
+            "color": "#ff4d66",
             "position": 25
           },
           {
-            "color": "#cc3344",
+            "color": "#e6395c",
             "position": 50
           },
           {
-            "color": "#aa0044",
-            "position": 75
-          },
-          {
-            "color": "#cc0047",
+            "color": "#cc2255",
             "position": 100
           }
         ]
@@ -1036,27 +996,24 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#ffcccc",
+            "color": "#ff6b3d",
             "position": 0
           },
           {
-            "color": "#ff9999",
+            "color": "#ff5c33",
             "position": 25
           },
           {
-            "color": "#dd4444",
+            "color": "#e64d1a",
             "position": 50
           },
           {
-            "color": "#cc2222",
-            "position": 75
-          },
-          {
-            "color": "#ff2424",
+            "color": "#cc4400",
             "position": 100
           }
         ]
       },
+      "patternOpacity": 0.06,
       "startIndex": 0,
       "releaseDate": "",
       "releaseDateOverride": false
@@ -1098,23 +1055,39 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#e8e8f5",
+            "color": "#e8e0f8",
             "position": 0
           },
           {
-            "color": "#e5e5f2",
-            "position": 15
+            "color": "#e0e8f8",
+            "position": 12.5
           },
           {
-            "color": "#e0e0ed",
-            "position": 45
+            "color": "#e0f0e8",
+            "position": 25
           },
           {
-            "color": "#d8d8e8",
-            "position": 70
+            "color": "#f0ece0",
+            "position": 37.5
           },
           {
-            "color": "#d0d0e0",
+            "color": "#f0e8e5",
+            "position": 50
+          },
+          {
+            "color": "#e8e0f8",
+            "position": 62.5
+          },
+          {
+            "color": "#e0e8f8",
+            "position": 75
+          },
+          {
+            "color": "#f0fff8",
+            "position": 87.5
+          },
+          {
+            "color": "#fffcf0",
             "position": 100
           }
         ]
@@ -1162,23 +1135,39 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#e8e8f5",
+            "color": "#e8e0f8",
             "position": 0
           },
           {
-            "color": "#e5e5f2",
-            "position": 15
+            "color": "#e0e8f8",
+            "position": 12.5
           },
           {
-            "color": "#e0e0ed",
-            "position": 45
+            "color": "#e0f0e8",
+            "position": 25
           },
           {
-            "color": "#d8d8e8",
-            "position": 70
+            "color": "#f0ece0",
+            "position": 37.5
           },
           {
-            "color": "#d0d0e0",
+            "color": "#f0e8e5",
+            "position": 50
+          },
+          {
+            "color": "#e8e0f8",
+            "position": 62.5
+          },
+          {
+            "color": "#e0e8f8",
+            "position": 75
+          },
+          {
+            "color": "#f0fff8",
+            "position": 87.5
+          },
+          {
+            "color": "#fffcf0",
             "position": 100
           }
         ]
@@ -1232,7 +1221,7 @@
             "position": 0
           },
           {
-            "color": "#ffaa88",
+            "color": "#ff8351",
             "position": 25
           },
           {
@@ -1241,14 +1230,11 @@
           },
           {
             "color": "#dd4400",
-            "position": 75
-          },
-          {
-            "color": "#ff5900",
             "position": 100
           }
         ]
       },
+      "patternOpacity": 0.06,
       "startIndex": 0,
       "releaseDate": "",
       "releaseDateOverride": false
@@ -1290,23 +1276,39 @@
         "type": "radial",
         "colors": [
           {
-            "color": "#e8e8f5",
+            "color": "#e8e0f8",
             "position": 0
           },
           {
-            "color": "#e5e5f2",
-            "position": 15
+            "color": "#e0e8f8",
+            "position": 12.5
           },
           {
-            "color": "#e0e0ed",
-            "position": 45
+            "color": "#e0f0e8",
+            "position": 25
           },
           {
-            "color": "#d8d8e8",
-            "position": 70
+            "color": "#f0ece0",
+            "position": 37.5
           },
           {
-            "color": "#d0d0e0",
+            "color": "#f0e8e5",
+            "position": 50
+          },
+          {
+            "color": "#e8e0f8",
+            "position": 62.5
+          },
+          {
+            "color": "#e0e8f8",
+            "position": 75
+          },
+          {
+            "color": "#f0fff8",
+            "position": 87.5
+          },
+          {
+            "color": "#fffcf0",
             "position": 100
           }
         ]
