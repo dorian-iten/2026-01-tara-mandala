@@ -163,7 +163,7 @@
       "tamOutlineColor": null,
       "syllableStyle": {
         "fill": "#ffffff",
-        "outlineColor": "#cc9900",
+        "outlineColor": "#846300",
         "outlineWidth": 0.025
       },
       "backgroundGradient": {
@@ -220,7 +220,7 @@
       "tamOutlineColor": null,
       "syllableStyle": {
         "fill": "#ffffff",
-        "outlineColor": "#cc9900",
+        "outlineColor": "#846300",
         "outlineWidth": 0.025
       },
       "backgroundGradient": {
@@ -277,7 +277,7 @@
       "tamOutlineColor": null,
       "syllableStyle": {
         "fill": "#ffffff",
-        "outlineColor": "#c70000",
+        "outlineColor": "#990000",
         "outlineWidth": 0.025
       },
       "backgroundGradient": {
@@ -739,7 +739,7 @@
       "tamOutlineColor": null,
       "syllableStyle": {
         "fill": "#ffffff",
-        "outlineColor": "#750000",
+        "outlineColor": "#450000",
         "outlineWidth": 0.025
       },
       "backgroundGradient": {
