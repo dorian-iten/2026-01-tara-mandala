@@ -52,8 +52,8 @@
       background-color: rgba(255, 255, 255, 0.06);
       -webkit-mask-image: url('images/pattern.svg');
       mask-image: url('images/pattern.svg');
-      -webkit-mask-size: 100px 100px;
-      mask-size: 100px 100px;
+      -webkit-mask-size: 80px 80px;
+      mask-size: 80px 80px;
       -webkit-mask-repeat: repeat;
       mask-repeat: repeat;
 
@@ -64,6 +64,30 @@
       pointer-events: none;
       z-index: 0;
       transition: background-color 0.5s ease;
+    }
+
+    /* Desktop: larger background pattern */
+    @media (min-width: 769px) {
+      body::before {
+        -webkit-mask-size: 80px 80px;
+        mask-size: 80px 80px;
+      }
+    }
+
+    /* Mobile landscape: scale down background pattern */
+    @media (max-width: 768px) and (orientation: landscape) {
+      body::before {
+        -webkit-mask-size: 20px 20px;
+        mask-size: 20px 20px;
+      }
+    }
+
+    /* Mobile portrait: larger background pattern */
+    @media (max-width: 768px) and (orientation: portrait) {
+      body::before {
+        -webkit-mask-size: 50px 50px;
+        mask-size: 50px 50px;
+      }
     }
 
     #container {
@@ -1246,23 +1270,66 @@
     let moonDisc = null; // Reference to moon disc
     let moonDiscOutline = null; // Reference to moon disc outline ring
     let moonDiscOutlineMat = null; // Reference to moon disc outline material (for color updates)
+    let sceneGroup = null; // Group to hold all 3D objects for scaling
 
 
 
-    // Camera position adjustments based on orientation
+    // Camera position - keep consistent, use scale instead
     function getCameraPosition() {
       const isPortrait = window.innerHeight > window.innerWidth;
-      const isLandscapeMobile = window.innerHeight < 500 && window.innerWidth > window.innerHeight;
-      const isDesktop = window.innerWidth >= 768 && !isPortrait && !isLandscapeMobile;
-
-      if (isLandscapeMobile) {
-        return { x: 0, y: 1.8, z: 6.5 };
-      } else if (isPortrait) {
-        return { x: 0, y: 1.2, z: 9 };
-      } else if (isDesktop) {
-        return { x: 0, y: 2.2, z: 7 };
+      
+      // Use consistent camera distance, adjust Y position slightly for portrait
+      if (isPortrait) {
+        return { x: 0, y: 1.5, z: 7 };
       } else {
         return { x: 0, y: 2.2, z: 7 };
+      }
+    }
+
+    // Get camera FOV based on viewport - wider FOV on mobile portrait adds space around sphere
+    function getCameraFOV() {
+      const isPortrait = window.innerHeight > window.innerWidth;
+      const isMobile = window.innerWidth <= 768;
+      const isTablet = window.innerWidth >= 768 || /iPad/.test(navigator.userAgent);
+      
+      // Wider FOV on phone portrait to show more of the scene (adds space around sphere)
+      if (isPortrait && isMobile && !isTablet) {
+        return 54; // Balanced: shows space around sphere without making it too small
+      }
+      // Slightly wider on tablet portrait
+      if (isPortrait && isTablet) {
+        return 52; // Slightly wider for tablet portrait
+      }
+      return 50; // Default FOV for desktop/landscape
+    }
+
+    // Get scale factor based on viewport - use scale instead of camera distance
+    function getSceneScale() {
+      const isPortrait = window.innerHeight > window.innerWidth;
+      const isLandscapeMobile = window.innerHeight < 500 && window.innerWidth > window.innerHeight;
+      const isMobile = window.innerWidth <= 768;
+      const isTablet = window.innerWidth >= 768 || /iPad/.test(navigator.userAgent);
+      
+      // Scale down on phone portrait to fit better
+      if (isPortrait && isMobile && !isTablet) {
+        return 0.75; // Scale down for phone portrait
+      }
+      // Tablet portrait: slightly smaller than desktop
+      if (isPortrait && isTablet) {
+        return 0.9; // Slightly smaller for tablet portrait
+      }
+      // Scale up on mobile landscape to make it bigger
+      if (isLandscapeMobile) {
+        return 1.15; // Scale to 115% to make it bigger
+      }
+      return 1.0; // Normal scale for desktop
+    }
+
+    // Update scene group scale based on orientation
+    function updateSceneScale() {
+      if (sceneGroup) {
+        const scale = getSceneScale();
+        sceneGroup.scale.set(scale, scale, scale);
       }
     }
 
@@ -1320,9 +1387,13 @@
       // Adjusted for closer camera position with moon disk visualization
       scene.fog = new THREE.Fog(0xe5f0f5, 5, 12);
 
+      // Create a group to hold all 3D objects for scaling
+      sceneGroup = new THREE.Group();
+      scene.add(sceneGroup);
+
       // Camera
       const aspect = window.innerWidth / window.innerHeight;
-      camera = new THREE.PerspectiveCamera(50, aspect, 0.1, 1000);
+      camera = new THREE.PerspectiveCamera(getCameraFOV(), aspect, 0.1, 1000);
       const camPos = getCameraPosition();
       camera.position.set(camPos.x, camPos.y, camPos.z);
       camera.lookAt(0, 0, 0);
@@ -1370,6 +1441,9 @@
       createTextRing(currentSchema);
       addTammToSphere(currentSchema);
       setCameraToStartSyllable();
+
+      // Apply initial scale
+      updateSceneScale();
 
       // Event listeners
       window.addEventListener('resize', onWindowResize);
@@ -1934,7 +2008,7 @@
       });
       const orb = new THREE.Mesh(orbGeometry, orbMaterial);
       orb.renderOrder = -1;
-      scene.add(orb);
+      sceneGroup.add(orb);
 
       // 2. Glow Gradient on the outside (Custom Shader)
       const glowGeometry = new THREE.SphereGeometry(2.8, 64, 64); // Larger for the glow
@@ -1998,7 +2072,7 @@
 
       const glow = new THREE.Mesh(glowGeometry, atmosphereMaterial);
       glow.renderOrder = -2;
-      scene.add(glow);
+      sceneGroup.add(glow);
 
       // 3. Second Gradient for Elegant Flourish (Alternative Style)
       // A slightly larger, more subtle outer glow with a different falloff
@@ -2028,7 +2102,7 @@
 
       const glow2 = new THREE.Mesh(glowGeometry2, atmosphereMaterial2);
       glow2.renderOrder = -3; // Render before the inner glow
-      scene.add(glow2);
+      sceneGroup.add(glow2);
 
       // Moon disc - WHITE horizontal disc where TAM stands
       const discGeom = new THREE.CircleGeometry(1.5, 128);
@@ -2044,7 +2118,7 @@
       moonDisc.rotation.x = -Math.PI / 2;
       moonDisc.position.y = -0.5;
       moonDisc.renderOrder = 0; // Render after orb but before outline
-      scene.add(moonDisc);
+      sceneGroup.add(moonDisc);
 
       // Outline ring for moon disc (will be colored by mantra)
       const outlineGeom = new THREE.RingGeometry(1.48, 1.52, 128);
@@ -2057,13 +2131,13 @@
       moonDiscOutline = new THREE.Mesh(outlineGeom, moonDiscOutlineMat);
       moonDiscOutline.rotation.x = -Math.PI / 2;
       moonDiscOutline.position.y = -0.49; // Slightly higher than moon disc to avoid z-fighting
-      scene.add(moonDiscOutline);
+      sceneGroup.add(moonDiscOutline);
     }
 
     function addTammToSphere(schemaIndex) {
       // Remove existing TAM plane if it exists
       if (tamPlane) {
-        scene.remove(tamPlane);
+        sceneGroup.remove(tamPlane);
         tamPlane = null;
       }
 
@@ -2182,7 +2256,7 @@
               tamPlane.renderOrder = 0;
 
               console.log('TAM plane created and added to scene', tamPlane);
-              scene.add(tamPlane);
+              sceneGroup.add(tamPlane);
               console.log('TAM plane added to scene. Total objects in scene:', scene.children.length);
 
               // Clean up the blob URL
@@ -2340,7 +2414,7 @@
             console.log('TAM plane renderOrder:', tamPlane.renderOrder);
             console.log('TAM color:', tamColor);
             console.log('TAM outline color:', tamOutlineColor);
-            scene.add(tamPlane);
+            sceneGroup.add(tamPlane);
 
             console.log('TAM plane added to scene. Total objects in scene:', scene.children.length);
           },
@@ -2526,7 +2600,7 @@
         if (mesh.material.map) mesh.material.map.dispose();
         mesh.material.dispose();
         mesh.geometry.dispose();
-        scene.remove(mesh);
+        sceneGroup.remove(mesh);
       });
       textMeshes = [];
 
@@ -2614,7 +2688,7 @@
         textMesh.material.opacity = 1.0;
 
         // Add to scene
-        scene.add(textMesh);
+        sceneGroup.add(textMesh);
         textMeshes.push(textMesh);
 
         // Move to end of this syllable + half gap for next
@@ -2663,6 +2737,7 @@
 
     function onWindowResize() {
       camera.aspect = window.innerWidth / window.innerHeight;
+      camera.fov = getCameraFOV(); // Update FOV based on viewport
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
       composer.setSize(window.innerWidth, window.innerHeight);
@@ -2670,12 +2745,16 @@
       // Adjust camera position based on new dimensions
       const camPos = getCameraPosition();
       camera.position.set(camPos.x, camPos.y, camPos.z);
+
+      // Update scene scale for mobile portrait
+      updateSceneScale();
     }
 
     function onOrientationChange() {
       // Wait for resize to complete
       setTimeout(() => {
         onWindowResize();
+        updateSceneScale();
       }, 100);
     }
 
