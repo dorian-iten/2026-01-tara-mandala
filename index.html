@@ -690,6 +690,19 @@
         gap: 4px;
       }
 
+      /* Flip order in landscape mobile: plus on top, minus on bottom */
+      #speed-increase {
+        order: 1;
+      }
+
+      #speed-label {
+        order: 2;
+      }
+
+      #speed-decrease {
+        order: 3;
+      }
+
       .speed-btn {
         width: 32px;
         height: 32px;
@@ -824,9 +837,9 @@
   </div>
 
   <div id="speed-controls">
-    <button class="speed-btn" id="speed-increase" aria-label="Increase speed">+</button>
-    <div id="speed-label">Speed: <span id="speed-value">1.0×</span></div>
     <button class="speed-btn" id="speed-decrease" aria-label="Decrease speed">−</button>
+    <div id="speed-label">Speed: <span id="speed-value">1.0×</span></div>
+    <button class="speed-btn" id="speed-increase" aria-label="Increase speed">+</button>
   </div>
 
   <div id="nav-controls">
