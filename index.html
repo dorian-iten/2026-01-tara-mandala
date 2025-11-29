@@ -122,12 +122,13 @@
       position: absolute;
       top: 20px;
       left: 20px;
-      z-index: 10;
+      z-index: 20;
     }
 
     .custom-dropdown {
       position: relative;
       min-width: 340px;
+      z-index: 20;
     }
 
     .dropdown-trigger {
@@ -194,6 +195,7 @@
       overflow: hidden;
       transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       pointer-events: none;
+      z-index: 21;
     }
 
     .custom-dropdown:hover .dropdown-menu.show {
@@ -822,9 +824,9 @@
   </div>
 
   <div id="speed-controls">
-    <button class="speed-btn" id="speed-decrease" aria-label="Decrease speed">−</button>
-    <div id="speed-label">Speed: <span id="speed-value">1.0×</span></div>
     <button class="speed-btn" id="speed-increase" aria-label="Increase speed">+</button>
+    <div id="speed-label">Speed: <span id="speed-value">1.0×</span></div>
+    <button class="speed-btn" id="speed-decrease" aria-label="Decrease speed">−</button>
   </div>
 
   <div id="nav-controls">
