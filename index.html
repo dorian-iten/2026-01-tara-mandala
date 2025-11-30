@@ -133,7 +133,9 @@
 
     .dropdown-trigger {
       padding: 12px 16px;
-      background: rgba(255, 255, 255, 0.85);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border: none;
       border-radius: 10px;
       color: #2d1b4e;
@@ -141,7 +143,6 @@
       font-size: 16px;
       font-weight: 400;
       cursor: pointer;
-      backdrop-filter: none;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -188,6 +189,8 @@
       left: 0;
       right: 0;
       background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border: none;
       border-radius: 0 0 10px 10px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
@@ -240,13 +243,13 @@
     .dropdown-option:hover {
       color: rgba(45, 27, 78, 1);
       border-left-color: rgba(45, 27, 78, 0.5);
-      background: rgba(240, 235, 255, 0.5);
+      background: var(--dropdown-hover-bg, rgba(240, 235, 255, 0.5));
     }
 
     .dropdown-option.selected {
       color: rgba(45, 27, 78, 1);
       border-left-color: rgba(45, 27, 78, 0.5);
-      background: rgba(230, 220, 250, 0.4);
+      background: var(--dropdown-selected-bg, rgba(230, 220, 250, 0.4));
     }
 
     /* Speed controls - Light theme */
@@ -995,6 +998,25 @@
       return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
     }
 
+    // Helper function to create a pastel version of a hex color
+    function pastelizeColor(hex, whiteMix = 0.7) {
+      // Remove # if present
+      hex = hex.replace('#', '');
+
+      // Parse RGB
+      const r = parseInt(hex.substring(0, 2), 16);
+      const g = parseInt(hex.substring(2, 4), 16);
+      const b = parseInt(hex.substring(4, 6), 16);
+
+      // Mix with white to create pastel effect (higher whiteMix = more pastel)
+      const newR = Math.min(255, Math.floor(r * (1 - whiteMix) + 255 * whiteMix));
+      const newG = Math.min(255, Math.floor(g * (1 - whiteMix) + 255 * whiteMix));
+      const newB = Math.min(255, Math.floor(b * (1 - whiteMix) + 255 * whiteMix));
+
+      // Convert back to hex
+      return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
+    }
+
     // Helper function to calculate luminance from hex color
     function getColorLuminance(hexColor) {
       // Remove # if present
@@ -1124,6 +1146,34 @@
       navButtons.forEach(btn => {
         btn.style.color = buttonColor;
       });
+    }
+
+    // Update dropdown colors based on current mantra's TAM color
+    function updateDropdownColors() {
+      const tamColor = schemas[currentSchema]?.tamColor || '#ffffff';
+      
+      // Check if TAM color is white or very light (luminance > 0.9)
+      const luminance = getColorLuminance(tamColor);
+      let hoverColor, selectedColor;
+      
+      if (luminance > 0.9) {
+        // Use light gray for white/very light TAM colors
+        hoverColor = 'rgba(235, 235, 235, 0.5)';
+        selectedColor = 'rgba(235, 235, 235, 0.4)';
+      } else {
+        // Use pastel version of TAM color
+        const pastelColor = pastelizeColor(tamColor, 0.7);
+        const hex = pastelColor.replace('#', '');
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        hoverColor = `rgba(${r}, ${g}, ${b}, 0.5)`;
+        selectedColor = `rgba(${r}, ${g}, ${b}, 0.4)`;
+      }
+      
+      // Set CSS custom properties for dropdown hover and selected states
+      document.documentElement.style.setProperty('--dropdown-hover-bg', hoverColor);
+      document.documentElement.style.setProperty('--dropdown-selected-bg', selectedColor);
     }
 
     // Helper function to extract a representative color from gradient
@@ -1412,6 +1462,9 @@
       // Set initial nav button colors
       updateNavButtonColors();
 
+      // Set initial dropdown colors
+      updateDropdownColors();
+
       // Set initial moon disc outline color
       updateMoonDiscOutlineColor();
 
@@ -1553,6 +1606,9 @@
 
         // Update navigation button colors
         updateNavButtonColors();
+
+        // Update dropdown colors
+        updateDropdownColors();
 
         // Update moon disc outline color
         updateMoonDiscOutlineColor();
@@ -1786,6 +1842,9 @@
 
         // Update navigation button colors
         updateNavButtonColors();
+
+        // Update dropdown colors
+        updateDropdownColors();
 
         // Update moon disc outline color
         updateMoonDiscOutlineColor();
