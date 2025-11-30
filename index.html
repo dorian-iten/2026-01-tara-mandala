@@ -1217,13 +1217,17 @@
       updatePatternOpacity(gradientConfig, patternOpacityOverride); // Update pattern opacity when background changes
     }
 
-    // Check for URL parameter to show all mantras
+    // Check for URL parameter to control mantra visibility
+    // Default: show all mantras
+    // ?releasedonly: only show released mantras (reverts to old behavior)
+    // ?showall: show all mantras (kept for backwards compatibility, now default)
     const urlParams = new URLSearchParams(window.location.search);
-    const showAllMantras = urlParams.has('showall');
+    const showOnlyReleased = urlParams.has('releasedonly');
+    const showAllMantras = !showOnlyReleased; // Show all by default, unless releasedonly flag is set
 
     // Helper function to check if a mantra should be displayed
     function isMantraReleased(schema) {
-      // If showall parameter is present, show all mantras
+      // If showall is true (default, or ?showall flag), show all mantras
       if (showAllMantras) {
         return true;
       }
