@@ -123,6 +123,18 @@
       top: 20px;
       left: 20px;
       z-index: 20;
+      transition: opacity 0.4s ease-in-out, visibility 0.4s ease-in-out;
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Desktop only: hide controls when inactive */
+    @media (min-width: 769px) {
+      #schema-selector.controls-hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
     }
 
     .custom-dropdown {
@@ -1936,6 +1948,7 @@
       const speedControls = document.getElementById('speed-controls');
       const navControls = document.getElementById('nav-controls');
       const fullscreenToggle = document.getElementById('fullscreen-toggle');
+      const schemaSelector = document.getElementById('schema-selector');
 
       if (!speedControls || !navControls) {
         return;
@@ -1954,6 +1967,9 @@
         if (fullscreenToggle) {
           fullscreenToggle.classList.remove('controls-hidden');
         }
+        if (schemaSelector) {
+          schemaSelector.classList.remove('controls-hidden');
+        }
       }
 
       // Helper function to hide controls
@@ -1962,6 +1978,9 @@
         navControls.classList.add('controls-hidden');
         if (fullscreenToggle) {
           fullscreenToggle.classList.add('controls-hidden');
+        }
+        if (schemaSelector) {
+          schemaSelector.classList.add('controls-hidden');
         }
       }
 
