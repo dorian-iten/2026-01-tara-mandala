@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>21 Taras Gallery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Noto+Sans:wght@400;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    @keyframes rainbowSpin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    body {
+      font-family: "Noto Sans", system-ui, -apple-system, sans-serif;
+      background: #f4f0f8;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Spinning rainbow background - same as index.html */
+    .rainbow-spin {
+      position: fixed;
+      width: 200vmax;
+      height: 200vmax;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: repeating-conic-gradient(from 0deg at 50% 50%,
+        #edd8f5 0deg,
+        #d8edf5 7.5deg,
+        #d8f5e0 15deg,
+        #f5efd8 22.5deg,
+        #f5ddd8 30deg,
+        #ecd8f5 37.5deg,
+        #d8d8f5 45deg,
+        #d8ecf5 52.5deg,
+        #edd8f5 60deg
+      );
+      pointer-events: none;
+      z-index: -2;
+      animation: rainbowSpin 600s linear infinite;
+    }
+
+    .rainbow-center-fade {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 50% 50%,
+        rgba(255, 255, 255, 1) 0%,
+        rgba(255, 255, 255, 0.85) 4%,
+        rgba(255, 255, 255, 0.5) 8%,
+        rgba(255, 255, 255, 0.2) 12%,
+        rgba(255, 255, 255, 0) 18%
+      );
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      padding: 20px 0 30px;
+    }
+
+    .header h1 {
+      font-family: "Crimson Pro", serif;
+      font-size: 2.5rem;
+      font-weight: 600;
+      color: #2d1b4e;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 1rem;
+    }
+
+    .back-link {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      padding: 10px 18px;
+      border-radius: 25px;
+      text-decoration: none;
+      color: #2d1b4e;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+      transition: all 0.2s ease;
+    }
+
+    .back-link:hover {
+      background: rgba(255, 255, 255, 1);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+      transform: translateY(-1px);
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 16px;
+      max-width: 1800px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 1600px) {
+      .gallery-grid { grid-template-columns: repeat(6, 1fr); }
+    }
+    @media (max-width: 1400px) {
+      .gallery-grid { grid-template-columns: repeat(5, 1fr); }
+    }
+    @media (max-width: 1100px) {
+      .gallery-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+    @media (max-width: 900px) {
+      .gallery-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .header h1 { font-size: 1.8rem; }
+    }
+
+    .mantra-card {
+      aspect-ratio: 1;
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .mantra-card:hover {
+      transform: scale(1.03) translateY(-4px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .mantra-card a {
+      display: block;
+      width: 100%;
+      height: 100%;
+      text-decoration: none;
+    }
+
+    .canvas-container {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .render-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .mantra-info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 12px;
+      background: linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 100%);
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .mantra-number {
+      font-size: 1.1em;
+      font-weight: 700;
+      color: white;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    }
+
+    .mantra-name {
+      font-size: 0.75em;
+      font-weight: 500;
+      color: white;
+      opacity: 0.9;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+      line-height: 1.3;
+    }
+
+    .swatches {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      gap: 6px;
+      z-index: 10;
+    }
+
+    .swatch {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .swatch-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    .swatch-label {
+      font-size: 0.5em;
+      color: white;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+      opacity: 0.8;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="rainbow-spin"></div>
+  <div class="rainbow-center-fade"></div>
+
+  <a href="index.html" class="back-link">← Back to App</a>
+
+  <div class="content">
+    <div class="header">
+      <h1>The 21 Taras</h1>
+      <p>Gallery of all mantras</p>
+    </div>
+
+    <div class="gallery-grid" id="gallery">
+      <!-- Cards will be populated by JavaScript -->
+    </div>
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+
+    // Single shared renderer to avoid WebGL context limits
+    let sharedRenderer = null;
+    let sharedCamera = null;
+    const RENDER_SIZE = 512; // Render at fixed size for quality
+
+    function getSharedRenderer() {
+      if (!sharedRenderer) {
+        sharedRenderer = new THREE.WebGLRenderer({
+          antialias: true,
+          alpha: true,
+          preserveDrawingBuffer: true
+        });
+        sharedRenderer.setSize(RENDER_SIZE, RENDER_SIZE);
+        sharedRenderer.setPixelRatio(2);
+      }
+      return sharedRenderer;
+    }
+
+    function getSharedCamera() {
+      if (!sharedCamera) {
+        sharedCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+        sharedCamera.position.set(0, 1.5, 5.5);
+        sharedCamera.lookAt(0, 0, 0);
+      }
+      return sharedCamera;
+    }
+
+    // Helper to get mantra orb color
+    function getMantraOrbColor(mantra) {
+      if (mantra.orbColor && mantra.orbColor.hex) {
+        return new THREE.Color(mantra.orbColor.hex);
+      }
+      return new THREE.Color(0xf8f4ff);
+    }
+
+    // Extract short name
+    function getShortName(fullName) {
+      return fullName.replace(/^\d+\.\s*/, '').replace(/^Tara\s+/, '');
+    }
+
+    // Create scene objects for a mantra (reusable)
+    function createMantraScene(mantra) {
+      const scene = new THREE.Scene();
+      scene.fog = new THREE.Fog(0xe5f0f5, 5, 15);
+
+      const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
+      scene.add(ambientLight);
+
+      const mantraColor = getMantraOrbColor(mantra);
+
+      // Main orb with shader
+      const orbGeometry = new THREE.SphereGeometry(2, 48, 48);
+      const orbMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+          mantraColor: { value: mantraColor },
+          rainbow0: { value: new THREE.Color(0xf0e8f8) },
+          rainbow1: { value: new THREE.Color(0xe8f0f8) },
+          rainbow2: { value: new THREE.Color(0xe8f8f0) },
+          rainbow3: { value: new THREE.Color(0xf8f4e8) },
+          rainbow4: { value: new THREE.Color(0xf8ece8) },
+          rainbow5: { value: new THREE.Color(0xf4e8f8) },
+          rainbow6: { value: new THREE.Color(0xe8e8f8) },
+          rainbow7: { value: new THREE.Color(0xe8f4f8) },
+          rainbowCycles: { value: 8.0 },
+        },
+        vertexShader: `
+          varying vec3 vNormal;
+          varying vec3 vViewDir;
+          varying vec2 vScreenPos;
+          void main() {
+            vNormal = normalize(normalMatrix * normal);
+            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+            vViewDir = normalize(-mvPosition.xyz);
+            vec4 clipPos = projectionMatrix * mvPosition;
+            vScreenPos = clipPos.xy / clipPos.w;
+            gl_Position = clipPos;
+          }
+        `,
+        fragmentShader: `
+          uniform vec3 mantraColor;
+          uniform vec3 rainbow0, rainbow1, rainbow2, rainbow3;
+          uniform vec3 rainbow4, rainbow5, rainbow6, rainbow7;
+          uniform float rainbowCycles;
+          varying vec3 vNormal;
+          varying vec3 vViewDir;
+          varying vec2 vScreenPos;
+          #define PI 3.14159265359
+
+          vec3 getRainbowColor(float t) {
+            float segment = t * 8.0;
+            int idx = int(floor(segment));
+            float blend = fract(segment);
+            if (idx == 0) return mix(rainbow0, rainbow1, blend);
+            else if (idx == 1) return mix(rainbow1, rainbow2, blend);
+            else if (idx == 2) return mix(rainbow2, rainbow3, blend);
+            else if (idx == 3) return mix(rainbow3, rainbow4, blend);
+            else if (idx == 4) return mix(rainbow4, rainbow5, blend);
+            else if (idx == 5) return mix(rainbow5, rainbow6, blend);
+            else if (idx == 6) return mix(rainbow6, rainbow7, blend);
+            else return mix(rainbow7, rainbow0, blend);
+          }
+
+          void main() {
+            float fresnel = dot(vNormal, vViewDir);
+            fresnel = clamp(fresnel, 0.0, 1.0);
+            float angle = atan(vScreenPos.y, vScreenPos.x);
+            float normalizedAngle = (angle + PI) / (2.0 * PI);
+            float rayAngle = fract(normalizedAngle * rainbowCycles);
+            vec3 rainbow = getRainbowColor(rayAngle);
+
+            float whiteBlend = smoothstep(0.82, 0.98, fresnel);
+            whiteBlend = whiteBlend * whiteBlend * (3.0 - 2.0 * whiteBlend);
+            float rainbowStrength = smoothstep(0.55, 0.75, fresnel) * (1.0 - smoothstep(0.80, 0.95, fresnel));
+            float mantraBlend = 1.0 - smoothstep(0.15, 0.80, fresnel);
+
+            vec3 baseColor = rainbow;
+            vec3 tintedRainbow = mix(rainbow, mantraColor, 0.35 * mantraBlend);
+            baseColor = mix(tintedRainbow, mantraColor, mantraBlend * 0.85);
+            baseColor = mix(baseColor, rainbow, rainbowStrength * 0.7);
+            vec3 color = mix(baseColor, vec3(1.0), whiteBlend);
+
+            float alpha = smoothstep(0.0, 0.25, fresnel);
+            alpha = mix(alpha, 1.0, smoothstep(0.2, 0.5, fresnel));
+            gl_FragColor = vec4(color, alpha);
+          }
+        `,
+        transparent: true,
+        depthWrite: false,
+        side: THREE.FrontSide
+      });
+      const orb = new THREE.Mesh(orbGeometry, orbMaterial);
+      orb.renderOrder = -1;
+      scene.add(orb);
+
+      // Glow layer
+      const glowGeometry = new THREE.SphereGeometry(2.8, 32, 32);
+      const atmosphereMaterial = new THREE.ShaderMaterial({
+        vertexShader: `
+          varying vec3 vNormal;
+          void main() {
+            vNormal = normalize(normalMatrix * normal);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          varying vec3 vNormal;
+          void main() {
+            float intensity = pow(0.6 - dot(vNormal, vec3(0, 0, 1.0)), 2.0);
+            gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0) * intensity * 0.5;
+          }
+        `,
+        blending: THREE.AdditiveBlending,
+        side: THREE.BackSide,
+        transparent: true,
+        depthWrite: false
+      });
+      const glow = new THREE.Mesh(glowGeometry, atmosphereMaterial);
+      glow.renderOrder = -2;
+      scene.add(glow);
+
+      // Moon disc
+      const discGeom = new THREE.CircleGeometry(0.75, 64);
+      const discMat = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.95,
+        side: THREE.DoubleSide,
+        fog: false,
+        depthWrite: true
+      });
+      const moonDisc = new THREE.Mesh(discGeom, discMat);
+      moonDisc.rotation.x = -Math.PI / 2;
+      moonDisc.position.y = -0.5;
+      scene.add(moonDisc);
+
+      // Moon disc outline
+      const outlineGeom = new THREE.RingGeometry(0.735, 0.765, 64);
+      const outlineMat = new THREE.MeshBasicMaterial({
+        color: 0xaaaaaa,
+        transparent: true,
+        opacity: 0.35,
+        side: THREE.DoubleSide
+      });
+      const outline = new THREE.Mesh(outlineGeom, outlineMat);
+      outline.rotation.x = -Math.PI / 2;
+      outline.position.y = -0.49;
+      scene.add(outline);
+
+      return scene;
+    }
+
+    // Load TAM and add to scene, return promise
+    function loadTamForScene(scene, mantra) {
+      return new Promise(async (resolve) => {
+        try {
+          const response = await fetch('images/tam-paths.svg');
+          const svgText = await response.text();
+
+          const parser = new DOMParser();
+          const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+          const svgElement = svgDoc.documentElement;
+          const pathElement = svgElement.querySelector('path');
+
+          const tamColor = mantra.tamColor || '#ffffff';
+          const tamOutlineColor = mantra.tamOutlineColor || null;
+
+          if (pathElement) {
+            pathElement.setAttribute('fill', tamColor);
+            if (tamOutlineColor) {
+              pathElement.setAttribute('stroke', tamOutlineColor);
+              pathElement.setAttribute('stroke-width', '4');
+            }
+          }
+
+          const serializer = new XMLSerializer();
+          const modifiedSvg = serializer.serializeToString(svgElement);
+
+          const img = new Image();
+          const svgBlob = new Blob([modifiedSvg], { type: 'image/svg+xml;charset=utf-8' });
+          const url = URL.createObjectURL(svgBlob);
+
+          img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const scale = 2;
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.minFilter = THREE.LinearMipmapLinearFilter;
+            texture.magFilter = THREE.LinearFilter;
+            texture.generateMipmaps = true;
+            texture.needsUpdate = true;
+
+            const aspectRatio = img.width / img.height;
+            const height = 2.0;
+            const width = height * aspectRatio;
+
+            const planeGeometry = new THREE.PlaneGeometry(width, height);
+            const planeMaterial = new THREE.MeshBasicMaterial({
+              map: texture,
+              transparent: true,
+              side: THREE.DoubleSide,
+              depthTest: true,
+              fog: false
+            });
+
+            const tamPlane = new THREE.Mesh(planeGeometry, planeMaterial);
+            tamPlane.position.set(0, height / 2 - 0.5, 0);
+            scene.add(tamPlane);
+
+            URL.revokeObjectURL(url);
+            resolve();
+          };
+
+          img.onerror = () => {
+            URL.revokeObjectURL(url);
+            resolve();
+          };
+
+          img.src = url;
+        } catch (error) {
+          console.error('Failed to load TAM:', error);
+          resolve();
+        }
+      });
+    }
+
+    // Render scene to image data URL
+    function renderSceneToImage(scene) {
+      const renderer = getSharedRenderer();
+      const camera = getSharedCamera();
+      renderer.render(scene, camera);
+      return renderer.domElement.toDataURL('image/png');
+    }
+
+    // Load mantras and create gallery
+    async function loadGallery() {
+      try {
+        const response = await fetch(`mantras.json?t=${Date.now()}`, { cache: 'no-store' });
+        const config = await response.json();
+        const mantras = config.mantras;
+
+        const gallery = document.getElementById('gallery');
+
+        // Create all card HTML first
+        mantras.forEach((mantra, index) => {
+          const card = document.createElement('div');
+          card.className = 'mantra-card';
+
+          const tamColor = mantra.tamColor || '#ffffff';
+          const tamOutline = mantra.tamOutlineColor || null;
+          const orbColor = mantra.orbColor?.hex || '#f8f4ff';
+          const shortName = getShortName(mantra.name);
+
+          card.innerHTML = `
+            <a href="index.html?mantra=${index}">
+              <div class="canvas-container" id="canvas-${index}">
+                <img class="render-image" alt="Loading...">
+              </div>
+              <div class="swatches">
+                <div class="swatch">
+                  <div class="swatch-color" style="background: ${tamColor}; ${tamOutline ? `border-color: ${tamOutline};` : ''}"></div>
+                  <div class="swatch-label">TAṂ</div>
+                </div>
+                <div class="swatch">
+                  <div class="swatch-color" style="background: ${orbColor};"></div>
+                  <div class="swatch-label">Orb</div>
+                </div>
+              </div>
+              <div class="mantra-info">
+                <div class="mantra-number">${mantra.id}</div>
+                <div class="mantra-name">${shortName}</div>
+              </div>
+            </a>
+          `;
+
+          gallery.appendChild(card);
+        });
+
+        // Render each mantra sequentially using single renderer
+        for (let i = 0; i < mantras.length; i++) {
+          const mantra = mantras[i];
+          const scene = createMantraScene(mantra);
+
+          // Load TAM
+          await loadTamForScene(scene, mantra);
+
+          // Render to image
+          const imageUrl = renderSceneToImage(scene);
+
+          // Set image src
+          const container = document.getElementById(`canvas-${i}`);
+          const img = container.querySelector('.render-image');
+          if (img) {
+            img.src = imageUrl;
+          }
+
+          // Dispose scene to free memory
+          scene.traverse((obj) => {
+            if (obj.geometry) obj.geometry.dispose();
+            if (obj.material) {
+              if (obj.material.map) obj.material.map.dispose();
+              obj.material.dispose();
+            }
+          });
+
+          // Small delay to prevent UI blocking
+          if (i % 5 === 4) {
+            await new Promise(r => setTimeout(r, 10));
+          }
+        }
+
+      } catch (error) {
+        console.error('Failed to load mantras:', error);
+        document.getElementById('gallery').innerHTML = '<p style="color: red; padding: 20px;">Failed to load mantras. Please refresh.</p>';
+      }
+    }
+
+    loadGallery();
+  </script>
+</body>
+
+</html>

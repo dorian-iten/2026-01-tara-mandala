@@ -1483,8 +1483,11 @@
 
     let scene, camera, renderer, controls;
     let glowBall, textMeshes = [];
-    // Load saved mantra selection or default to 0
-    let currentSchema = parseInt(localStorage.getItem('mantraSelection_index') || '0');
+    // Load mantra selection: URL param > localStorage > default 0
+    const mantraParam = urlParams.get('mantra');
+    let currentSchema = mantraParam !== null
+      ? parseInt(mantraParam)
+      : parseInt(localStorage.getItem('mantraSelection_index') || '0');
     let audio = new Audio();
     let isPlaying = false;
     let composer;
