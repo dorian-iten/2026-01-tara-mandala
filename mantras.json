@@ -167,14 +167,14 @@
         "SVĀ",
         "HĀ"
       ],
-      "tamColor": "#ffc800",
+      "tamColor": "#c06818",
       "tamOutlineColor": null,
       "orbColor": {
         "name": "golden yellow",
-        "hex": "#e8a832"
+        "hex": "#f5ca75"
       },
       "syllableStyle": {
-        "fill": "#ffffff",
+        "fill": "#f0f0e0",
         "outlineColor": "#000000",
         "outlineWidth": 0.025
       },
@@ -228,14 +228,14 @@
         "SVĀ",
         "HĀ"
       ],
-      "tamColor": "#ffc800",
+      "tamColor": "#c06818",
       "tamOutlineColor": null,
       "orbColor": {
         "name": "golden yellow",
-        "hex": "#e8a832"
+        "hex": "#f5ca75"
       },
       "syllableStyle": {
-        "fill": "#ffffff",
+        "fill": "#f0f0e0",
         "outlineColor": "#000000",
         "outlineWidth": 0.025
       },
