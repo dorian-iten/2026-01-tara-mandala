@@ -22,21 +22,108 @@
       box-sizing: border-box;
     }
 
+    /* Magical sparkle animation for background */
+    @keyframes rainbowSparkle {
+      0%, 100% { 
+        filter: brightness(1.0) saturate(1.0);
+      }
+      25% { 
+        filter: brightness(1.02) saturate(1.03);
+      }
+      50% { 
+        filter: brightness(1.0) saturate(1.01);
+      }
+      75% { 
+        filter: brightness(1.01) saturate(1.0);
+      }
+    }
+    
+    /* Gentle rotation for the rainbow rays */
+    @keyframes rainbowSpin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
     body {
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, sans-serif;
-      background: radial-gradient(circle at center,
-          #f0e0ff 0%,
-          #e0f0ff 12.5%,
-          #e0ffe0 25%,
-          #fff8e0 37.5%,
-          #ffe0e8 50%,
-          #f0e0ff 62.5%,
-          #e0f0ff 75%,
-          #e0ffe0 87.5%,
-          #fff8e0 100%);
+      /* Base background color */
+      background: #f4f0f8;
       overflow: hidden;
       touch-action: none;
       position: relative;
+    }
+    
+    /* Spinning rainbow rays layer */
+    .rainbow-spin {
+      position: fixed;
+      /* Make it larger than viewport to avoid corners showing during rotation */
+      width: 200vmax;
+      height: 200vmax;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      /* Rainbow rays conic gradient - 6 repetitions (60deg each) */
+      background: repeating-conic-gradient(from 0deg at 50% 50%,
+        #edd8f5 0deg,
+        #d8edf5 7.5deg,
+        #d8f5e0 15deg,
+        #f5efd8 22.5deg,
+        #f5ddd8 30deg,
+        #ecd8f5 37.5deg,
+        #d8d8f5 45deg,
+        #d8ecf5 52.5deg,
+        #edd8f5 60deg
+      );
+      pointer-events: none;
+      z-index: -2;
+      animation: rainbowSpin 600s linear infinite, rainbowSparkle 8s ease-in-out infinite;
+    }
+    
+    /* White center fade overlay (static, doesn't spin) */
+    .rainbow-center-fade {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 50% 50%,
+        rgba(255, 255, 255, 1) 0%,
+        rgba(255, 255, 255, 0.85) 4%,
+        rgba(255, 255, 255, 0.5) 8%,
+        rgba(255, 255, 255, 0.2) 12%,
+        rgba(255, 255, 255, 0) 18%
+      );
+      pointer-events: none;
+      z-index: -1;
+    }
+    
+    /* Sparkle overlay for magical twinkle effect */
+    body::after {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 200%;
+      height: 200%;
+      background: 
+        radial-gradient(circle at 20% 30%, rgba(255,255,255,0.3) 0%, transparent 1%),
+        radial-gradient(circle at 80% 20%, rgba(255,255,255,0.25) 0%, transparent 0.8%),
+        radial-gradient(circle at 40% 70%, rgba(255,255,255,0.2) 0%, transparent 1.2%),
+        radial-gradient(circle at 65% 85%, rgba(255,255,255,0.3) 0%, transparent 0.6%),
+        radial-gradient(circle at 10% 60%, rgba(255,255,255,0.2) 0%, transparent 0.9%),
+        radial-gradient(circle at 90% 50%, rgba(255,255,255,0.25) 0%, transparent 1%),
+        radial-gradient(circle at 30% 10%, rgba(255,255,255,0.15) 0%, transparent 0.7%),
+        radial-gradient(circle at 55% 40%, rgba(255,255,255,0.2) 0%, transparent 1.1%);
+      background-size: 400px 400px;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.15;
+      animation: sparkleMove 20s linear infinite;
+    }
+    
+    @keyframes sparkleMove {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(-50%, -50%); }
     }
 
     body::before {
@@ -830,6 +917,8 @@
 </head>
 
 <body>
+  <div class="rainbow-spin"></div>
+  <div class="rainbow-center-fade"></div>
   <div id="vignette"></div>
   <div id="container"></div>
 
@@ -950,6 +1039,7 @@
             syllables: mantra.syllables,
             tamColor: mantra.tamColor || '#ffffff',
             tamOutlineColor: mantra.tamOutlineColor || null,
+            orbColor: mantra.orbColor || null, // New: orb color for sphere gradient
             outlineColor: outlineColor,
             syllableStyle: syllableStyle,
             backgroundGradient: mantra.backgroundGradient || null,
@@ -1268,25 +1358,42 @@
       vignetteEl.style.backgroundRepeat = 'no-repeat';
     }
 
-    // Apply background gradient from config
-    function applyBackgroundGradient(gradientConfig, patternOpacityOverride = null) {
-      if (!gradientConfig || !gradientConfig.colors) {
-        // Use default background
-        document.body.style.background = 'radial-gradient(circle at center, #f0e0ff 0%, #e0f0ff 12.5%, #e0ffe0 25%, #fff8e0 37.5%, #ffe0e8 50%, #f0e0ff 62.5%, #e0f0ff 75%, #e0ffe0 87.5%, #fff8e0 100%)';
-        updateVignette(null); // Update vignette for default background
-        updatePatternOpacity(null, patternOpacityOverride); // Update pattern for default background
-        return;
-      }
+    // Fixed page background: white center fade over 8 rainbow cycles
+    const FIXED_PAGE_BACKGROUND = `
+      radial-gradient(circle at 50% 50%,
+        rgba(255, 255, 255, 1) 0%,
+        rgba(255, 255, 255, 0.9) 5%,
+        rgba(255, 255, 255, 0.6) 10%,
+        rgba(255, 255, 255, 0.3) 15%,
+        rgba(255, 255, 255, 0) 25%
+      ),
+      repeating-conic-gradient(from 0deg at 50% 50%,
+        #f0e8f8 0deg,
+        #e8f0f8 5.625deg,
+        #e8f8f0 11.25deg,
+        #f8f4e8 16.875deg,
+        #f8ece8 22.5deg,
+        #f4e8f8 28.125deg,
+        #e8e8f8 33.75deg,
+        #e8f4f8 39.375deg,
+        #f0e8f8 45deg
+      )`;
 
-      const colors = gradientConfig.colors.map(c => `${c.color} ${c.position}%`).join(', ');
-      const gradientType = gradientConfig.type === 'linear' ? 'linear-gradient' : 'radial-gradient';
-      const gradientValue = gradientType === 'radial-gradient'
-        ? `radial-gradient(circle at center, ${colors})`
-        : `linear-gradient(${gradientConfig.direction || 'to bottom'}, ${colors})`;
-
-      document.body.style.background = gradientValue;
-      updateVignette(gradientConfig); // Update vignette when background changes
-      updatePatternOpacity(gradientConfig, patternOpacityOverride); // Update pattern opacity when background changes
+    // Apply background gradient - now always uses fixed rainbow, but still updates vignette/pattern/orb
+    function applyBackgroundGradient(schema, patternOpacityOverride = null) {
+      // Rainbow background is now handled via CSS with spinning animation
+      // Don't override body background here
+      
+      // Still update vignette based on mantra gradient for subtle theming
+      const gradientConfig = schema?.backgroundGradient || null;
+      updateVignette(gradientConfig);
+      
+      // Update pattern opacity based on fixed background luminance
+      // Use a default light luminance since our fixed background is pastel
+      updatePatternOpacity(null, patternOpacityOverride);
+      
+      // Update orb gradient with mantra's orbColor
+      updateOrbGradient(schema);
     }
 
     // Check for URL parameter to control mantra visibility
@@ -1468,13 +1575,8 @@
       // Validate and set current schema from localStorage
       currentSchema = getValidMantraIndex(currentSchema);
 
-      // Apply initial background gradient
-      if (schemas[currentSchema] && schemas[currentSchema].backgroundGradient) {
-        applyBackgroundGradient(schemas[currentSchema].backgroundGradient, schemas[currentSchema].patternOpacity);
-      } else {
-        // Apply default background with pattern opacity
-        applyBackgroundGradient(null, schemas[currentSchema]?.patternOpacity);
-      }
+      // Apply initial background gradient and orb color
+      applyBackgroundGradient(schemas[currentSchema], schemas[currentSchema]?.patternOpacity);
 
 
 
@@ -1606,13 +1708,8 @@
         currentSchema = value;
         saveMantraSelection(currentSchema);
 
-        // Apply background gradient for new schema
-        if (schemas[currentSchema] && schemas[currentSchema].backgroundGradient) {
-          applyBackgroundGradient(schemas[currentSchema].backgroundGradient, schemas[currentSchema].patternOpacity);
-        } else {
-          // Apply default background and vignette
-          applyBackgroundGradient(null, schemas[currentSchema]?.patternOpacity);
-        }
+        // Apply background gradient and orb color for new schema
+        applyBackgroundGradient(schemas[currentSchema], schemas[currentSchema]?.patternOpacity);
 
 
 
@@ -1845,12 +1942,8 @@
         currentSchema = nextMantra.index;
         saveMantraSelection(currentSchema);
 
-        // Apply background gradient for new schema
-        if (schemas[currentSchema] && schemas[currentSchema].backgroundGradient) {
-          applyBackgroundGradient(schemas[currentSchema].backgroundGradient, schemas[currentSchema].patternOpacity);
-        } else {
-          applyBackgroundGradient(null, schemas[currentSchema]?.patternOpacity);
-        }
+        // Apply background gradient and orb color for new schema
+        applyBackgroundGradient(schemas[currentSchema], schemas[currentSchema]?.patternOpacity);
 
         // Update text ring and TAM for new schema
         createTextRing(currentSchema);
@@ -2114,6 +2207,34 @@
       }
     }
 
+    // ============================================
+    // ORB FRESNEL SHADER (VIEW-DEPENDENT GRADIENT)
+    // ============================================
+    // The orb uses a Fresnel shader so the gradient follows the camera:
+    // - Center of visible sphere = white (normal facing camera)
+    // - Rainbow ring in middle
+    // - Edge/rim = mantra color (normal perpendicular to camera)
+
+    // Reference to orb mesh for shader updates
+    let orbMesh = null;
+
+    // Get mantra orb color from schema's orbColor field
+    function getMantraOrbColor(schema) {
+      if (!schema || !schema.orbColor || !schema.orbColor.hex) {
+        return new THREE.Color(0xe8e0f8); // Default soft lavender
+      }
+      return new THREE.Color(schema.orbColor.hex);
+    }
+
+    // Update orb color when mantra changes
+    function updateOrbGradient(schema) {
+      if (!orbMesh || !orbMesh.material.uniforms) return;
+      
+      const mantraColor = getMantraOrbColor(schema);
+      orbMesh.material.uniforms.mantraColor.value = mantraColor;
+      orbMesh.material.needsUpdate = true;
+    }
+
     // Create radial gradient texture for edge glow
     function createEdgeGlowTexture() {
       const size = 512;
@@ -2140,18 +2261,156 @@
     }
 
     function createGlowBall() {
-      // 1. Single Orb Geometry
+      // Single orb with Fresnel shader: white center → rainbow → mantra edge
+      // Uses view-dependent shading so center is always white from any angle
       const orbGeometry = new THREE.SphereGeometry(2, 64, 64);
-      const orbMaterial = new THREE.MeshBasicMaterial({
-        color: 0xffffff,
+      
+      // Get initial mantra orb color
+      const initialMantraColor = getMantraOrbColor(schemas[currentSchema]);
+      
+      // Fresnel shader material with angular rainbow rays
+      const orbMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+          mantraColor: { value: initialMantraColor },
+          time: { value: 0.0 }, // For sparkle animation
+          // 8 rainbow colors matching the page background rays
+          rainbow0: { value: new THREE.Color(0xf0e8f8) }, // Soft lavender
+          rainbow1: { value: new THREE.Color(0xe8f0f8) }, // Pale blue
+          rainbow2: { value: new THREE.Color(0xe8f8f0) }, // Soft mint
+          rainbow3: { value: new THREE.Color(0xf8f4e8) }, // Cream
+          rainbow4: { value: new THREE.Color(0xf8ece8) }, // Soft pink
+          rainbow5: { value: new THREE.Color(0xf4e8f8) }, // Lavender-pink
+          rainbow6: { value: new THREE.Color(0xe8e8f8) }, // Periwinkle
+          rainbow7: { value: new THREE.Color(0xe8f4f8) }, // Ice blue
+          rainbowCycles: { value: 8.0 }, // Number of rainbow repetitions
+        },
+        vertexShader: `
+          varying vec3 vNormal;
+          varying vec3 vViewDir;
+          varying vec2 vScreenPos;
+          
+          void main() {
+            vNormal = normalize(normalMatrix * normal);
+            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+            vViewDir = normalize(-mvPosition.xyz);
+            
+            // Pass screen position for angular calculation
+            vec4 clipPos = projectionMatrix * mvPosition;
+            vScreenPos = clipPos.xy / clipPos.w;
+            
+            gl_Position = clipPos;
+          }
+        `,
+        fragmentShader: `
+          uniform vec3 mantraColor;
+          uniform float time;
+          uniform vec3 rainbow0, rainbow1, rainbow2, rainbow3;
+          uniform vec3 rainbow4, rainbow5, rainbow6, rainbow7;
+          uniform float rainbowCycles;
+          
+          varying vec3 vNormal;
+          varying vec3 vViewDir;
+          varying vec2 vScreenPos;
+          
+          #define PI 3.14159265359
+          
+          // Soft sine-based shimmer for natural, flowing sparkle
+          float shimmer(vec2 pos, float t, float freq, float speed) {
+            return sin(pos.x * freq + t * speed) * sin(pos.y * freq * 1.3 + t * speed * 0.7);
+          }
+          
+          // Get rainbow color based on angle (0-1)
+          vec3 getRainbowColor(float t) {
+            // t is 0-1 representing position in one rainbow cycle
+            float segment = t * 8.0;
+            int idx = int(floor(segment));
+            float blend = fract(segment);
+            
+            // Cycle through 8 colors
+            if (idx == 0) return mix(rainbow0, rainbow1, blend);
+            else if (idx == 1) return mix(rainbow1, rainbow2, blend);
+            else if (idx == 2) return mix(rainbow2, rainbow3, blend);
+            else if (idx == 3) return mix(rainbow3, rainbow4, blend);
+            else if (idx == 4) return mix(rainbow4, rainbow5, blend);
+            else if (idx == 5) return mix(rainbow5, rainbow6, blend);
+            else if (idx == 6) return mix(rainbow6, rainbow7, blend);
+            else return mix(rainbow7, rainbow0, blend);
+          }
+          
+          void main() {
+            // Fresnel: 1.0 at center (facing camera), 0.0 at edge (perpendicular)
+            float fresnel = dot(vNormal, vViewDir);
+            fresnel = clamp(fresnel, 0.0, 1.0);
+            
+            // Calculate angle from center for rainbow rays (0 to 1, repeating)
+            float angle = atan(vScreenPos.y, vScreenPos.x); // -PI to PI
+            float normalizedAngle = (angle + PI) / (2.0 * PI); // 0 to 1
+            float rayAngle = fract(normalizedAngle * rainbowCycles); // 8 cycles
+            
+            // Get rainbow color for this ray
+            vec3 rainbow = getRainbowColor(rayAngle);
+            
+            // Radial shimmer - waves radiating outward from center
+            float dist = length(vScreenPos); // Distance from center
+            
+            // Radial waves moving outward (negative time = outward motion)
+            float radialWave1 = sin(dist * 12.0 - time * 1.2);
+            float radialWave2 = sin(dist * 8.0 - time * 0.8 + 1.5);
+            float radialWave3 = sin(dist * 18.0 - time * 1.5);
+            
+            // Add subtle angular variation so it's not perfectly uniform rings
+            float angleVar = sin(normalizedAngle * 16.0 + time * 0.3) * 0.3;
+            
+            // Combine radial waves with angular variation
+            float sparkle = (radialWave1 + radialWave2 * 0.6 + radialWave3 * 0.3 + angleVar) / 2.2;
+            sparkle = sparkle * 0.5 + 0.5; // Normalize to 0-1
+            sparkle = smoothstep(0.25, 0.75, sparkle); // Soft threshold
+            float sparkleIntensity = sparkle * 0.12; // 12% brightness variation
+            
+            // Apply shimmer to rainbow colors (additive)
+            rainbow = rainbow + sparkleIntensity;
+            
+            // Smooth continuous gradient from center to edge (no hard boundaries)
+            // Uses overlapping smoothstep blends for seamless transitions
+            
+            // White center blend - small bright center (very center only)
+            float whiteBlend = smoothstep(0.82, 0.98, fresnel);
+            whiteBlend = whiteBlend * whiteBlend * (3.0 - 2.0 * whiteBlend); // Extra smooth cubic
+            
+            // Rainbow zone - narrow band between mantra and white
+            float rainbowStrength = smoothstep(0.55, 0.75, fresnel) * (1.0 - smoothstep(0.80, 0.95, fresnel));
+            
+            // Mantra color - extends much closer to center
+            float mantraBlend = 1.0 - smoothstep(0.15, 0.80, fresnel);
+            
+            // Build color by layering: start with rainbow, blend mantra at edges, white at center
+            vec3 baseColor = rainbow;
+            
+            // Blend in mantra color - stronger presence extending toward center
+            vec3 tintedRainbow = mix(rainbow, mantraColor, 0.35 * mantraBlend);
+            baseColor = mix(tintedRainbow, mantraColor, mantraBlend * 0.85);
+            
+            // Blend rainbow in the transition zone
+            baseColor = mix(baseColor, rainbow, rainbowStrength * 0.7);
+            
+            // Finally blend white at very center
+            vec3 color = mix(baseColor, vec3(1.0), whiteBlend);
+            
+            // Alpha: fully opaque at center, fades at very edge
+            float alpha = smoothstep(0.0, 0.25, fresnel);
+            alpha = mix(alpha, 1.0, smoothstep(0.2, 0.5, fresnel));
+            
+            gl_FragColor = vec4(color, alpha);
+          }
+        `,
         transparent: true,
-        opacity: 0.9, // Slightly transparent to look like light
         depthWrite: false,
         side: THREE.FrontSide
       });
-      const orb = new THREE.Mesh(orbGeometry, orbMaterial);
-      orb.renderOrder = -1;
-      sceneGroup.add(orb);
+      
+      orbMesh = new THREE.Mesh(orbGeometry, orbMaterial);
+      orbMesh.renderOrder = -1;
+      sceneGroup.add(orbMesh);
 
       // 2. Glow Gradient on the outside (Custom Shader)
       const glowGeometry = new THREE.SphereGeometry(2.8, 64, 64); // Larger for the glow
@@ -2247,8 +2506,8 @@
       glow2.renderOrder = -3; // Render before the inner glow
       sceneGroup.add(glow2);
 
-      // Moon disc - WHITE horizontal disc where TAM stands
-      const discGeom = new THREE.CircleGeometry(1.5, 128);
+      // Moon disc - WHITE horizontal disc where TAM stands (50% smaller)
+      const discGeom = new THREE.CircleGeometry(0.75, 128); // Was 1.5, now 0.75
       const discMat = new THREE.MeshBasicMaterial({
         color: 0xffffff,
         transparent: true,
@@ -2263,8 +2522,8 @@
       moonDisc.renderOrder = 0; // Render after orb but before outline
       sceneGroup.add(moonDisc);
 
-      // Outline ring for moon disc (always gray)
-      const outlineGeom = new THREE.RingGeometry(1.485, 1.515, 128); // Slightly thicker: 0.03 thickness
+      // Outline ring for moon disc (always gray) - 50% smaller
+      const outlineGeom = new THREE.RingGeometry(0.735, 0.765, 128); // Was 1.485-1.515, now 0.735-0.765
       moonDiscOutlineMat = new THREE.MeshBasicMaterial({
         color: 0xaaaaaa, // Darker gray for all mantras
         transparent: true,
@@ -2493,6 +2752,21 @@
     // Orientation mode: 'billboard' or 'ring'
     let orientationMode = 'ring';
 
+    // Helper function to determine if a hex color is "light" based on luminance
+    function isLightColor(hexColor) {
+      // Remove # if present
+      const hex = hexColor.replace('#', '');
+      // Parse RGB values
+      const r = parseInt(hex.substr(0, 2), 16);
+      const g = parseInt(hex.substr(2, 2), 16);
+      const b = parseInt(hex.substr(4, 2), 16);
+      // Calculate relative luminance (perceived brightness)
+      // Using the formula: 0.299*R + 0.587*G + 0.114*B
+      const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+      // Consider colors with luminance > 0.65 as "light"
+      return luminance > 0.65;
+    }
+
     // Helper function to create texture from canvas with outlined text and proper aspect ratio
     // Returns { texture, aspectRatio } where aspectRatio = width/height
     function createTextTextureWithOutline(text, fontSize = 64, fillColor = '#ffffff', outlineColor = '#000000', outlineWidth = 3) {
@@ -2655,10 +2929,18 @@
       const angleOffset = -angleStep * startIndex;
 
       // Get syllable style configuration
-      const syllableStyle = schemas[schemaIndex].syllableStyle || {};
-      const fillColor = syllableStyle.fill || '#ffffff';
-      const outlineColor = syllableStyle.outlineColor || '#000000';
-      const outlineWidth = (syllableStyle.outlineWidth || 0) * 200; // Scale for canvas
+      // Syllables are filled with TAM color and have light/white outline
+      // Exception: light mantras (indicated by tamOutlineColor or light TAM) get a dark-ish outline
+      const schema = schemas[schemaIndex];
+      const tamColor = schema.tamColor || '#ffffff';
+      const tamOutlineColor = schema.tamOutlineColor || null;
+      
+      // Determine if this is a "light" mantra by checking tamOutlineColor or TAM luminance
+      const isLightMantra = tamOutlineColor !== null || isLightColor(tamColor);
+      
+      const fillColor = tamColor;
+      const outlineColor = isLightMantra ? 'rgba(60, 60, 60, 0.7)' : 'rgba(255, 255, 255, 0.85)';
+      const outlineWidth = 4; // Fixed outline width for consistent look
 
       // Pre-create all textures to get their aspect ratios
       const syllableData = syllables.map(syl => {
@@ -2741,6 +3023,11 @@
 
     function animate() {
       requestAnimationFrame(animate);
+
+      // Update time uniform for sparkle animation
+      if (orbMesh && orbMesh.material.uniforms && orbMesh.material.uniforms.time) {
+        orbMesh.material.uniforms.time.value = performance.now() * 0.001; // Time in seconds
+      }
 
       // Make TAM always face the camera (Y-axis only)
       if (tamPlane) {
