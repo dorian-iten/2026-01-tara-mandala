@@ -183,12 +183,84 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      background: linear-gradient(
+        145deg,
+        rgba(235, 225, 245, 0.8) 0%,
+        rgba(220, 230, 245, 0.7) 50%,
+        rgba(235, 240, 250, 0.8) 100%
+      );
     }
 
     .render-image {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .render-image.loaded {
+      opacity: 1;
+    }
+
+    /* Loading shimmer placeholder */
+    @keyframes shimmer {
+      0% {
+        background-position: -200% 0;
+      }
+      100% {
+        background-position: 200% 0;
+      }
+    }
+
+    .canvas-container::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        110deg,
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0.3) 20%,
+        rgba(255, 255, 255, 0.5) 40%,
+        rgba(255, 255, 255, 0.3) 60%,
+        rgba(255, 255, 255, 0.1) 100%
+      );
+      background-size: 200% 100%;
+      animation: shimmer 1.8s ease-in-out infinite;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity 0.4s ease;
+    }
+
+    .canvas-container.loaded::before {
+      opacity: 0;
+    }
+
+    /* Soft orb placeholder icon */
+    .canvas-container::after {
+      content: '';
+      position: absolute;
+      width: 50%;
+      height: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: radial-gradient(
+        circle at 35% 35%,
+        rgba(255, 255, 255, 0.6) 0%,
+        rgba(230, 220, 240, 0.4) 30%,
+        rgba(200, 180, 220, 0.2) 60%,
+        transparent 70%
+      );
+      z-index: 0;
+      opacity: 1;
+      transition: opacity 0.4s ease;
+    }
+
+    .canvas-container.loaded::after {
+      opacity: 0;
     }
 
     .mantra-info {
@@ -277,6 +349,51 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .tara-image-card img.loaded {
+      opacity: 1;
+    }
+
+    /* Shimmer for Tara image cards */
+    .tara-image-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        145deg,
+        rgba(235, 225, 245, 0.9) 0%,
+        rgba(220, 230, 245, 0.85) 50%,
+        rgba(235, 240, 250, 0.9) 100%
+      );
+      z-index: 0;
+    }
+
+    .tara-image-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        110deg,
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0.3) 20%,
+        rgba(255, 255, 255, 0.5) 40%,
+        rgba(255, 255, 255, 0.3) 60%,
+        rgba(255, 255, 255, 0.1) 100%
+      );
+      background-size: 200% 100%;
+      animation: shimmer 1.8s ease-in-out infinite;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity 0.4s ease;
+    }
+
+    .tara-image-card.loaded::before,
+    .tara-image-card.loaded::after {
+      opacity: 0;
     }
 
     .tara-image-card .mantra-info {
@@ -819,11 +936,13 @@
           // Render to image
           const imageUrl = renderSceneToImage(scene);
 
-          // Set image src
+          // Set image src and mark as loaded
           const container = document.getElementById(`canvas-${i}`);
           const img = container.querySelector('.render-image');
           if (img) {
             img.src = imageUrl;
+            img.classList.add('loaded');
+            container.classList.add('loaded');
           }
 
           // Dispose scene to free memory
@@ -856,6 +975,18 @@
               <div class="mantra-name">${shortName}</div>
             </div>
           `;
+
+          // Add loaded class when image loads
+          const img = card.querySelector('img');
+          img.onload = () => {
+            img.classList.add('loaded');
+            card.classList.add('loaded');
+          };
+          // Handle cached images
+          if (img.complete) {
+            img.classList.add('loaded');
+            card.classList.add('loaded');
+          }
 
           card.addEventListener('click', () => openLightbox(index, mantras));
           taraImagesGrid.appendChild(card);
