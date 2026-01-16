@@ -25,6 +25,10 @@
       ],
       "tamColor": "#db0000",
       "tamOutlineColor": null,
+      "orbColor": {
+        "name": "red",
+        "hex": "#e85555"
+      },
       "syllableStyle": {
         "fill": "#ffffff",
         "outlineColor": "#000000",
@@ -85,6 +89,10 @@
       ],
       "tamColor": "#ffffff",
       "tamOutlineColor": "#404040",
+      "orbColor": {
+        "name": "white",
+        "hex": "#f8f4ff"
+      },
       "syllableStyle": {
         "fill": "#ffffff",
         "outlineColor": "#000000",
@@ -161,6 +169,10 @@
       ],
       "tamColor": "#ffc800",
       "tamOutlineColor": null,
+      "orbColor": {
+        "name": "golden yellow",
+        "hex": "#e8a832"
+      },
       "syllableStyle": {
         "fill": "#ffffff",
         "outlineColor": "#000000",
@@ -218,6 +230,10 @@
       ],
       "tamColor": "#ffc800",
       "tamOutlineColor": null,
+      "orbColor": {
+        "name": "golden yellow",
+        "hex": "#e8a832"
+      },
       "syllableStyle": {
         "fill": "#ffffff",
         "outlineColor": "#000000",
@@ -275,6 +291,10 @@
       ],
       "tamColor": "#c70000",
       "tamOutlineColor": null,
+      "orbColor": {
+        "name": "red",
+        "hex": "#e85555"
+      },
       "syllableStyle": {
         "fill": "#ffffff",
         "outlineColor": "#000000",
@@ -333,6 +353,10 @@
       ],
       "tamColor": "#6b0025",
       "tamOutlineColor": null,
+      "orbColor": {
+        "name": "dark red",
+        "hex": "#a84040"
+      },
       "syllableStyle": {
         "fill": "#ffffff",
         "outlineColor": "#000000",
@@ -393,6 +417,10 @@
       ],
       "tamColor": "#080075",
       "tamOutlineColor": null,
+      "orbColor": {
+        "name": "blue-black",
+        "hex": "#4848a8"
+      },
       "syllableStyle": {
         "fill": "#ffffff",
         "outlineColor": "#000000",
@@ -451,6 +479,10 @@
       ],
       "tamColor": "#6b0025",
       "tamOutlineColor": null,
+      "orbColor": {
+        "name": "dark red",
+        "hex": "#a84040"
+      },
       "syllableStyle": {
         "fill": "#ffffff",
         "outlineColor": "#000000",
@@ -506,6 +538,10 @@
       ],
       "tamColor": "#003d26",
       "tamOutlineColor": null,
+      "orbColor": {
+        "name": "emerald green",
+        "hex": "#40a868"
+      },
       "syllableStyle": {
         "fill": "#ffffff",
         "outlineColor": "#000000",
@@ -560,6 +596,10 @@
       ],
       "tamColor": "#cc0047",
       "tamOutlineColor": null,
+      "orbColor": {
+        "name": "red",
+        "hex": "#e85555"
+      },
       "syllableStyle": {
         "fill": "#ffffff",
         "outlineColor": "#000000",
@@ -619,6 +659,10 @@
       ],
       "tamColor": "#db4200",
       "tamOutlineColor": null,
+      "orbColor": {
+        "name": "golden red",
+        "hex": "#e87850"
+      },
       "syllableStyle": {
         "fill": "#ffffff",
         "outlineColor": "#000000",
@@ -679,6 +723,10 @@
       ],
       "tamColor": "#cc7700",
       "tamOutlineColor": null,
+      "orbColor": {
+        "name": "golden yellow",
+        "hex": "#e8a832"
+      },
       "syllableStyle": {
         "fill": "#ffffff",
         "outlineColor": "#000000",
@@ -737,6 +785,10 @@
       ],
       "tamColor": "#750000",
       "tamOutlineColor": null,
+      "orbColor": {
+        "name": "dark red",
+        "hex": "#a84040"
+      },
       "syllableStyle": {
         "fill": "#ffffff",
         "outlineColor": "#000000",
@@ -791,6 +843,10 @@
       ],
       "tamColor": "#080075",
       "tamOutlineColor": null,
+      "orbColor": {
+        "name": "blue-black",
+        "hex": "#4848a8"
+      },
       "syllableStyle": {
         "fill": "#ffffff",
         "outlineColor": "#000000",
@@ -851,6 +907,10 @@
       ],
       "tamColor": "#f8f8f7",
       "tamOutlineColor": "#404040",
+      "orbColor": {
+        "name": "white",
+        "hex": "#f8f4ff"
+      },
       "syllableStyle": {
         "fill": "#ffffff",
         "outlineColor": "#000000",
@@ -929,6 +989,10 @@
       ],
       "tamColor": "#cc0047",
       "tamOutlineColor": null,
+      "orbColor": {
+        "name": "red",
+        "hex": "#e85555"
+      },
       "syllableStyle": {
         "fill": "#ffffff",
         "outlineColor": "#000000",
@@ -984,6 +1048,10 @@
       ],
       "tamColor": "#ff2424",
       "tamOutlineColor": null,
+      "orbColor": {
+        "name": "golden red",
+        "hex": "#e87850"
+      },
       "syllableStyle": {
         "fill": "#ffffff",
         "outlineColor": "#000000",
@@ -1043,6 +1111,10 @@
       ],
       "tamColor": "#ffffff",
       "tamOutlineColor": "#404040",
+      "orbColor": {
+        "name": "white",
+        "hex": "#f8f4ff"
+      },
       "syllableStyle": {
         "fill": "#ffffff",
         "outlineColor": "#000000",
@@ -1123,6 +1195,10 @@
       ],
       "tamColor": "#ffffff",
       "tamOutlineColor": "#404040",
+      "orbColor": {
+        "name": "white",
+        "hex": "#f8f4ff"
+      },
       "syllableStyle": {
         "fill": "#ffffff",
         "outlineColor": "#000000",
@@ -1205,6 +1281,10 @@
       ],
       "tamColor": "#ff5900",
       "tamOutlineColor": null,
+      "orbColor": {
+        "name": "saffron yellow",
+        "hex": "#e89040"
+      },
       "syllableStyle": {
         "fill": "#ffffff",
         "outlineColor": "#000000",
@@ -1264,6 +1344,10 @@
       ],
       "tamColor": "#ffffff",
       "tamOutlineColor": "#404040",
+      "orbColor": {
+        "name": "white",
+        "hex": "#f8f4ff"
+      },
       "syllableStyle": {
         "fill": "#ffffff",
         "outlineColor": "#000000",
