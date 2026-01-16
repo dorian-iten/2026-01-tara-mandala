@@ -118,6 +118,16 @@
       transform: translateY(-1px);
     }
 
+    @media (max-width: 600px) {
+      .back-link {
+        position: relative;
+        top: auto;
+        left: auto;
+        display: inline-block;
+        margin: 10px 0 0 10px;
+      }
+    }
+
     .gallery-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
@@ -300,38 +310,62 @@
       visibility: visible;
     }
 
-    .lightbox img {
+    .lightbox-spread {
+      display: flex;
+      gap: 4px;
       max-width: 90vw;
-      max-height: 90vh;
-      object-fit: contain;
-      border-radius: 8px;
-      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+      max-height: 85vh;
       transform: scale(0.9);
       transition: transform 0.3s ease;
     }
 
-    .lightbox.active img {
+    .lightbox.active .lightbox-spread {
       transform: scale(1);
+    }
+
+    .lightbox-spread img {
+      max-height: 85vh;
+      width: auto;
+      object-fit: contain;
+      border-radius: 4px;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    @media (max-width: 900px) {
+      .lightbox-spread {
+        flex-direction: column;
+        gap: 8px;
+      }
+      .lightbox-spread img {
+        max-height: 42vh;
+        max-width: 90vw;
+      }
     }
 
     .lightbox-info {
       position: absolute;
-      bottom: 30px;
+      bottom: 24px;
       left: 50%;
       transform: translateX(-50%);
       text-align: center;
       color: white;
       pointer-events: none;
+      display: flex;
+      align-items: baseline;
+      gap: 0.4em;
+      font-size: 1.1em;
     }
 
     .lightbox-info .mantra-number {
-      font-size: 1.5em;
       font-weight: 700;
     }
 
     .lightbox-info .mantra-name {
-      font-size: 1.1em;
-      opacity: 0.9;
+      opacity: 0.85;
+    }
+
+    .lightbox-spread {
+      margin-bottom: 50px;
     }
 
     .lightbox-close {
@@ -401,12 +435,11 @@
   <div class="rainbow-spin"></div>
   <div class="rainbow-center-fade"></div>
 
-  <a href="index.html" class="back-link">← Back to App</a>
-
   <div class="content">
+    <a href="index.html" class="back-link">← Back to App</a>
     <div class="header">
       <h1>The 21 Taras</h1>
-      <p>Gallery of all mantras</p>
+      <p>Gallery of all mantra visualizations</p>
     </div>
 
     <div class="gallery-grid" id="gallery">
@@ -432,7 +465,10 @@
     <button class="lightbox-close" aria-label="Close">×</button>
     <button class="lightbox-nav lightbox-prev" aria-label="Previous">‹</button>
     <button class="lightbox-nav lightbox-next" aria-label="Next">›</button>
-    <img src="" alt="">
+    <div class="lightbox-spread">
+      <img class="img-a" src="" alt="">
+      <img class="img-b" src="" alt="">
+    </div>
     <div class="lightbox-info">
       <div class="mantra-number"></div>
       <div class="mantra-name"></div>
@@ -857,8 +893,10 @@
       const shortName = getShortName(mantra.name);
 
       const lightbox = document.getElementById('lightbox');
-      lightbox.querySelector('img').src = `images/tara/${imageNum}a.jpeg`;
-      lightbox.querySelector('img').alt = mantra.name;
+      lightbox.querySelector('.img-a').src = `images/tara/${imageNum}a.jpeg`;
+      lightbox.querySelector('.img-a').alt = `${mantra.name} - A`;
+      lightbox.querySelector('.img-b').src = `images/tara/${imageNum}b.jpeg`;
+      lightbox.querySelector('.img-b').alt = `${mantra.name} - B`;
       lightbox.querySelector('.mantra-number').textContent = mantra.id;
       lightbox.querySelector('.mantra-name').textContent = shortName;
     }
