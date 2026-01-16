@@ -238,6 +238,162 @@
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
       opacity: 0.8;
     }
+
+    /* Tara image cards */
+    .tara-image-card {
+      aspect-ratio: 1;
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .tara-image-card:hover {
+      transform: scale(1.03) translateY(-4px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .tara-image-card a {
+      display: block;
+      width: 100%;
+      height: 100%;
+      text-decoration: none;
+    }
+
+    .tara-image-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .tara-image-card .mantra-info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 12px;
+      background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%);
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* Lightbox */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      cursor: zoom-out;
+    }
+
+    .lightbox.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .lightbox img {
+      max-width: 90vw;
+      max-height: 90vh;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+      transform: scale(0.9);
+      transition: transform 0.3s ease;
+    }
+
+    .lightbox.active img {
+      transform: scale(1);
+    }
+
+    .lightbox-info {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      color: white;
+      pointer-events: none;
+    }
+
+    .lightbox-info .mantra-number {
+      font-size: 1.5em;
+      font-weight: 700;
+    }
+
+    .lightbox-info .mantra-name {
+      font-size: 1.1em;
+      opacity: 0.9;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 44px;
+      height: 44px;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease;
+    }
+
+    .lightbox-close:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .lightbox-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 50px;
+      height: 50px;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease;
+    }
+
+    .lightbox-nav:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .lightbox-prev { left: 20px; }
+    .lightbox-next { right: 20px; }
+
+    /* Footer */
+    .gallery-footer {
+      text-align: center;
+      padding: 60px 20px 40px;
+      font-size: 0.85em;
+      color: rgba(80, 60, 100, 0.4);
+      letter-spacing: 0.02em;
+    }
+
+    .gallery-footer .heart {
+      color: rgba(180, 100, 140, 0.5);
+      font-size: 1.1em;
+    }
   </style>
 </head>
 
@@ -255,6 +411,31 @@
 
     <div class="gallery-grid" id="gallery">
       <!-- Cards will be populated by JavaScript -->
+    </div>
+
+    <div class="header" style="margin-top: 40px;">
+      <h1>Traditional Depictions</h1>
+      <p>The 21 Taras in classical form</p>
+    </div>
+
+    <div class="gallery-grid" id="tara-images">
+      <!-- Tara images will be populated by JavaScript -->
+    </div>
+
+    <footer class="gallery-footer">
+      Created with <span class="heart">♥</span> by Dorian Iten
+    </footer>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" aria-label="Close">×</button>
+    <button class="lightbox-nav lightbox-prev" aria-label="Previous">‹</button>
+    <button class="lightbox-nav lightbox-next" aria-label="Next">›</button>
+    <img src="" alt="">
+    <div class="lightbox-info">
+      <div class="mantra-number"></div>
+      <div class="mantra-name"></div>
     </div>
   </div>
 
@@ -624,10 +805,102 @@
           }
         }
 
+        // Populate traditional Tara images with lightbox
+        const taraImagesGrid = document.getElementById('tara-images');
+        mantras.forEach((mantra, index) => {
+          const card = document.createElement('div');
+          card.className = 'tara-image-card';
+          const shortName = getShortName(mantra.name);
+          const imageNum = index + 1;
+
+          card.innerHTML = `
+            <img src="images/tara/${imageNum}a.jpeg" alt="${mantra.name}" loading="lazy">
+            <div class="mantra-info">
+              <div class="mantra-number">${mantra.id}</div>
+              <div class="mantra-name">${shortName}</div>
+            </div>
+          `;
+
+          card.addEventListener('click', () => openLightbox(index, mantras));
+          taraImagesGrid.appendChild(card);
+        });
+
+        // Lightbox functionality
+        setupLightbox(mantras);
+
       } catch (error) {
         console.error('Failed to load mantras:', error);
         document.getElementById('gallery').innerHTML = '<p style="color: red; padding: 20px;">Failed to load mantras. Please refresh.</p>';
       }
+    }
+
+    // Lightbox state
+    let currentLightboxIndex = 0;
+    let lightboxMantras = [];
+
+    function openLightbox(index, mantras) {
+      currentLightboxIndex = index;
+      lightboxMantras = mantras;
+      updateLightboxContent();
+      document.getElementById('lightbox').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function updateLightboxContent() {
+      const mantra = lightboxMantras[currentLightboxIndex];
+      const imageNum = currentLightboxIndex + 1;
+      const shortName = getShortName(mantra.name);
+
+      const lightbox = document.getElementById('lightbox');
+      lightbox.querySelector('img').src = `images/tara/${imageNum}a.jpeg`;
+      lightbox.querySelector('img').alt = mantra.name;
+      lightbox.querySelector('.mantra-number').textContent = mantra.id;
+      lightbox.querySelector('.mantra-name').textContent = shortName;
+    }
+
+    function nextImage() {
+      currentLightboxIndex = (currentLightboxIndex + 1) % lightboxMantras.length;
+      updateLightboxContent();
+    }
+
+    function prevImage() {
+      currentLightboxIndex = (currentLightboxIndex - 1 + lightboxMantras.length) % lightboxMantras.length;
+      updateLightboxContent();
+    }
+
+    function setupLightbox(mantras) {
+      const lightbox = document.getElementById('lightbox');
+
+      // Close on background click
+      lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox) closeLightbox();
+      });
+
+      // Close button
+      lightbox.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
+
+      // Nav buttons
+      lightbox.querySelector('.lightbox-prev').addEventListener('click', (e) => {
+        e.stopPropagation();
+        prevImage();
+      });
+      lightbox.querySelector('.lightbox-next').addEventListener('click', (e) => {
+        e.stopPropagation();
+        nextImage();
+      });
+
+      // Keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        if (!lightbox.classList.contains('active')) return;
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowLeft') prevImage();
+        if (e.key === 'ArrowRight') nextImage();
+      });
     }
 
     loadGallery();
